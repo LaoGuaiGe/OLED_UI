@@ -5,44 +5,44 @@
 
 
 
-/*ä¸­æ–‡å­—ç¬¦å­—èŠ‚å®½åº¦*/
-#define OLED_CHN_CHAR_WIDTH			(2)		//UTF-8ç¼–ç æ ¼å¼ç»™3ï¼ŒGB2312ç¼–ç æ ¼å¼ç»™2
+/*ÖĞÎÄ×Ö·û×Ö½Ú¿í¶È*/
+#define OLED_CHN_CHAR_WIDTH			(2)		//UTF-8±àÂë¸ñÊ½¸ø3£¬GB2312±àÂë¸ñÊ½¸ø2
 
-/*å­—æ¨¡åŸºæœ¬å•å…ƒ*/
+/*×ÖÄ£»ù±¾µ¥Ôª*/
 typedef struct 
 {
-	char Index[OLED_CHN_CHAR_WIDTH + 1];	//æ±‰å­—ç´¢å¼•
-	uint8_t Data[60];						//å­—æ¨¡æ•°æ®
+	char Index[OLED_CHN_CHAR_WIDTH + 1];	//ºº×ÖË÷Òı
+	uint8_t Data[60];						//×ÖÄ£Êı¾İ
 } ChineseCell20x20_t;
 typedef struct 
 {
-	char Index[OLED_CHN_CHAR_WIDTH + 1];	//æ±‰å­—ç´¢å¼•
-	uint8_t Data[32];						//å­—æ¨¡æ•°æ®
+	char Index[OLED_CHN_CHAR_WIDTH + 1];	//ºº×ÖË÷Òı
+	uint8_t Data[32];						//×ÖÄ£Êı¾İ
 } ChineseCell16x16_t;
 typedef struct 
 {
-    char Index[OLED_CHN_CHAR_WIDTH + 1];   // æ±‰å­—ç´¢å¼•
-    uint8_t Data[24];                      // å­—æ¨¡æ•°æ®ï¼Œ12*12çš„æ±‰å­—éœ€è¦24å­—èŠ‚
+    char Index[OLED_CHN_CHAR_WIDTH + 1];   // ºº×ÖË÷Òı
+    uint8_t Data[24];                      // ×ÖÄ£Êı¾İ£¬12*12µÄºº×ÖĞèÒª24×Ö½Ú
 } ChineseCell12x12_t;
 
 typedef struct 
 {
-    char Index[OLED_CHN_CHAR_WIDTH + 1];   // æ±‰å­—ç´¢å¼•
-    uint8_t Data[8];                      // å­—æ¨¡æ•°æ®ï¼Œ8*8çš„æ±‰å­—éœ€è¦24å­—èŠ‚
+    char Index[OLED_CHN_CHAR_WIDTH + 1];   // ºº×ÖË÷Òı
+    uint8_t Data[8];                      // ×ÖÄ£Êı¾İ£¬8*8µÄºº×ÖĞèÒª24×Ö½Ú
 } ChineseCell8x8_t;
 
-/*ASCIIå­—æ¨¡æ•°æ®å£°æ˜*/
+/*ASCII×ÖÄ£Êı¾İÉùÃ÷*/
 extern const uint8_t OLED_F10x20[][30];
 extern const uint8_t OLED_F8x16[][16];
 extern const uint8_t OLED_F7x12[][14];
 extern const uint8_t OLED_F6x8[][6];
 
-/*æ±‰å­—å­—æ¨¡æ•°æ®å£°æ˜*/
+/*ºº×Ö×ÖÄ£Êı¾İÉùÃ÷*/
 extern const ChineseCell20x20_t OLED_CF20x20[];
 extern const ChineseCell16x16_t OLED_CF16x16[];
-extern const ChineseCell12x12_t OLED_CF12x12[];  // å£°æ˜12x12å­—æ¨¡æ•°ç»„
-extern const ChineseCell8x8_t OLED_CF8x8[];  // å£°æ˜12x12å­—æ¨¡æ•°ç»„
-/*å›¾åƒæ•°æ®å£°æ˜*/
+extern const ChineseCell12x12_t OLED_CF12x12[];  // ÉùÃ÷12x12×ÖÄ£Êı×é
+extern const ChineseCell8x8_t OLED_CF8x8[];  // ÉùÃ÷12x12×ÖÄ£Êı×é
+/*Í¼ÏñÊı¾İÉùÃ÷*/
 extern const uint8_t Arrow[];
 extern const uint8_t Arrow1[];
 extern const uint8_t UnKnown[];
@@ -72,7 +72,7 @@ extern const uint8_t Image_alipay_QR_Code[];
 extern const uint8_t OLED_UI_SettingsLogo[];
 
 extern const uint8_t Gif_cube[][128];
-/*æŒ‰ç…§ä¸Šé¢çš„æ ¼å¼ï¼Œåœ¨è¿™ä¸ªä½ç½®åŠ å…¥æ–°çš„å›¾åƒæ•°æ®å£°æ˜*/
+/*°´ÕÕÉÏÃæµÄ¸ñÊ½£¬ÔÚÕâ¸öÎ»ÖÃ¼ÓÈëĞÂµÄÍ¼ÏñÊı¾İÉùÃ÷*/
 //...
 
 #endif

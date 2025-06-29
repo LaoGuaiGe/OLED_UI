@@ -1,69 +1,69 @@
 #ifndef __OLED_UI_H
 #define __OLED_UI_H
-// æ£€æµ‹æ˜¯å¦æ˜¯C++ç¼–è¯‘å™¨
+// ¼ì²âÊÇ·ñÊÇC++±àÒëÆ÷
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*å¦‚æœéœ€è¦ä½¿ç”¨OLED_UIåº“ï¼Œè¯·ä¸è¦å°†æ­¤è¡Œæ³¨é‡Šæ‰ */
+/*Èç¹ûĞèÒªÊ¹ÓÃOLED_UI¿â£¬Çë²»Òª½«´ËĞĞ×¢ÊÍµô */
 #define OLED_UI 
 
 #ifdef OLED_UI
 
-#include "OLED_UI_Launcher.h"
-#include "OLED_UI_Driver.h"
-#include "OLED.h"
+
+#include "Driver\Hardware_Driver\OLED_UI_Driver.h"
+#include "Driver\Software_Driver\OLED.h"
 #include "stdint.h"
 #include "stdbool.h"
 
-// æ˜¾å­˜ç¼“å­˜åŒº
+// ÏÔ´æ»º´æÇø
 extern uint8_t OLED_DisplayBuf[OLED_HEIGHT/8][OLED_WIDTH];
 
 /************************************************************/
-/***********************ç”¨æˆ·å¯ä»¥é…ç½®çš„å®å®šä¹‰******************/
+/***********************ÓÃ»§¿ÉÒÔÅäÖÃµÄºê¶¨Òå******************/
 
-// /***********å…³äºåˆ—è¡¨ç±»èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹äºèœå•åŒºåŸŸçš„ä½ç½®çš„å®***********/
-// #define LIST_STARTPOINT_X				  (4)			//èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹äºèœå•åŒºåŸŸçš„Xåæ ‡
-// #define LIST_STARTPOINT_Y				  (2)			//èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹äºèœå•åŒºåŸŸçš„Yåæ ‡
+// /***********¹ØÓÚÁĞ±íÀà²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÓÚ²Ëµ¥ÇøÓòµÄÎ»ÖÃµÄºê***********/
+// #define LIST_STARTPOINT_X				  (4)			//²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÓÚ²Ëµ¥ÇøÓòµÄX×ø±ê
+// #define LIST_STARTPOINT_Y				  (2)			//²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÓÚ²Ëµ¥ÇøÓòµÄY×ø±ê
 
-/***********å…³äºç£è´´ç±»èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹å±å¹•é¡¶éƒ¨ä½ç½®çš„å®***********/
-#define TILES_STARTPOINT_Y			(6)			//ç£è´´ç±»èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹äºå±å¹•é¡¶éƒ¨çš„Yåæ ‡
+/***********¹ØÓÚ´ÅÌùÀà²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÆÁÄ»¶¥²¿Î»ÖÃµÄºê***********/
+#define TILES_STARTPOINT_Y			(6)			//´ÅÌùÀà²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÓÚÆÁÄ»¶¥²¿µÄY×ø±ê
 
-/***********å…³äºç£è´´ç±»èœå•é¡¹çš„æ»šåŠ¨æ¡å¼€å§‹ç‚¹ç›¸å¯¹ç£è´´åº•éƒ¨ä½ç½®çš„å®***********/
-#define TILES_SCROLLBAR_Y			(5)			//ç£è´´ç±»èœå•é¡¹å¼€å§‹ç‚¹ç›¸å¯¹äºå±å¹•é¡¶éƒ¨çš„Yåæ ‡
+/***********¹ØÓÚ´ÅÌùÀà²Ëµ¥ÏîµÄ¹ö¶¯Ìõ¿ªÊ¼µãÏà¶Ô´ÅÌùµ×²¿Î»ÖÃµÄºê***********/
+#define TILES_SCROLLBAR_Y			(5)			//´ÅÌùÀà²Ëµ¥Ïî¿ªÊ¼µãÏà¶ÔÓÚÆÁÄ»¶¥²¿µÄY×ø±ê
 
-/***********å…³äºç£è´´ç±»èœå•é¡¹æ–‡å­—è·ç¦»å±å¹•åº•éƒ¨çš„è·ç¦»çš„å®***********/
-#define TILES_BOTTOM_DISTANCE						(0)			//ç£è´´ç±»èœå•é¡¹æ–‡å­—è·ç¦»å±å¹•åº•éƒ¨çš„è·ç¦»
+/***********¹ØÓÚ´ÅÌùÀà²Ëµ¥ÏîÎÄ×Ö¾àÀëÆÁÄ»µ×²¿µÄ¾àÀëµÄºê***********/
+#define TILES_BOTTOM_DISTANCE						(0)			//´ÅÌùÀà²Ëµ¥ÏîÎÄ×Ö¾àÀëÆÁÄ»µ×²¿µÄ¾àÀë
 
-/************å…³äºèœå•é¡¹æ¨ªå‘æ»šåŠ¨é€Ÿåº¦çš„å®**********************/
-//å½“èœå•é¡¹é•¿åº¦è¶…è¿‡èœå•åŒºåŸŸå®½åº¦æ—¶ï¼Œæœ¬uiæ¡†æ¶ä¼šè‡ªåŠ¨å®ç°èœå•é¡¹çš„æ¨ªå‘æ»šåŠ¨æ˜¾ç¤ºï¼Œè¿™æ˜¯èœå•é¡¹æ¨ªå‘æ»šåŠ¨æ­¥é•¿ï¼ˆæ¯ä¸€å¸§æ»šåŠ¨çš„åƒç´ è·ç¦»ï¼‰
-#define LINE_SLIP_SPEED			(0.05)			//èœå•é¡¹æ¨ªå‘æ»šåŠ¨é€Ÿåº¦ã€å¯ä»¥æ˜¯å°æ•°ï¼Œä½†æ˜¯æœ€å¥½æ˜¯1çš„æ•´æ•°å€æˆ–è€…1çš„å¶æ•°åˆ†ä¹‹ä¸€å€ã€‘
-#define GIFICON_SLIP_SPEED			(100)			//Gifçš„æ’­æ”¾é€Ÿåº¦ã€æ¯ XX FPSæ’­æ”¾ä¸€å¸§Gifã€‘
+/************¹ØÓÚ²Ëµ¥ÏîºáÏò¹ö¶¯ËÙ¶ÈµÄºê**********************/
+//µ±²Ëµ¥Ïî³¤¶È³¬¹ı²Ëµ¥ÇøÓò¿í¶ÈÊ±£¬±¾ui¿ò¼Ü»á×Ô¶¯ÊµÏÖ²Ëµ¥ÏîµÄºáÏò¹ö¶¯ÏÔÊ¾£¬ÕâÊÇ²Ëµ¥ÏîºáÏò¹ö¶¯²½³¤£¨Ã¿Ò»Ö¡¹ö¶¯µÄÏñËØ¾àÀë£©
+#define LINE_SLIP_SPEED			(0.05)			//²Ëµ¥ÏîºáÏò¹ö¶¯ËÙ¶È¡¾¿ÉÒÔÊÇĞ¡Êı£¬µ«ÊÇ×îºÃÊÇ1µÄÕûÊı±¶»òÕß1µÄÅ¼Êı·ÖÖ®Ò»±¶¡¿
+#define GIFICON_SLIP_SPEED			(100)			//GifµÄ²¥·ÅËÙ¶È¡¾Ã¿ XX FPS²¥·ÅÒ»Ö¡Gif¡¿
 
 
-/************å…³äºèœå•é¡¹å‰ç¼€ç¬¦å·çš„å®**********************/
+/************¹ØÓÚ²Ëµ¥ÏîÇ°×º·ûºÅµÄºê**********************/
 
-#define FUNCTION_PREFIX			    "~"			//å‡½æ•°å‰ç¼€ç¬¦å·
-#define SUBMENU_PREFIX				">"			//èœå•å‰ç¼€ç¬¦å·
-#define RADIO_PREFIX				"*"			//å•é€‰æ¡†å‰ç¼€ç¬¦å·
-#define NONE_PREFIX					"-"			//æ— æ“ä½œå‰ç¼€ç¬¦å·
+#define FUNCTION_PREFIX			    "~"			//º¯ÊıÇ°×º·ûºÅ
+#define SUBMENU_PREFIX				">"			//²Ëµ¥Ç°×º·ûºÅ
+#define RADIO_PREFIX				"*"			//µ¥Ñ¡¿òÇ°×º·ûºÅ
+#define NONE_PREFIX					"-"			//ÎŞ²Ù×÷Ç°×º·ûºÅ
 
-#define LINEPERFIX_DISTANCE			(2)			//è¡Œå‰ç¼€ç¬¦å·ä¸åæ–¹æ–‡å­—çš„è·ç¦»
+#define LINEPERFIX_DISTANCE			(2)			//ĞĞÇ°×º·ûºÅÓëºó·½ÎÄ×ÖµÄ¾àÀë
 
-/*******************å…³äºæ˜¯å¦ç­‰å¾…åŠ¨ç”»åŠ è½½å®Œæ¯•å†æ»šåŠ¨é•¿æ–‡æœ¬çš„å®******************/
+/*******************¹ØÓÚÊÇ·ñµÈ´ı¶¯»­¼ÓÔØÍê±ÏÔÙ¹ö¶¯³¤ÎÄ±¾µÄºê******************/
 
 #define IF_WAIT_ANIMATION_FINISH          (true)
 
-/*******************å…³äºé•¿æŒ‰æŒ‰é”®çš„å®******************/
-#define IF_START_UP_AND_DOWN_LONG_PRESS    (true)   //æ˜¯å¦å¼€å¯ä¸ŠæŒ‰é”®ä¸ä¸‹æŒ‰é”®çš„é•¿æŒ‰åŠŸèƒ½
-#define PRESS_TIME                      (0.8)    //æŒ‰ä¸‹æŒ‰é”®è§†ä¸ºé•¿æŒ‰çš„æ—¶é—´ï¼ˆå•ä½ç§’ï¼‰
-#define CONTINUE_PRESS_TIME             (2)    //åœ¨é•¿æŒ‰0.8ç§’ä¹‹åç»§ç»­é•¿æŒ‰çš„æ—¶é—´ï¼ˆå•ä½ç§’ï¼‰
-#define PRESS_MOVE_SPEED                (10)      //é•¿æŒ‰æŒ‰é”®ä¹‹åé€‰é¡¹æ»šåŠ¨çš„é€Ÿåº¦ï¼Œ1ä¸ºæœ€å¿«ï¼Œæ•°å­—è¶Šå¤§è¶Šæ…¢ã€‚
-#define CONTINUE_PRESS_MOVE_SPEED       (1)      //é•¿æŒ‰æŒ‰é”®ä¹‹åç»§ç»­é•¿æŒ‰CONTINUE_PRESS_TIMEç§’åé€‰é¡¹æ»šåŠ¨çš„é€Ÿåº¦ï¼Œ1ä¸ºæœ€å¿«ï¼Œæ•°å­—è¶Šå¤§è¶Šæ…¢ã€‚
-/*******************å…³äºçª—å£æ–‡å­—ä¸æ•°æ®ä¹‹é—´è·ç¦»çš„å®******************/
+/*******************¹ØÓÚ³¤°´°´¼üµÄºê******************/
+#define IF_START_UP_AND_DOWN_LONG_PRESS    (true)   //ÊÇ·ñ¿ªÆôÉÏ°´¼üÓëÏÂ°´¼üµÄ³¤°´¹¦ÄÜ
+#define PRESS_TIME                      (0.8)    //°´ÏÂ°´¼üÊÓÎª³¤°´µÄÊ±¼ä£¨µ¥Î»Ãë£©
+#define CONTINUE_PRESS_TIME             (2)    //ÔÚ³¤°´0.8ÃëÖ®ºó¼ÌĞø³¤°´µÄÊ±¼ä£¨µ¥Î»Ãë£©
+#define PRESS_MOVE_SPEED                (10)      //³¤°´°´¼üÖ®ºóÑ¡Ïî¹ö¶¯µÄËÙ¶È£¬1Îª×î¿ì£¬Êı×ÖÔ½´óÔ½Âı¡£
+#define CONTINUE_PRESS_MOVE_SPEED       (1)      //³¤°´°´¼üÖ®ºó¼ÌĞø³¤°´CONTINUE_PRESS_TIMEÃëºóÑ¡Ïî¹ö¶¯µÄËÙ¶È£¬1Îª×î¿ì£¬Êı×ÖÔ½´óÔ½Âı¡£
+/*******************¹ØÓÚ´°¿ÚÎÄ×ÖÓëÊı¾İÖ®¼ä¾àÀëµÄºê******************/
 #define WINDOW_DATA_TEXT_DISTANCE           (4)
 
-/**************å…³äºæ·¡å‡ºæ¯å¸§çš„æ—¶é—´çš„å®**********/
-#define FADEOUT_TIME					(40)			//èœå•é¡¹æ·¡å‡ºæ¯å¸§çš„æ—¶é—´
+/**************¹ØÓÚµ­³öÃ¿Ö¡µÄÊ±¼äµÄºê**********/
+#define FADEOUT_TIME					(40)			//²Ëµ¥Ïîµ­³öÃ¿Ö¡µÄÊ±¼ä
 
 /************************************************************/
 
@@ -73,97 +73,97 @@ extern uint8_t OLED_DisplayBuf[OLED_HEIGHT/8][OLED_WIDTH];
 
 
 
-/**********ç”¨æˆ·æ— éœ€é…ç½®çš„å®å®šä¹‰ã€ä»¥ä¸‹å®å®šä¹‰ä¸è¦æ”¹åŠ¨ã€‘********/
+/**********ÓÃ»§ÎŞĞèÅäÖÃµÄºê¶¨Òå¡¾ÒÔÏÂºê¶¨Òå²»Òª¸Ä¶¯¡¿********/
 
-/***********æœ‰å…³å…‰æ ‡ç±»å‹çš„å®***********/
-#define REVERSE_RECTANGLE 				(0)			//çŸ©å½¢åè‰²
-#define REVERSE_ROUNDRECTANGLE 		(1)			//åœ†è§’çŸ©å½¢åè‰²
-#define HOLLOW_RECTANGLE 					(2)			//ç©ºå¿ƒçŸ©å½¢
-#define HOLLOW_ROUNDRECTANGLE 			(3)			//ç©ºå¿ƒåœ†è§’çŸ©å½¢
-#define REVERSE_BLOCK						(4)			//ä¸‹åˆ’çº¿
-#define NOT_SHOW							(5)			//ä¸æ˜¾ç¤ºå…‰æ ‡
+/***********ÓĞ¹Ø¹â±êÀàĞÍµÄºê***********/
+#define REVERSE_RECTANGLE 				(0)			//¾ØĞÎ·´É«
+#define REVERSE_ROUNDRECTANGLE 		(1)			//Ô²½Ç¾ØĞÎ·´É«
+#define HOLLOW_RECTANGLE 					(2)			//¿ÕĞÄ¾ØĞÎ
+#define HOLLOW_ROUNDRECTANGLE 			(3)			//¿ÕĞÄÔ²½Ç¾ØĞÎ
+#define REVERSE_BLOCK						(4)			//ÏÂ»®Ïß
+#define NOT_SHOW							(5)			//²»ÏÔÊ¾¹â±ê
 
-/***********å…³äºUIå­—ä½“å¤§å°çš„å®***********/
+/***********¹ØÓÚUI×ÖÌå´óĞ¡µÄºê***********/
 #define OLED_UI_FONT_8	   		 (8)
 #define OLED_UI_FONT_12			  	(12)
 #define OLED_UI_FONT_16		  		(16)
 #define OLED_UI_FONT_20		  		(20)
 
-#define CHINESE						(0)			//ä¸­æ–‡
+#define CHINESE						(0)			//ÖĞÎÄ
 #define ASCII						(1)			//ASCII
-/***********å…³äºæ˜¾ç¤ºæ¨¡å¼çš„å®***********/
-#define DARKMODE						true			//æ·±è‰²æ¨¡å¼
-#define LIGHTMODE						false			//æµ…è‰²æ¨¡å¼
+/***********¹ØÓÚÏÔÊ¾Ä£Ê½µÄºê***********/
+#define DARKMODE						true			//ÉîÉ«Ä£Ê½
+#define LIGHTMODE						false			//Ç³É«Ä£Ê½
 
 
 
-/***********å…³äºäº’æ–¥é”æˆ–è€…æ ‡å¿—ä½çš„å®***********/
+/***********¹ØÓÚ»¥³âËø»òÕß±êÖ¾Î»µÄºê***********/
 #define FLAGEND			  	      (0)
 #define FLAGSTART		      (1)
 #define ENTER_FLAGSTART	   		      (1)
 #define BACK_FLAGSTART		      (2)
 
 
-/************å…³äºèœå•ç»“æ„ä½“å½“ä¸­å…³äºèœå•åŒºåŸŸçš„å®***********/
+/************¹ØÓÚ²Ëµ¥½á¹¹Ìåµ±ÖĞ¹ØÓÚ²Ëµ¥ÇøÓòµÄºê***********/
 #define FULLSCREEN      1,1,OLED_WIDTH-2,OLED_HEIGHT-2
 
-/*********************å…³äºç¡®è®¤è¿”å›çš„å®********************** */
+/*********************¹ØÓÚÈ·ÈÏ·µ»ØµÄºê********************** */
 #define OLED_UI_BACK    			(0)
 #define OLED_UI_ENTER   			(1)
 
-/*********************å…³äºèœå•ç±»å‹çš„å®********************** */
+/*********************¹ØÓÚ²Ëµ¥ÀàĞÍµÄºê********************** */
 
-#define MENU_TYPE_LIST				(0)			//åˆ—è¡¨ç±»å‹
-#define MENU_TYPE_TILES				(1)			//ç£è´´ç±»å‹
-#define MENU_TYPE_EMPTY				(2)			//ç©ºç™½ç±»å‹
+#define MENU_TYPE_LIST				(0)			//ÁĞ±íÀàĞÍ
+#define MENU_TYPE_TILES				(1)			//´ÅÌùÀàĞÍ
+#define MENU_TYPE_EMPTY				(2)			//¿Õ°×ÀàĞÍ
 
-/*********************å…³äºåŠ¨ç”»ç±»å‹çš„å®********************** */
+/*********************¹ØÓÚ¶¯»­ÀàĞÍµÄºê********************** */
 #define UNLINEAR 			      (0)
 #define PID_CURVE     	 	      (1)
 
-/*********************å…³äºçª—å£ç±»å‹çš„å®********************** */
-#define WINDOW_RECTANGLE			(0)			//çŸ©å½¢çª—å£
-#define WINDOW_ROUNDRECTANGLE		(1)			//åœ†è§’çŸ©å½¢çª—å£
+/*********************¹ØÓÚ´°¿ÚÀàĞÍµÄºê********************** */
+#define WINDOW_RECTANGLE			(0)			//¾ØĞÎ´°¿Ú
+#define WINDOW_ROUNDRECTANGLE		(1)			//Ô²½Ç¾ØĞÎ´°¿Ú
 
-/*********************å…³äºçª—å£æ•°æ®ç±»å‹çš„å®* ***************/
-#define WINDOW_DATA_STYLE_NONE	    (-1)			//ç©º
-#define WINDOW_DATA_STYLE_FLOAT		(0)			//æµ®ç‚¹å‹æ•°æ®
-#define WINDOW_DATA_STYLE_INT		(1)			//æ•´å‹æ•°æ®
+/*********************¹ØÓÚ´°¿ÚÊı¾İÀàĞÍµÄºê* ***************/
+#define WINDOW_DATA_STYLE_NONE	    (-1)			//¿Õ
+#define WINDOW_DATA_STYLE_FLOAT		(0)			//¸¡µãĞÍÊı¾İ
+#define WINDOW_DATA_STYLE_INT		(1)			//ÕûĞÍÊı¾İ
 
 
 
-/***************************å®å®šä¹‰****************************/
+/***************************ºê¶¨Òå****************************/
 /************************************************************/
 
-/*è¡¨ç¤ºèœå•ç±»å‹çš„æ•°æ®ç»“æ„*/
+/*±íÊ¾²Ëµ¥ÀàĞÍµÄÊı¾İ½á¹¹*/
 typedef int8_t MenuStyle;
 
 
-/*è¡¨ç¤ºèœå•IDçš„æ•°æ®ç»“æ„*/
+/*±íÊ¾²Ëµ¥IDµÄÊı¾İ½á¹¹*/
 typedef int16_t MenuID;
 
-/*è¡¨ç¤ºèœå•IDçš„æ•°æ®ç»“æ„*/
+/*±íÊ¾²Ëµ¥IDµÄÊı¾İ½á¹¹*/
 typedef float MenuMovingSpeed;
 
-/*è¡¨ç¤ºèœå•IDçš„æ•°æ®ç»“æ„*/
+/*±íÊ¾²Ëµ¥IDµÄÊı¾İ½á¹¹*/
 typedef int8_t OLED_Font;
 
-/*è¡¨ç¤ºäº’æ–¥é”æˆ–æ ‡å¿—ä½çš„æ•°æ®ç»“æ„ï¼Œåªæœ‰ä¸¤ç§çŠ¶æ€FLAGSTARTä¸FLAGEND*/
+/*±íÊ¾»¥³âËø»ò±êÖ¾Î»µÄÊı¾İ½á¹¹£¬Ö»ÓĞÁ½ÖÖ×´Ì¬FLAGSTARTÓëFLAGEND*/
 typedef int8_t MutexFlag;
 
-/*èœå•idç»“æ„ä½“ï¼Œå­˜å‚¨ç€ç»è¿‡é™åˆ¶çš„èœå•idå’Œä¸ç»è¿‡é™åˆ¶çš„èœå•id*/
+/*²Ëµ¥id½á¹¹Ìå£¬´æ´¢×Å¾­¹ıÏŞÖÆµÄ²Ëµ¥idºÍ²»¾­¹ıÏŞÖÆµÄ²Ëµ¥id*/
 typedef struct MenuID_Type{
 	MenuID Safe;
 	MenuID Unsafe;
 }MenuID_Type;
 
-/*OLED_UIå½“ä¸­æœ‰ç‚¹åæ ‡çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞÓĞµã×ø±êµÄ½á¹¹Ìå*/
 typedef struct OLED_Point{
 	float X; 
 	float Y;
 } OLED_Point;
 
-/*OLED_UIå½“ä¸­æœ‰å…³ä½ç½®ä¸å¤§å°çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞÓĞ¹ØÎ»ÖÃÓë´óĞ¡µÄ½á¹¹Ìå*/
 typedef struct  OLED_Area{
     float X;
     float Y;
@@ -171,99 +171,99 @@ typedef struct  OLED_Area{
     float Height;
 } OLED_Area;
 
-/*OLED_UIå½“ä¸­ç”¨äºå­˜æ”¾æŒ‰é”®é˜µåˆ—æ•°æ®çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞÓÃÓÚ´æ·Å°´¼üÕóÁĞÊı¾İµÄ½á¹¹Ìå*/
 typedef struct OLED_Key{ 
-	uint8_t Enter;	//ç¡®è®¤é”®
-	uint8_t Back;	//è¿”å›é”®
-	uint8_t Up;		//ä¸Š
-	uint8_t Down;	//ä¸‹
+	uint8_t Enter;	//È·ÈÏ¼ü
+	uint8_t Back;	//·µ»Ø¼ü
+	uint8_t Up;		//ÉÏ
+	uint8_t Down;	//ÏÂ
 } OLED_Key;
 
-/*OLED_UIå½“ä¸­å­˜æ”¾å…‰æ ‡ä¿¡æ¯çš„ç»“æ„ä½“ã€ç”¨äºåˆ¶é€ å…‰æ ‡ç§»åŠ¨æ•ˆæœã€‘ */
+/*OLED_UIµ±ÖĞ´æ·Å¹â±êĞÅÏ¢µÄ½á¹¹Ìå¡¾ÓÃÓÚÖÆÔì¹â±êÒÆ¶¯Ğ§¹û¡¿ */
 typedef struct OLED_ChangeArea{
-	OLED_Area CurrentArea;	//å½“å‰å…‰æ ‡åŒºåŸŸ
-	OLED_Area TargetArea;		//ç›®æ ‡å…‰æ ‡åŒºåŸŸ
-	OLED_Area Error;			//è¯¯å·®å€¼
-	OLED_Area LastError;		//ä¸Šä¸€æ¬¡çš„è¯¯å·®å€¼
-	OLED_Area Integral;		//ç§¯åˆ†å€¼
-	OLED_Area Derivative;		//å¾®åˆ†å€¼
+	OLED_Area CurrentArea;	//µ±Ç°¹â±êÇøÓò
+	OLED_Area TargetArea;		//Ä¿±ê¹â±êÇøÓò
+	OLED_Area Error;			//Îó²îÖµ
+	OLED_Area LastError;		//ÉÏÒ»´ÎµÄÎó²îÖµ
+	OLED_Area Integral;		//»ı·ÖÖµ
+	OLED_Area Derivative;		//Î¢·ÖÖµ
 
 }OLED_ChangeArea;
 
 typedef struct OLED_ChangePoint{
-	OLED_Point CurrentPoint;	//å½“å‰ç‚¹åæ ‡
-	OLED_Point TargetPoint;		//ç›®æ ‡ç‚¹åæ ‡
-	OLED_Point Error;			//è¯¯å·®å€¼
-	OLED_Point LastError;		//ä¸Šä¸€æ¬¡çš„è¯¯å·®å€¼
-	OLED_Point Integral;		//ç§¯åˆ†å€¼
-	OLED_Point Derivative;		//å¾®åˆ†å€¼
+	OLED_Point CurrentPoint;	//µ±Ç°µã×ø±ê
+	OLED_Point TargetPoint;		//Ä¿±êµã×ø±ê
+	OLED_Point Error;			//Îó²îÖµ
+	OLED_Point LastError;		//ÉÏÒ»´ÎµÄÎó²îÖµ
+	OLED_Point Integral;		//»ı·ÖÖµ
+	OLED_Point Derivative;		//Î¢·ÖÖµ
 
 }OLED_ChangePoint;
 
 /**
- * @brief æ­¤ç»“æ„ä½“ç”¨äºè®¡ç®—åŠ¨ç”»,éœ€è¦åŒ…å«å…³äºéçº¿æ€§ï¼Œpidç­‰çš„å‚æ•°ã€‚
- *  @param CurrentDistance å½“å‰å€¼
- *  @param TargetDistance ç›®æ ‡å€¼
- *  @param Error è¯¯å·®å€¼
- *  @param LastError ä¸Šä¸€æ¬¡çš„è¯¯å·®å€¼
- *  @param Integral ç§¯åˆ†å€¼
- *  @param Derivative å¾®åˆ†å€¼
+ * @brief ´Ë½á¹¹ÌåÓÃÓÚ¼ÆËã¶¯»­,ĞèÒª°üº¬¹ØÓÚ·ÇÏßĞÔ£¬pidµÈµÄ²ÎÊı¡£
+ *  @param CurrentDistance µ±Ç°Öµ
+ *  @param TargetDistance Ä¿±êÖµ
+ *  @param Error Îó²îÖµ
+ *  @param LastError ÉÏÒ»´ÎµÄÎó²îÖµ
+ *  @param Integral »ı·ÖÖµ
+ *  @param Derivative Î¢·ÖÖµ
  *  */ 
 typedef struct OLED_ChangeDistance{
-	float CurrentDistance;		//å½“å‰å€¼
-	float TargetDistance;		//ç›®æ ‡å€¼
-	float Error;					//è¯¯å·®å€¼
-	float LastError;				//ä¸Šä¸€æ¬¡çš„è¯¯å·®å€¼
-	float Integral;				//ç§¯åˆ†å€¼
-	float Derivative;				//å¾®åˆ†å€¼
+	float CurrentDistance;		//µ±Ç°Öµ
+	float TargetDistance;		//Ä¿±êÖµ
+	float Error;					//Îó²îÖµ
+	float LastError;				//ÉÏÒ»´ÎµÄÎó²îÖµ
+	float Integral;				//»ı·ÖÖµ
+	float Derivative;				//Î¢·ÖÖµ
 
 }OLED_ChangeDistance;
 
-/*OLED_UIå½“ä¸­å­˜æ”¾è®¡æ•°å™¨ä¿¡æ¯çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞ´æ·Å¼ÆÊıÆ÷ĞÅÏ¢µÄ½á¹¹Ìå*/
 typedef struct OLED_UI_Counter{
 	int16_t count;
 	int16_t value;
 	int16_t step;
 }OLED_UI_Counter;
 
-/*OLED_UIå½“ä¸­ç”¨äºå®ç°çª—å£åœç•™çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞÓÃÓÚÊµÏÖ´°¿ÚÍ£ÁôµÄ½á¹¹Ìå*/
 typedef struct OLED_UI_WindowSustainCounter{
-	int16_t count;		//è®¡æ•°å™¨
-	bool SustainFlag;	//æ ‡å¿—ä½ï¼Œç”¨äºè¡¨ç¤ºæ˜¯å¦å¤„äºåœç•™çŠ¶æ€
+	int16_t count;		//¼ÆÊıÆ÷
+	bool SustainFlag;	//±êÖ¾Î»£¬ÓÃÓÚ±íÊ¾ÊÇ·ñ´¦ÓÚÍ£Áô×´Ì¬
 }OLED_UI_WindowSustainCounter;
 
-/*OLED_UIå½“ä¸­èœå•çª—å£çš„ç»“æ„ä½“*/
+/*OLED_UIµ±ÖĞ²Ëµ¥´°¿ÚµÄ½á¹¹Ìå*/
 typedef struct MenuWindow{
-	int16_t General_Width;									//[é€šç”¨å±æ€§]çª—å£å®½åº¦
-	int16_t General_Height;									//[é€šç”¨å±æ€§]çª—å£é«˜åº¦
-	float General_ContinueTime;                             //[é€šç”¨å±æ€§]çª—å£åœç•™æ—¶é—´
-	uint8_t General_WindowType;                             //[é€šç”¨å±æ€§]çª—å£ç±»å‹
+	int16_t General_Width;									//[Í¨ÓÃÊôĞÔ]´°¿Ú¿í¶È
+	int16_t General_Height;									//[Í¨ÓÃÊôĞÔ]´°¿Ú¸ß¶È
+	float General_ContinueTime;                             //[Í¨ÓÃÊôĞÔ]´°¿ÚÍ£ÁôÊ±¼ä
+	uint8_t General_WindowType;                             //[Í¨ÓÃÊôĞÔ]´°¿ÚÀàĞÍ
 
-	char* Text_String;										//[æ–‡æœ¬å±æ€§]çª—å£æ˜¾ç¤ºçš„æ–‡å­—
-	OLED_Font Text_FontSize;								//[æ–‡æœ¬å±æ€§]çª—å£å­—ä½“å¤§å°
-	int16_t Text_FontSideDistance;						//[æ–‡æœ¬å±æ€§]å­—ä½“è·ç¦»å·¦ä¾§çš„è·ç¦»
-	int16_t Text_FontTopDistance;						//[æ–‡æœ¬å±æ€§]å­—ä½“è·ç¦»é¡¶éƒ¨çš„è·ç¦»
-
-
+	char* Text_String;										//[ÎÄ±¾ÊôĞÔ]´°¿ÚÏÔÊ¾µÄÎÄ×Ö
+	OLED_Font Text_FontSize;								//[ÎÄ±¾ÊôĞÔ]´°¿Ú×ÖÌå´óĞ¡
+	int16_t Text_FontSideDistance;						//[ÎÄ±¾ÊôĞÔ]×ÖÌå¾àÀë×ó²àµÄ¾àÀë
+	int16_t Text_FontTopDistance;						//[ÎÄ±¾ÊôĞÔ]×ÖÌå¾àÀë¶¥²¿µÄ¾àÀë
 
 
-	float* Prob_Data_Float;										//[è¿›åº¦æ¡å±æ€§]çª—å£æ•°æ®æŒ‡é’ˆ(æµ®ç‚¹ç±»å‹)ã€äºŒé€‰ä¸€ã€‘
-	int16_t* Prob_Data_Int;										//[è¿›åº¦æ¡å±æ€§]çª—å£æ•°æ®æŒ‡é’ˆ(int16_tæ•´å‹ç±»å‹)ã€äºŒé€‰ä¸€ã€‘
-	float Prob_DataStep;									//[è¿›åº¦æ¡å±æ€§]çª—å£æ•°æ®æ­¥é•¿
-	float Prob_MinData;									//[è¿›åº¦æ¡å±æ€§]çª—å£æ•°æ®çš„æœ€å°å€¼
-	float Prob_MaxData;									//[è¿›åº¦æ¡å±æ€§]çª—å£æ•°æ®çš„æœ€å¤§å€¼
-	int16_t Prob_BottomDistance;							//[è¿›åº¦æ¡å±æ€§]è¿›åº¦æ¡åº•éƒ¨è·ç¦»çª—å£åº•éƒ¨çš„è·ç¦»
-	int16_t Prob_SideDistance;								//[è¿›åº¦æ¡å±æ€§]è¿›åº¦æ¡è¾¹ç¼˜è·ç¦»çª—å£è¾¹ç¼˜çš„è·ç¦»
-	int16_t Prob_LineHeight;								//[è¿›åº¦æ¡å±æ€§]è¿›åº¦æ¡çº¿æ¡é«˜åº¦
 
-	float _LineSlip;                                        //[ç§æœ‰å±æ€§]ç”¨äºæ»šåŠ¨æ˜¾ç¤ºé•¿æ–‡æœ¬
+
+	float* Prob_Data_Float;										//[½ø¶ÈÌõÊôĞÔ]´°¿ÚÊı¾İÖ¸Õë(¸¡µãÀàĞÍ)¡¾¶şÑ¡Ò»¡¿
+	int16_t* Prob_Data_Int;										//[½ø¶ÈÌõÊôĞÔ]´°¿ÚÊı¾İÖ¸Õë(int16_tÕûĞÍÀàĞÍ)¡¾¶şÑ¡Ò»¡¿
+	float Prob_DataStep;									//[½ø¶ÈÌõÊôĞÔ]´°¿ÚÊı¾İ²½³¤
+	float Prob_MinData;									//[½ø¶ÈÌõÊôĞÔ]´°¿ÚÊı¾İµÄ×îĞ¡Öµ
+	float Prob_MaxData;									//[½ø¶ÈÌõÊôĞÔ]´°¿ÚÊı¾İµÄ×î´óÖµ
+	int16_t Prob_BottomDistance;							//[½ø¶ÈÌõÊôĞÔ]½ø¶ÈÌõµ×²¿¾àÀë´°¿Úµ×²¿µÄ¾àÀë
+	int16_t Prob_SideDistance;								//[½ø¶ÈÌõÊôĞÔ]½ø¶ÈÌõ±ßÔµ¾àÀë´°¿Ú±ßÔµµÄ¾àÀë
+	int16_t Prob_LineHeight;								//[½ø¶ÈÌõÊôĞÔ]½ø¶ÈÌõÏßÌõ¸ß¶È
+
+	float _LineSlip;                                        //[Ë½ÓĞÊôĞÔ]ÓÃÓÚ¹ö¶¯ÏÔÊ¾³¤ÎÄ±¾
 }MenuWindow;
 
 
 
 
-/*OLED_UIå½“ä¸­èœå•é¡¹çš„ç»“æ„ä½“ï¼Œç”¨äºå­˜æ”¾èœå•é¡¹çš„ç›¸å…³ä¿¡æ¯ï¼Œ
-åŒ…æ‹¬åç§°ï¼Œå­—ä½“å¤§å°ï¼Œå›è°ƒå‡½æ•°ï¼Œå­èœå•æŒ‡é’ˆï¼Œçˆ¶èœå•æŒ‡é’ˆï¼Œå¼€å§‹ç‚¹ï¼Œé€‰ä¸­åŒºåŸŸï¼Œæ˜¯å¦æ´»è·ƒçŠ¶æ€ï¼Œæ˜¯å¦æ˜¯æœ€åä¸€ä¸ªèœå•é¡¹*/
+/*OLED_UIµ±ÖĞ²Ëµ¥ÏîµÄ½á¹¹Ìå£¬ÓÃÓÚ´æ·Å²Ëµ¥ÏîµÄÏà¹ØĞÅÏ¢£¬
+°üÀ¨Ãû³Æ£¬×ÖÌå´óĞ¡£¬»Øµ÷º¯Êı£¬×Ó²Ëµ¥Ö¸Õë£¬¸¸²Ëµ¥Ö¸Õë£¬¿ªÊ¼µã£¬Ñ¡ÖĞÇøÓò£¬ÊÇ·ñ»îÔ¾×´Ì¬£¬ÊÇ·ñÊÇ×îºóÒ»¸ö²Ëµ¥Ïî*/
 typedef struct MenuPage {
     MenuStyle General_MenuType;
     MenuMovingSpeed General_MovingSpeed;
@@ -360,32 +360,32 @@ void OLED_UI_InterruptHandler(void);
 
 /******************************************************************************** */
 /******************************************************************************** */
-//æ”¹å˜å‡½æ•°
+//¸Ä±äº¯Êı
 void ChangeDistance(OLED_ChangeDistance *distance);
 void ChangePoint(OLED_ChangePoint *point);
 void ChangeArea(OLED_ChangeArea *area);
 
 
-//å°†æŒ‡å®šåŒºåŸŸçš„å…ƒç´ æ¸éš
+//½«Ö¸¶¨ÇøÓòµÄÔªËØ½¥Òş
 void OLED_UI_FadeoutCurrentArea(int16_t x, int16_t y, int16_t width, int16_t height);
 
-//å…¨å±æ¸éš
+//È«ÆÁ½¥Òş
 void OLED_UI_FadeoutAllArea(void);
 
-//åˆå§‹åŒ–OLED_UIï¼Œè®¾ç½®å½“å‰é¡µé¢çš„ç»“æ„ä½“æŒ‡é’ˆï¼Œå¹¶åˆå§‹åŒ–OLEDæ˜¾ç¤ºå±
+//³õÊ¼»¯OLED_UI£¬ÉèÖÃµ±Ç°Ò³ÃæµÄ½á¹¹ÌåÖ¸Õë£¬²¢³õÊ¼»¯OLEDÏÔÊ¾ÆÁ
 void OLED_UI_Init(MenuPage* Page);
 
-//è¿”å›å‡½æ•°
+//·µ»Øº¯Êı
 void OLED_UI_Back(void);
 
-//åˆ›å»ºçª—å£
+//´´½¨´°¿Ú
 void OLED_UI_CreateWindow(MenuWindow* window);
 
-//OLED_UIçš„ä¸»å¾ªç¯å‡½æ•°
+//OLED_UIµÄÖ÷Ñ­»·º¯Êı
 void OLED_UI_MainLoop(void);
 
-//OLED_UIçš„ä¸­æ–­å‡½æ•°ï¼Œå†…éƒ¨åŒ…å«éœ€åœ¨ä¸­æ–­å†…å¤„ç†çš„ä»»åŠ¡
-void OLED_UI_InterruptHandler(void);          //OLED_UIåº“çš„ä¸­æ–­å¤„ç†å‡½æ•°,éœ€è¦æ”¾åœ¨ä¸­æ–­å‡½æ•°å†…è°ƒç”¨ï¼Œä¸­æ–­å‡½æ•°2éœ€è¦è®¾ç½®ä¸º20ms
+//OLED_UIµÄÖĞ¶Ïº¯Êı£¬ÄÚ²¿°üº¬ĞèÔÚÖĞ¶ÏÄÚ´¦ÀíµÄÈÎÎñ
+void OLED_UI_InterruptHandler(void);          //OLED_UI¿âµÄÖĞ¶Ï´¦Àíº¯Êı,ĞèÒª·ÅÔÚÖĞ¶Ïº¯ÊıÄÚµ÷ÓÃ£¬ÖĞ¶Ïº¯Êı2ĞèÒªÉèÖÃÎª20ms
 
 
 

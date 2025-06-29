@@ -10,57 +10,57 @@
 #include "stdio.h"
 #include "main.h"
 
-// ä¸»æ§å‹å·é€‰æ‹©
+// Ö÷¿ØĞÍºÅÑ¡Ôñ
 #define SSD1306
 // #define SH1106
 
-// æ˜¯å¦ä½¿ç”¨ç¡¬ä»¶SPIï¼ˆæ³¨é‡Šè¯¥é¡¹åˆ™ç›´æ¥æ§åˆ¶GPIOï¼‰
+// ÊÇ·ñÊ¹ÓÃÓ²¼şSPI£¨×¢ÊÍ¸ÃÏîÔòÖ±½Ó¿ØÖÆGPIO£©
 #define OLED_UI_USE_HW_SPI
 
-// ä½¿ç”¨ç¡¬ä»¶SPI
+// Ê¹ÓÃÓ²¼şSPI
 #ifdef OLED_UI_USE_HW_SPI
-#define OLED_UI_SPI_USE_DMA         // ä½¿ç”¨DMA
-#define OLED_UI_SPI_NSS_HARD_OUTPUT // ç¡¬ä»¶CSï¼ˆæ³¨é‡Šè¯¥é¡¹åˆ™ä½¿ç”¨è½¯ä»¶æ§åˆ¶OLEDçš„CS pinï¼‰
+#define OLED_UI_SPI_USE_DMA         // Ê¹ÓÃDMA
+#define OLED_UI_SPI_NSS_HARD_OUTPUT // Ó²¼şCS£¨×¢ÊÍ¸ÃÏîÔòÊ¹ÓÃÈí¼ş¿ØÖÆOLEDµÄCS pin£©
 
-#define OLED_DC_Clr() (HAL_GPIO_WritePin(OLED_DC_GPIO_Port, OLED_DC_Pin, 0)) // å¤ä½ DC (å°†DCå¼•è„šæ‹‰ä½)
-#define OLED_DC_Set() (HAL_GPIO_WritePin(OLED_DC_GPIO_Port, OLED_DC_Pin, 1)) // ç½®ä½ DC (å°†DCå¼•è„šæ‹‰é«˜)
+#define OLED_DC_Clr() 	(HAL_GPIO_WritePin(OLED_DC_GPIO_Port, OLED_DC_Pin, GPIO_PIN_RESET)) // ¸´Î» DC (½«DCÒı½ÅÀ­µÍ)
+#define OLED_DC_Set() 	(HAL_GPIO_WritePin(OLED_DC_GPIO_Port, OLED_DC_Pin, GPIO_PIN_SET)) // ÖÃÎ» DC (½«DCÒı½ÅÀ­¸ß)
 
-#define OLED_RES_Clr() (HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 0)) // å¤ä½ DC (å°†DCå¼•è„šæ‹‰ä½)
-#define OLED_RES_Set() (HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 1)) // ç½®ä½ DC (å°†DCå¼•è„šæ‹‰é«˜)
+#define OLED_RES_Clr() 	(HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, GPIO_PIN_RESET)) // ¸´Î» DC (½«DCÒı½ÅÀ­µÍ)
+#define OLED_RES_Set() 	(HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, GPIO_PIN_SET)) // ÖÃÎ» DC (½«DCÒı½ÅÀ­¸ß)
 
-// ä¸ä½¿ç”¨ç¡¬ä»¶SPI
+// ²»Ê¹ÓÃÓ²¼şSPI
 #else
 
-// ä½¿ç”¨å®å®šä¹‰ï¼Œé€Ÿåº¦æ›´å¿«ï¼ˆå¯„å­˜å™¨æ–¹å¼ï¼‰
-#define OLED_SCL_Clr() (GPIOB->BRR = GPIO_Pin_8)  // å¤ä½ SCL (å°† GPIOB çš„ 8 å·å¼•è„šæ‹‰ä½)
-#define OLED_SCL_Set() (GPIOB->BSRR = GPIO_Pin_8) // ç½®ä½ SCL (å°† GPIOB çš„ 8 å·å¼•è„šæ‹‰é«˜)
+// Ê¹ÓÃºê¶¨Òå£¬ËÙ¶È¸ü¿ì£¨¼Ä´æÆ÷·½Ê½£©
+#define OLED_SCL_Clr() (GPIOB->BRR = GPIO_Pin_8)  // ¸´Î» SCL (½« GPIOB µÄ 8 ºÅÒı½ÅÀ­µÍ)
+#define OLED_SCL_Set() (GPIOB->BSRR = GPIO_Pin_8) // ÖÃÎ» SCL (½« GPIOB µÄ 8 ºÅÒı½ÅÀ­¸ß)
 
-#define OLED_SDA_Clr() (GPIOB->BRR = GPIO_Pin_9)  // å¤ä½ SDA (å°† GPIOB çš„ 9 å·å¼•è„šæ‹‰ä½)
-#define OLED_SDA_Set() (GPIOB->BSRR = GPIO_Pin_9) // ç½®ä½ SDA (å°† GPIOB çš„ 9 å·å¼•è„šæ‹‰é«˜)
+#define OLED_SDA_Clr() (GPIOB->BRR = GPIO_Pin_9)  // ¸´Î» SDA (½« GPIOB µÄ 9 ºÅÒı½ÅÀ­µÍ)
+#define OLED_SDA_Set() (GPIOB->BSRR = GPIO_Pin_9) // ÖÃÎ» SDA (½« GPIOB µÄ 9 ºÅÒı½ÅÀ­¸ß)
 
-#define OLED_RES_Clr() (GPIOB->BRR = GPIO_Pin_5)  // å¤ä½ RES (å°† GPIOB çš„ 5 å·å¼•è„šæ‹‰ä½)
-#define OLED_RES_Set() (GPIOB->BSRR = GPIO_Pin_5) // ç½®ä½ RES (å°† GPIOB çš„ 5 å·å¼•è„šæ‹‰é«˜)
+#define OLED_RES_Clr() (GPIOB->BRR = GPIO_Pin_5)  // ¸´Î» RES (½« GPIOB µÄ 5 ºÅÒı½ÅÀ­µÍ)
+#define OLED_RES_Set() (GPIOB->BSRR = GPIO_Pin_5) // ÖÃÎ» RES (½« GPIOB µÄ 5 ºÅÒı½ÅÀ­¸ß)
 
-#define OLED_DC_Clr() (GPIOB->BRR = GPIO_Pin_6)  // å¤ä½ DC (å°† GPIOB çš„ 6 å·å¼•è„šæ‹‰ä½)
-#define OLED_DC_Set() (GPIOB->BSRR = GPIO_Pin_6) // ç½®ä½ DC (å°† GPIOB çš„ 6 å·å¼•è„šæ‹‰é«˜)
+#define OLED_DC_Clr() (GPIOB->BRR = GPIO_Pin_6)  // ¸´Î» DC (½« GPIOB µÄ 6 ºÅÒı½ÅÀ­µÍ)
+#define OLED_DC_Set() (GPIOB->BSRR = GPIO_Pin_6) // ÖÃÎ» DC (½« GPIOB µÄ 6 ºÅÒı½ÅÀ­¸ß)
 
-#define OLED_CS_Clr() (GPIOB->BRR = GPIO_Pin_7)  // å¤ä½ CS (å°† GPIOB çš„ 7 å·å¼•è„šæ‹‰ä½)
-#define OLED_CS_Set() (GPIOB->BSRR = GPIO_Pin_7) // ç½®ä½ CS (å°† GPIOB çš„ 7 å·å¼•è„šæ‹‰é«˜)
+#define OLED_CS_Clr() (GPIOB->BRR = GPIO_Pin_7)  // ¸´Î» CS (½« GPIOB µÄ 7 ºÅÒı½ÅÀ­µÍ)
+#define OLED_CS_Set() (GPIOB->BSRR = GPIO_Pin_7) // ÖÃÎ» CS (½« GPIOB µÄ 7 ºÅÒı½ÅÀ­¸ß)
 
 #endif
 
-#define OLED_CMD 0  // å†™å‘½ä»¤
-#define OLED_DATA 1 // å†™æ•°æ®
+#define OLED_CMD 0  // Ğ´ÃüÁî
+#define OLED_DATA 1 // Ğ´Êı¾İ
 
-//	oledåˆå§‹åŒ–å‡½æ•°
+//	oled³õÊ¼»¯º¯Êı
 void OLED_Init(void);
-//	oledå…¨å±€åˆ·æ–°å‡½æ•°
+//	oledÈ«¾ÖË¢ĞÂº¯Êı
 void OLED_Update(void);
-//	oledå±€éƒ¨åˆ·æ–°å‡½æ•°
+//	oled¾Ö²¿Ë¢ĞÂº¯Êı
 void OLED_UpdateArea(uint8_t X, uint8_t Y, uint8_t Width, uint8_t Height);
-// è®¾ç½®é¢œè‰²æ¨¡å¼
+// ÉèÖÃÑÕÉ«Ä£Ê½
 void OLED_SetColorMode(bool colormode);
-// OLED è®¾ç½®äº®åº¦å‡½æ•°
+// OLED ÉèÖÃÁÁ¶Èº¯Êı
 void OLED_Brightness(int16_t Brightness);
 
 #endif

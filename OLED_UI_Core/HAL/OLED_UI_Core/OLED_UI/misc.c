@@ -4,13 +4,13 @@
  *    Created on: Nov 23, 2024
  *            Author: tonny
  */
-#include <misc.h>
+#include "misc.h"
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "oled.h"
+#include "Driver\Software_Driver\OLED.h"
 #include "stm32f4xx_hal_pwr_ex.h"
 #include "stm32f4xx_hal_pwr.h"
-#include "OLED_UI_Launcher.h"
+#include "..\OLED_UI_Launcher.h"
 
 
 //BTN_stat_t BTN_stat;
@@ -30,16 +30,16 @@
 
 //void BtnTask()
 //{
-//    //============================    æŒ‰é’®ç®¡ç†    ============================
+//    //============================    °´Å¥¹ÜÀí    ============================
 //	uint8_t BTNpin;
 //	BTNpin = !HAL_GPIO_ReadPin(BTN_GPIO_Port, BTN_Pin);
-//	//è¯»å–GPIO
-//	if (BTNpin && !BTN_stat.isPressing)	//æŒ‰ä¸‹çž¬é—´
+//	//¶ÁÈ¡GPIO
+//	if (BTNpin && !BTN_stat.isPressing)	//°´ÏÂË²¼ä
 //	{
-//		BTN_stat.pressStartTick = HAL_GetTick();	//è®°å½•å½“å‰tick
+//		BTN_stat.pressStartTick = HAL_GetTick();	//¼ÇÂ¼µ±Ç°tick
 //		BTN_stat.isPressing = 1;
 //	}
-//	if (!BTNpin && BTN_stat.isPressing) //æ¾å¼€çž¬é—´
+//	if (!BTNpin && BTN_stat.isPressing) //ËÉ¿ªË²¼ä
 //	{
 //		BTN_stat.isPressing = 0;
 //		BTN_stat.isLongPressing = 0;
@@ -48,14 +48,14 @@
 //		BTN_stat.longPressEvent = 0;
 //	}
 
-//	// çŸ­æŒ‰æ£€æµ‹ï¼ˆæŒ‰ä¸‹æ—¶é•¿è¶…è¿‡æ¶ˆæŠ–æ—¶é—´ï¼‰
+//	// ¶Ì°´¼ì²â£¨°´ÏÂÊ±³¤³¬¹ýÏû¶¶Ê±¼ä£©
 //	if (BTN_stat.isPressing && !BTN_stat.isDebouncedPressing && HAL_GetTick() > BTN_stat.pressStartTick + BTN_DEBOUNCE_MS)
 //	{
 //		BTN_stat.isDebouncedPressing = 1;
 //		BTN_stat.pressEvent = 1;
 //	}
 
-//    // é•¿æŒ‰æ£€æµ‹ï¼ˆæŒ‰ä¸‹æ—¶é•¿è¶…è¿‡é•¿æŒ‰æ—¶é—´ï¼‰
+//    // ³¤°´¼ì²â£¨°´ÏÂÊ±³¤³¬¹ý³¤°´Ê±¼ä£©
 //    if (BTN_stat.isPressing && !BTN_stat.isLongPressing && HAL_GetTick() > BTN_stat.pressStartTick + BTN_LONG_PRESS_MS)
 //    {
 //        BTN_stat.isLongPressing = 1;

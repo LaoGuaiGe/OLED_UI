@@ -1,22 +1,22 @@
 /*
  *  OLED_UI_Launcher.c
- *  Version: 0.2.0
+ *  Version: 0.2.1
  *  Created on: Jun 26, 2025
  *  Author: 5akura1
  */
 #include "OLED_UI_Launcher.h"
 
-void OLED_UI_init()
+void OLED_UI_init(void)
 {
 	// init
-	// å¼€å¯å¤–å›´å™¨ä»¶
-	// æ³¨æ„ï¼šå¼€å¯å¤–å›´å™¨ä»¶å¯èƒ½å¯¼è‡´ç”µå‹æ³¢åŠ¨ï¼Œä¸è¦åœ¨æ­¤æ“ä½œä¹‹åç«‹å³è¯»å†™Flash
+	// ¿ªÆôÍâÎ§Æ÷¼ş
+	// ×¢Òâ£º¿ªÆôÍâÎ§Æ÷¼ş¿ÉÄÜµ¼ÖÂµçÑ¹²¨¶¯£¬²»ÒªÔÚ´Ë²Ù×÷Ö®ºóÁ¢¼´¶ÁĞ´Flash
 	//	HAL_GPIO_WritePin(PWRON_GPIO_Port, PWRON_Pin, 0);
 	//	BTN_init();
 	OLED_UI_Init(&MainMenuPage);
 }
 
-void OLED_UI_start()
+void OLED_UI_start(void)
 {
 	while (1)
 	{
@@ -26,12 +26,12 @@ void OLED_UI_start()
 	}
 }
 
-// å®šæ—¶å™¨1ä¸­æ–­å›è°ƒå‡½æ•°
+// ¶¨Ê±Æ÷1ÖĞ¶Ï»Øµ÷º¯Êı
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim == &htim1)
 	{
-		// ä¸­æ–­å‡½æ•°
+		// ÖĞ¶Ïº¯Êı
 		OLED_UI_InterruptHandler();
 	}
 }

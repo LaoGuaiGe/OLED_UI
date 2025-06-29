@@ -1,19 +1,19 @@
 #ifndef __OLED_UI_MENUDATA_H
 #define __OLED_UI_MENUDATA_H
-// æ£€æµ‹æ˜¯å¦æ˜¯C++ç¼–è¯‘å™¨
+// ¼ì²âÊÇ·ñÊÇC++±àÒëÆ÷
 #ifdef __cplusplus
 extern "C" {
 #endif
 #include "OLED_UI.h"
 
-//è¿›è¡Œå‰ç½®å£°æ˜
+//½øĞĞÇ°ÖÃÉùÃ÷
 extern MenuItem MainMenuItems[],SettingsMenuItems[],AboutThisDeviceMenuItems[],
 AboutOLED_UIMenuItems[],DrawMenuItems[],MoreMenuItems[],Font8MenuItems[] ,Font12MenuItems[] ,
 Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[];
 
 extern MenuPage MainMenuPage,SettingsMenuPage,AboutThisDeviceMenuPage,
-AboutOLED_UIMenuPage,DrawMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
-,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage;
+AboutOLED_UIMenuPage,DrawMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage,
+Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage;
 
 
 #ifdef __cplusplus

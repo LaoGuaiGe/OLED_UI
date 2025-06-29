@@ -11,22 +11,22 @@
 #include "main.h"
 
 #define BTN_LONG_PRESS_MS 1000
-#define BTN_DEBOUNCE_MS 50	//æ¶ˆæŠ–æ—¶é—´ms
+#define BTN_DEBOUNCE_MS 50	//Ïû¶¶Ê±¼äms
 
 typedef struct{
-	uint8_t isPressing;				//æŒ‰é’®çŠ¶æ€
-	uint8_t isDebouncedPressing;	//æ¶ˆæŠ–åçš„çŠ¶æ€
-	uint8_t isLongPressing;			//æ˜¯å¦æ­£åœ¨é•¿æŒ‰
-	uint8_t pressEvent;				//æœªå¤„ç†çš„æŒ‰ä¸‹äº‹ä»¶
-	uint8_t longPressEvent;			//æœªå¤„ç†çš„é•¿æŒ‰äº‹ä»¶
-	uint32_t pressStartTick;		//æŒ‰ä¸‹ç¬é—´çš„æ—¶é—´
-	//uint32_t pressEndTick;		//æ¾å¼€ç¬é—´çš„æ—¶é—´
+	uint8_t isPressing;				//°´Å¥×´Ì¬
+	uint8_t isDebouncedPressing;	//Ïû¶¶ºóµÄ×´Ì¬
+	uint8_t isLongPressing;			//ÊÇ·ñÕıÔÚ³¤°´
+	uint8_t pressEvent;				//Î´´¦ÀíµÄ°´ÏÂÊÂ¼ş
+	uint8_t longPressEvent;			//Î´´¦ÀíµÄ³¤°´ÊÂ¼ş
+	uint32_t pressStartTick;		//°´ÏÂË²¼äµÄÊ±¼ä
+	//uint32_t pressEndTick;		//ËÉ¿ªË²¼äµÄÊ±¼ä
 } BTN_stat_t;
 
 extern BTN_stat_t BTN_stat;
 
-void BTN_init();
+void BTN_init(void);
 
-void BtnTask();
+void BtnTask(void);
 
 #endif /* MISC_H_ */

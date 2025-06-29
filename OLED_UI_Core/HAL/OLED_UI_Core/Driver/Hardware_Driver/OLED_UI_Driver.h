@@ -1,11 +1,11 @@
 #ifndef __OLED_UI_DRIVER_H
 #define __OLED_UI_DRIVER_H
-/*ã€å¦‚æœæ‚¨éœ€è¦ç§»æ¤æ­¤é¡¹ç›®ï¼Œåˆ™éœ€è¦æ›´æ”¹ä»¥ä¸‹å‡½æ•°çš„å®ç°æ–¹å¼ã€‚ã€‘ */
+/*¡¾Èç¹ûÄúĞèÒªÒÆÖ²´ËÏîÄ¿£¬ÔòĞèÒª¸ü¸ÄÒÔÏÂº¯ÊıµÄÊµÏÖ·½Ê½¡£¡¿ */
 #include "stm32f4xx_hal.h" // Device header
 #include "stm32f4xx.h"
-#include "misc.h"
+#include "OLED_UI\misc.h"
 
-// è·å–ç¡®è®¤ï¼Œå–æ¶ˆï¼Œä¸Šï¼Œä¸‹æŒ‰é”®çŠ¶æ€çš„å‡½æ•°(ã€Qï¼šä¸ºä»€ä¹ˆä½¿ç”¨å®å®šä¹‰è€Œä¸æ˜¯å‡½æ•°ï¼ŸAï¼šå› ä¸ºè¿™æ ·å¯ä»¥æé«˜æ•ˆç‡ï¼Œå‡å°‘ä»£ç é‡ã€‘)
+// »ñÈ¡È·ÈÏ£¬È¡Ïû£¬ÉÏ£¬ÏÂ°´¼ü×´Ì¬µÄº¯Êı(¡¾Q£ºÎªÊ²Ã´Ê¹ÓÃºê¶¨Òå¶ø²»ÊÇº¯Êı£¿A£ºÒòÎªÕâÑù¿ÉÒÔÌá¸ßĞ§ÂÊ£¬¼õÉÙ´úÂëÁ¿¡¿)
 // #define Key_GetEnterStatus()	(!BTN_stat.isDebouncedPressing)
 // #define Key_GetBackStatus()		(1)
 // #define Key_GetUpStatus()		(1)
@@ -16,22 +16,22 @@
 #define Key_GetUpStatus()       HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin)
 #define Key_GetDownStatus()     HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin)
 
-// å®šæ—¶å™¨ä¸­æ–­åˆå§‹åŒ–å‡½æ•°
+// ¶¨Ê±Æ÷ÖĞ¶Ï³õÊ¼»¯º¯Êı
 void Timer_Init(void);
 
-// æŒ‰é”®åˆå§‹åŒ–å‡½æ•°
+// °´¼ü³õÊ¼»¯º¯Êı
 void Key_Init(void);
 
-//ç¼–ç å™¨åˆå§‹åŒ–å‡½æ•°
+//±àÂëÆ÷³õÊ¼»¯º¯Êı
 void Encoder_Init(void);
-// ç¼–ç å™¨ä½¿èƒ½å‡½æ•°
+// ±àÂëÆ÷Ê¹ÄÜº¯Êı
 void Encoder_Enable(void);
-//ç¼–ç å™¨å¤±èƒ½å‡½æ•°
+//±àÂëÆ÷Ê§ÄÜº¯Êı
 void Encoder_Disable(void);
-//è¯»å–ç¼–ç å™¨çš„å¢é‡å€¼
+//¶ÁÈ¡±àÂëÆ÷µÄÔöÁ¿Öµ
 int16_t Encoder_Get(void);
 
-// å»¶æ—¶å‡½æ•°
+// ÑÓÊ±º¯Êı
 // void Delay_us(uint32_t xus);
 void Delay_ms(uint32_t xms);
 void Delay_s(uint32_t xs);

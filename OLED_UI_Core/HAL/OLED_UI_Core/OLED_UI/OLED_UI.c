@@ -1,51 +1,51 @@
 #include "OLED_UI.h"
-
+#include "..\OLED_UI_Launcher.h"
 
 
 #ifdef OLED_UI
 /**
- * @brief æœ¬é¡¹ç›®å¼€æºåœ°å€ï¼š
+ * @brief ±¾ÏîÄ¿¿ªÔ´µØÖ·£º
  * @param "https://github.com/bdth-7777777/OLED_UI"
  */
-/*OLED_UIå…¨å±€å˜é‡å®šä¹‰ */
-OLED_UI_Counter OLED_FPS = {0,0,0};									//ç”¨äºå­˜å‚¨å¸§ç‡çš„ç»“æ„ä½“
-OLED_Key OLED_UI_Key = {1,1,1,1};   								//ç”¨äºå­˜å‚¨æŒ‰é”®çŠ¶æ€çš„ç»“æ„ä½“,é»˜è®¤æ²¡æœ‰æŒ‰ä¸‹ï¼Œéƒ½ä¸º1
-OLED_Key OLED_UI_LastKey = {1,1,1,1};								//ç”¨äºå­˜å‚¨ä¸Šä¸€è½®æŒ‰é”®çŠ¶æ€çš„ç»“æ„ä½“,é»˜è®¤æ²¡æœ‰æŒ‰ä¸‹ï¼Œéƒ½ä¸º1
-MenuPage*  CurrentMenuPage = NULL;									//å…¨å±€ç»“æ„ä½“æŒ‡é’ˆï¼Œå½“å‰é¡µé¢çš„æŒ‡é’ˆ
-MenuWindow *CurrentWindow = NULL;									//å…¨å±€ç»“æ„ä½“æŒ‡é’ˆï¼Œå½“å‰çª—å£çš„æŒ‡é’ˆ
-MutexFlag KeyEnterFlag = FLAGEND;									//å…¨å±€enteræŒ‰é”®çš„äº’æ–¥é”ï¼Œäº’æ–¥é”ä¸ºFLAGSTARTæ—¶è¡¨ç¤ºæ­£åœ¨æ‰§è¡Œå›è°ƒå‡½æ•°
-MutexFlag FadeOutFlag = FLAGEND;									//æ¸éšæ•ˆæœçš„äº’æ–¥é”ï¼Œäº’æ–¥é”ä¸ºFLAGSTARTæ—¶è¡¨ç¤ºæ­£åœ¨æ‰§è¡Œæ¸éšæ•ˆæœ
-bool ColorMode = DARKMODE;											//å…¨å±€å¸ƒå°”å‹æ•°æ®ï¼Œå­˜å‚¨å½“å‰æ˜¾ç¤ºæ¨¡å¼ï¼Œtrueä¸ºæ·±è‰²æ¨¡å¼ï¼Œfalseä¸ºæµ…è‰²æ¨¡å¼
-bool OLED_UI_ShowFps = false;										//å…¨å±€å¸ƒå°”å‹æ•°æ®ï¼Œç”¨äºæ§åˆ¶æ˜¯å¦æ˜¾ç¤ºå¸§ç‡
-int16_t OLED_UI_Brightness = 100;									//å…¨å±€å˜é‡ï¼Œå­˜å‚¨å½“å‰å±å¹•äº®åº¦
-OLED_UI_WindowSustainCounter OLED_SustainCounter = {0,false};		//ç”¨äºå­˜å‚¨çª—å£æŒç»­æ—¶é—´çš„ç»“æ„ä½“
-int tmpi=0;                                                       	//GifåŠ¨ç”»ç¼“é€Ÿæ’­æ”¾tempå€¼
+/*OLED_UIÈ«¾Ö±äÁ¿¶¨Òå */
+OLED_UI_Counter OLED_FPS = {0,0,0};									//ÓÃÓÚ´æ´¢Ö¡ÂÊµÄ½á¹¹Ìå
+OLED_Key OLED_UI_Key = {1,1,1,1};   								//ÓÃÓÚ´æ´¢°´¼ü×´Ì¬µÄ½á¹¹Ìå,Ä¬ÈÏÃ»ÓĞ°´ÏÂ£¬¶¼Îª1
+OLED_Key OLED_UI_LastKey = {1,1,1,1};								//ÓÃÓÚ´æ´¢ÉÏÒ»ÂÖ°´¼ü×´Ì¬µÄ½á¹¹Ìå,Ä¬ÈÏÃ»ÓĞ°´ÏÂ£¬¶¼Îª1
+MenuPage*  CurrentMenuPage = NULL;									//È«¾Ö½á¹¹ÌåÖ¸Õë£¬µ±Ç°Ò³ÃæµÄÖ¸Õë
+MenuWindow *CurrentWindow = NULL;									//È«¾Ö½á¹¹ÌåÖ¸Õë£¬µ±Ç°´°¿ÚµÄÖ¸Õë
+MutexFlag KeyEnterFlag = FLAGEND;									//È«¾Öenter°´¼üµÄ»¥³âËø£¬»¥³âËøÎªFLAGSTARTÊ±±íÊ¾ÕıÔÚÖ´ĞĞ»Øµ÷º¯Êı
+MutexFlag FadeOutFlag = FLAGEND;									//½¥ÒşĞ§¹ûµÄ»¥³âËø£¬»¥³âËøÎªFLAGSTARTÊ±±íÊ¾ÕıÔÚÖ´ĞĞ½¥ÒşĞ§¹û
+bool ColorMode = DARKMODE;											//È«¾Ö²¼¶ûĞÍÊı¾İ£¬´æ´¢µ±Ç°ÏÔÊ¾Ä£Ê½£¬trueÎªÉîÉ«Ä£Ê½£¬falseÎªÇ³É«Ä£Ê½
+bool OLED_UI_ShowFps = false;										//È«¾Ö²¼¶ûĞÍÊı¾İ£¬ÓÃÓÚ¿ØÖÆÊÇ·ñÏÔÊ¾Ö¡ÂÊ
+int16_t OLED_UI_Brightness = 100;									//È«¾Ö±äÁ¿£¬´æ´¢µ±Ç°ÆÁÄ»ÁÁ¶È
+OLED_UI_WindowSustainCounter OLED_SustainCounter = {0,false};		//ÓÃÓÚ´æ´¢´°¿Ú³ÖĞøÊ±¼äµÄ½á¹¹Ìå
+int tmpi=0;                                                       	//Gif¶¯»­»ºËÙ²¥·ÅtempÖµ
 
 /***********************************************************************************************/
-/***************************è¿™äº›å˜é‡ç”¨äºå­˜å‚¨éœ€è¦ç»‘å®šåŠ¨ç”»çš„æ§ä»¶çš„å‚æ•°*******************************/
+/***************************ÕâĞ©±äÁ¿ÓÃÓÚ´æ´¢ĞèÒª°ó¶¨¶¯»­µÄ¿Ø¼şµÄ²ÎÊı*******************************/
 
-// OLED_UI_Cursoræ˜¯ç”¨äºå­˜å‚¨å…‰æ ‡çš„ç»“æ„ä½“ï¼Œæ§åˆ¶å…‰æ ‡çš„ç§»åŠ¨
+// OLED_UI_CursorÊÇÓÃÓÚ´æ´¢¹â±êµÄ½á¹¹Ìå£¬¿ØÖÆ¹â±êµÄÒÆ¶¯
 OLED_ChangeArea OLED_UI_Cursor;
-// OLED_UI_MenuFrameæ˜¯ç”¨äºå­˜å‚¨èœå•è¾¹æ¡†çš„ç»“æ„ä½“ï¼Œæ§åˆ¶èœå•è¾¹æ¡†ä¸å†…éƒ¨ç»„ä»¶çš„ç§»åŠ¨
+// OLED_UI_MenuFrameÊÇÓÃÓÚ´æ´¢²Ëµ¥±ß¿òµÄ½á¹¹Ìå£¬¿ØÖÆ²Ëµ¥±ß¿òÓëÄÚ²¿×é¼şµÄÒÆ¶¯
 OLED_ChangeArea OLED_UI_MenuFrame;
-// OLED_UI_Windowæ˜¯ç”¨äºå­˜å‚¨çª—å£çš„ç»“æ„ä½“ï¼Œæ§åˆ¶çª—å£ä¸å†…éƒ¨ç»„ä»¶çš„ç§»åŠ¨
+// OLED_UI_WindowÊÇÓÃÓÚ´æ´¢´°¿ÚµÄ½á¹¹Ìå£¬¿ØÖÆ´°¿ÚÓëÄÚ²¿×é¼şµÄÒÆ¶¯
 OLED_ChangeArea OLED_UI_Window;
-// OLED_UI_ScrollBarHeightæ˜¯ç”¨äºå­˜å‚¨æ»šåŠ¨æ¡é«˜åº¦çš„ç»“æ„ä½“ï¼Œæ§åˆ¶æ»šåŠ¨æ¡é«˜åº¦çš„å˜åŒ–
+// OLED_UI_ScrollBarHeightÊÇÓÃÓÚ´æ´¢¹ö¶¯Ìõ¸ß¶ÈµÄ½á¹¹Ìå£¬¿ØÖÆ¹ö¶¯Ìõ¸ß¶ÈµÄ±ä»¯
 OLED_ChangeDistance OLED_UI_ScrollBarHeight;
-// OLED_UI_ProbWidthæ˜¯ç”¨äºå­˜å‚¨è¿›åº¦æ¡å®½åº¦çš„ç»“æ„ä½“ï¼Œæ§åˆ¶è¿›åº¦æ¡å®½åº¦çš„å˜åŒ–
+// OLED_UI_ProbWidthÊÇÓÃÓÚ´æ´¢½ø¶ÈÌõ¿í¶ÈµÄ½á¹¹Ìå£¬¿ØÖÆ½ø¶ÈÌõ¿í¶ÈµÄ±ä»¯
 OLED_ChangeDistance OLED_UI_ProbWidth;
-// OLED_UI_PageStartPointæ˜¯ç”¨äºå­˜å‚¨é¡µé¢èµ·å§‹ç‚¹çš„ç»“æ„ä½“ï¼Œæ§åˆ¶é¡µé¢æ•´ä½“çš„ç§»åŠ¨
+// OLED_UI_PageStartPointÊÇÓÃÓÚ´æ´¢Ò³ÃæÆğÊ¼µãµÄ½á¹¹Ìå£¬¿ØÖÆÒ³ÃæÕûÌåµÄÒÆ¶¯
 OLED_ChangePoint OLED_UI_PageStartPoint ;
-// OLED_UI_LineStepæ˜¯ç”¨äºå­˜å‚¨è¡Œé—´è·çš„ç»“æ„ä½“ï¼Œæ§åˆ¶è¡Œé—´è·çš„å˜åŒ–
+// OLED_UI_LineStepÊÇÓÃÓÚ´æ´¢ĞĞ¼ä¾àµÄ½á¹¹Ìå£¬¿ØÖÆĞĞ¼ä¾àµÄ±ä»¯
 OLED_ChangeDistance OLED_UI_LineStep;
 
 
 
 /**
- * @brief è·å–å½“å‰å±å¹•åˆ·æ–°ç‡ï¼Œç»“æœå­˜å‚¨åœ¨å…¨å±€å˜é‡OLED_FPS.valueä¸­
- * @param æ— 
- * @note è¯¥å‡½æ•°éœ€è¦æ”¾åœ¨20mså‘¨æœŸå†…è°ƒç”¨ï¼Œå¦åˆ™ä¼šå¯¼è‡´è®¡æ•°é”™è¯¯
- * @return æ— 
+ * @brief »ñÈ¡µ±Ç°ÆÁÄ»Ë¢ĞÂÂÊ£¬½á¹û´æ´¢ÔÚÈ«¾Ö±äÁ¿OLED_FPS.valueÖĞ
+ * @param ÎŞ
+ * @note ¸Ãº¯ÊıĞèÒª·ÅÔÚ20msÖÜÆÚÄÚµ÷ÓÃ£¬·ñÔò»áµ¼ÖÂ¼ÆÊı´íÎó
+ * @return ÎŞ
  */
 void GetFPS(void){
 	if(OLED_FPS.step<49){
@@ -58,10 +58,10 @@ void GetFPS(void){
 }
 
 /**
- * @brief æ˜¾ç¤ºå½“å‰å±å¹•åˆ·æ–°ç‡
- * @param æ— 
- * @note éœ€å°†æ­¤å‡½æ•°æ”¾åœ¨ä¸»å¾ªç¯å½“ä¸­ï¼Œæ¯å¾ªç¯ä¸€æ¬¡è®°ä¸ºä¸€æ¬¡åˆ·æ–°ã€‚
- * @return æ— 
+ * @brief ÏÔÊ¾µ±Ç°ÆÁÄ»Ë¢ĞÂÂÊ
+ * @param ÎŞ
+ * @note Ğè½«´Ëº¯Êı·ÅÔÚÖ÷Ñ­»·µ±ÖĞ£¬Ã¿Ñ­»·Ò»´Î¼ÇÎªÒ»´ÎË¢ĞÂ¡£
+ * @return ÎŞ
  */
 void OLED_UI_ShowFPS(void){
     OLED_FPS.count ++;
@@ -70,12 +70,12 @@ void OLED_UI_ShowFPS(void){
 	}
 }
 /**
- * @brief è·å–å½“å‰é¡µé¢çš„å­—ä½“å®½åº¦
- * @param style CHINESEã€ä¸­æ–‡ã€‘æˆ– ASCIIã€ASCIIã€‘
- * @return å½“å‰é¡µé¢çš„å­—ä½“å®½åº¦
+ * @brief »ñÈ¡µ±Ç°Ò³ÃæµÄ×ÖÌå¿í¶È
+ * @param style CHINESE¡¾ÖĞÎÄ¡¿»ò ASCII¡¾ASCII¡¿
+ * @return µ±Ç°Ò³ÃæµÄ×ÖÌå¿í¶È
  */
 OLED_Font GetOLED_Font(OLED_Font fontsize,bool style){
-	//æ ¹æ®å½“å‰é¡µé¢çš„å­—ä½“å¤§å°è®¾ç½®å­—ä½“
+	//¸ù¾İµ±Ç°Ò³ÃæµÄ×ÖÌå´óĞ¡ÉèÖÃ×ÖÌå
 	OLED_Font ChineseFont,ASCIIFont;
 	switch(fontsize){
 		case OLED_UI_FONT_8:
@@ -97,22 +97,22 @@ OLED_Font GetOLED_Font(OLED_Font fontsize,bool style){
 
 }
 /**
- * @brief åè½¬æ˜¾ç¤ºå…‰æ ‡
- * @param X å…‰æ ‡Xåæ ‡
- * @param Y å…‰æ ‡Yåæ ‡
- * @param Width å…‰æ ‡å®½åº¦
- * @param Height å…‰æ ‡é«˜åº¦
- * @param Style å…‰æ ‡æ ·å¼
- * @note è¯¥å‡½æ•°ç”¨äºåè½¬æ˜¾ç¤ºå…‰æ ‡ï¼Œä½¿å…¶æ˜¾ç¤ºä¸ºåè‰²
- * @return æ— 
+ * @brief ·´×ªÏÔÊ¾¹â±ê
+ * @param X ¹â±êX×ø±ê
+ * @param Y ¹â±êY×ø±ê
+ * @param Width ¹â±ê¿í¶È
+ * @param Height ¹â±ê¸ß¶È
+ * @param Style ¹â±êÑùÊ½
+ * @note ¸Ãº¯ÊıÓÃÓÚ·´×ªÏÔÊ¾¹â±ê£¬Ê¹ÆäÏÔÊ¾Îª·´É«
+ * @return ÎŞ
  */
 void ReverseCoordinate(int16_t X, int16_t Y, int16_t Width, int16_t Height,uint8_t Style){
 	switch(Style){
 		
-		case REVERSE_RECTANGLE://çŸ©å½¢åè‰²
+		case REVERSE_RECTANGLE://¾ØĞÎ·´É«
 			OLED_ReverseArea(X, Y, Width, Height);
 			break;
-		case REVERSE_ROUNDRECTANGLE://åœ†è§’çŸ©å½¢åè‰²
+		case REVERSE_ROUNDRECTANGLE://Ô²½Ç¾ØĞÎ·´É«
 			if(Width >= 3 && Height >= 3){
 				OLED_ReverseArea(X, Y, 1, 1);
 				OLED_ReverseArea(X+Width-1, Y, 1, 1);
@@ -122,11 +122,11 @@ void ReverseCoordinate(int16_t X, int16_t Y, int16_t Width, int16_t Height,uint8
 			OLED_ReverseArea(X, Y, Width, Height);
 			break;
 
-		case HOLLOW_RECTANGLE://ç©ºå¿ƒçŸ©å½¢
+		case HOLLOW_RECTANGLE://¿ÕĞÄ¾ØĞÎ
 			OLED_ReverseArea(X, Y, Width, Height);
 			OLED_ReverseArea(X+1, Y+1, Width-2, Height-2);
 			break;
-		case HOLLOW_ROUNDRECTANGLE://ç©ºå¿ƒçŸ©å½¢
+		case HOLLOW_ROUNDRECTANGLE://¿ÕĞÄ¾ØĞÎ
 			OLED_ReverseArea(X, Y, Width, Height);
 			OLED_ReverseArea(X+1, Y+1, Width-2, Height-2);
 			if(Width >= 3){
@@ -138,7 +138,7 @@ void ReverseCoordinate(int16_t X, int16_t Y, int16_t Width, int16_t Height,uint8
 				OLED_ReverseArea(X+Width-1, Y+Height-1, 1, 1);
 			}
 			break;
-		case REVERSE_BLOCK://å°æ–¹å—
+		case REVERSE_BLOCK://Ğ¡·½¿é
 			
 			OLED_ReverseArea(X, Y + 1, GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII), Height);
 			
@@ -152,16 +152,16 @@ void ReverseCoordinate(int16_t X, int16_t Y, int16_t Width, int16_t Height,uint8
 }
 
 /** 
- * @briefï¼šåœ¨æŒ‡å®šåŒºåŸŸåº”ç”¨æ¨¡å¼åŒ–æ¸éšæ•ˆæœ(è’™ç‰ˆé¢—ç²’åŒ–)
- * @param x0 åŒºåŸŸèµ·å§‹Xåæ ‡
- * @param y0 åŒºåŸŸèµ·å§‹Yåæ ‡
- * @param width åŒºåŸŸå®½åº¦
- * @param height åŒºåŸŸé«˜åº¦
- * @param fadeLevel æ¸éšæ¡£ä½ï¼Œ1åˆ°5ä¹‹é—´çš„å€¼ï¼Œè¡¨ç¤ºä¸åŒçš„åƒç´ ç†„ç­æ¨¡å¼
- * @note è¯¥å‡½æ•°ç”¨äºåœ¨æŒ‡å®šåŒºåŸŸåº”ç”¨æ¨¡å¼åŒ–æ¸éšæ•ˆæœï¼Œä½¿å¾—è¯¥åŒºåŸŸçš„åƒç´ é€æ¸å˜æš—ï¼Œæ•ˆæœç±»ä¼¼è’™ç‰ˆé¢—ç²’åŒ–ã€‚
+ * @brief£ºÔÚÖ¸¶¨ÇøÓòÓ¦ÓÃÄ£Ê½»¯½¥ÒşĞ§¹û(ÃÉ°æ¿ÅÁ£»¯)
+ * @param x0 ÇøÓòÆğÊ¼X×ø±ê
+ * @param y0 ÇøÓòÆğÊ¼Y×ø±ê
+ * @param width ÇøÓò¿í¶È
+ * @param height ÇøÓò¸ß¶È
+ * @param fadeLevel ½¥ÒşµµÎ»£¬1µ½5Ö®¼äµÄÖµ£¬±íÊ¾²»Í¬µÄÏñËØÏ¨ÃğÄ£Ê½
+ * @note ¸Ãº¯ÊıÓÃÓÚÔÚÖ¸¶¨ÇøÓòÓ¦ÓÃÄ£Ê½»¯½¥ÒşĞ§¹û£¬Ê¹µÃ¸ÃÇøÓòµÄÏñËØÖğ½¥±ä°µ£¬Ğ§¹ûÀàËÆÃÉ°æ¿ÅÁ£»¯¡£
 */
 void OLED_UI_FadeOut_Masking(int16_t x0, int16_t y0, int16_t width, int16_t height, int8_t fadeLevel) {
-    // æ£€æŸ¥å¹¶è°ƒæ•´åŒºåŸŸèŒƒå›´
+    // ¼ì²é²¢µ÷ÕûÇøÓò·¶Î§
     if (x0 < 0) {
         width += x0;
         x0 = 0;
@@ -180,47 +180,47 @@ void OLED_UI_FadeOut_Masking(int16_t x0, int16_t y0, int16_t width, int16_t heig
         return;
     }
 
-    // ç¡®ä¿æ¸éšæ¡£ä½åœ¨æœ‰æ•ˆèŒƒå›´å†…
+    // È·±£½¥ÒşµµÎ»ÔÚÓĞĞ§·¶Î§ÄÚ
     if (fadeLevel < 1 || fadeLevel > 5) {
         return;
     }
 
-    // å®šä¹‰2x2ç½‘æ ¼çš„æ¸éšæ¨¡å¼
-    // æ¯ä¸ªæ•°ç»„è¡¨ç¤ºä¸€ä¸ª2x2ç½‘æ ¼ä¸­å“ªäº›åƒç´ éœ€è¦ç†„ç­
-    // 0è¡¨ç¤ºä¿æŒäº®ï¼Œ1è¡¨ç¤ºç†„ç­
+    // ¶¨Òå2x2Íø¸ñµÄ½¥ÒşÄ£Ê½
+    // Ã¿¸öÊı×é±íÊ¾Ò»¸ö2x2Íø¸ñÖĞÄÄĞ©ÏñËØĞèÒªÏ¨Ãğ
+    // 0±íÊ¾±£³ÖÁÁ£¬1±íÊ¾Ï¨Ãğ
     const uint8_t patterns[5][2][2] = {
-        {{0, 0},  // Level 1: å…¨äº®
+        {{0, 0},  // Level 1: È«ÁÁ
          {0, 0}},
         
-        {{1, 0},  // Level 2: å·¦ä¸Šè§’ç†„ç­
+        {{1, 0},  // Level 2: ×óÉÏ½ÇÏ¨Ãğ
          {0, 0}},
         
-        {{1, 0},  // Level 3: å·¦ä¸Šè§’å’Œå³ä¸‹è§’ç†„ç­
+        {{1, 0},  // Level 3: ×óÉÏ½ÇºÍÓÒÏÂ½ÇÏ¨Ãğ
          {0, 1}},
         
-        {{1, 0},  // Level 4: åªä¿ç•™å³ä¸Šè§’
+        {{1, 0},  // Level 4: Ö»±£ÁôÓÒÉÏ½Ç
          {1, 1}},
         
-        {{1, 1},  // Level 5: å…¨æš—
+        {{1, 1},  // Level 5: È«°µ
          {1, 1}}
     };
 
-    // è®¡ç®—è¾¹ç•Œ
+    // ¼ÆËã±ß½ç
     int16_t xEnd = x0 + width;
     int16_t yEnd = y0 + height;
 
-    // åº”ç”¨æ¸éšæ•ˆæœ
+    // Ó¦ÓÃ½¥ÒşĞ§¹û
     for (int16_t y = y0; y < yEnd; y++) {
         int page = y / 8;
         int bit_pos = y % 8;
         uint8_t pixel_mask = 1 << bit_pos;
         
         for (int16_t x = x0; x < xEnd; x++) {
-            // è®¡ç®—åœ¨2x2ç½‘æ ¼ä¸­çš„ç›¸å¯¹ä½ç½®
+            // ¼ÆËãÔÚ2x2Íø¸ñÖĞµÄÏà¶ÔÎ»ÖÃ
             int grid_x = (x - x0) % 2;
             int grid_y = (y - y0) % 2;
             
-            // æ ¹æ®æ¸éšçº§åˆ«å’Œç½‘æ ¼ä½ç½®å†³å®šæ˜¯å¦ç†„ç­åƒç´ 
+            // ¸ù¾İ½¥Òş¼¶±ğºÍÍø¸ñÎ»ÖÃ¾ö¶¨ÊÇ·ñÏ¨ÃğÏñËØ
             if (patterns[fadeLevel - 1][grid_y][grid_x]) {
                 OLED_DisplayBuf[page][x] &= ~pixel_mask;
             }
@@ -230,9 +230,9 @@ void OLED_UI_FadeOut_Masking(int16_t x0, int16_t y0, int16_t width, int16_t heig
 
 
 /**
- * @brief è·å–èœå•é¡¹ç»“æ„ä½“æ•°ç»„çš„æœ€åä¸€ä¸ªå…ƒç´ çš„ID
- * @param items ç»“æ„ä½“æ•°ç»„MenuItemçš„æŒ‡é’ˆ
- * @return èœå•é¡¹ç»“æ„ä½“æ•°ç»„çš„å…ƒç´ æ•°é‡
+ * @brief »ñÈ¡²Ëµ¥Ïî½á¹¹ÌåÊı×éµÄ×îºóÒ»¸öÔªËØµÄID
+ * @param items ½á¹¹ÌåÊı×éMenuItemµÄÖ¸Õë
+ * @return ²Ëµ¥Ïî½á¹¹ÌåÊı×éµÄÔªËØÊıÁ¿
  */
 MenuID GetMenuItemNum(MenuItem * items){
 	MenuID num = 0;
@@ -244,19 +244,19 @@ MenuID GetMenuItemNum(MenuItem * items){
 
 
 /**
- * @brief æ ¹æ®å½“å‰æ‰€é€‰çš„åŠ¨ç”»æ–¹å¼ï¼Œæ”¹å˜æµ®ç‚¹æ•°å‚æ•°
- * @param CurrentNum å½“å‰å€¼çš„æŒ‡é’ˆ
- * @param TargetNum ç›®æ ‡å€¼æŒ‡é’ˆ
- * @param StartNum èµ·å§‹å€¼æŒ‡é’ˆ
- * @param CurrentStepNum å½“å‰æ­¥æ•°æŒ‡é’ˆ
- * @return æ— 
+ * @brief ¸ù¾İµ±Ç°ËùÑ¡µÄ¶¯»­·½Ê½£¬¸Ä±ä¸¡µãÊı²ÎÊı
+ * @param CurrentNum µ±Ç°ÖµµÄÖ¸Õë
+ * @param TargetNum Ä¿±êÖµÖ¸Õë
+ * @param StartNum ÆğÊ¼ÖµÖ¸Õë
+ * @param CurrentStepNum µ±Ç°²½ÊıÖ¸Õë
+ * @return ÎŞ
  */
 void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float *LastErrorNum, float * IntegralNum, float *DerivativeNum)  {
 	if(CurrentMenuPage->General_MoveStyle ==  UNLINEAR){
 		if(*CurrentNum == *TargetNum){
 			return;
 		}
-		//å¦‚æœç”¨æˆ·å°†é€Ÿåº¦è®¾ç½®ä¸º0ï¼Œé‚£ä¹ˆå½“å‰å€¼ç›´æ¥ç­‰äºç›®æ ‡å€¼
+		//Èç¹ûÓÃ»§½«ËÙ¶ÈÉèÖÃÎª0£¬ÄÇÃ´µ±Ç°ÖµÖ±½ÓµÈÓÚÄ¿±êÖµ
 		if(CurrentMenuPage->General_MovingSpeed <= 0){
 
 			*ErrorNum = 0;
@@ -265,11 +265,11 @@ void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float 
 			return;
 		}
 		*LastErrorNum = *ErrorNum;
-		//è®¡ç®—æœ¬è½®è¯¯å·®å€¼
+		//¼ÆËã±¾ÂÖÎó²îÖµ
 		*ErrorNum = *TargetNum - *CurrentNum; 
-		//è®¡ç®—å½“å‰å€¼
-		*CurrentNum += 0.02*CurrentMenuPage->General_MovingSpeed * (*ErrorNum);
-		//å½“ç›®æ ‡å€¼ä¸å½“å‰å€¼å·®è·å°äºé€Ÿåº¦å€¼çš„1/20æ—¶ï¼Œè®¤ä¸ºå·²ç»åˆ°è¾¾ç›®æ ‡å€¼
+		//¼ÆËãµ±Ç°Öµ
+		*CurrentNum += 0.02f*CurrentMenuPage->General_MovingSpeed * (*ErrorNum);
+		//µ±Ä¿±êÖµÓëµ±Ç°Öµ²î¾àĞ¡ÓÚËÙ¶ÈÖµµÄ1/20Ê±£¬ÈÏÎªÒÑ¾­µ½´ïÄ¿±êÖµ
 		if(fabs(*CurrentNum - *TargetNum) < CurrentMenuPage->General_MovingSpeed/20.0f){
 
 			*ErrorNum = 0;
@@ -278,10 +278,10 @@ void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float 
 			return;
 		}
 	}
-	//å¦‚æœå½“å‰çš„åŠ¨ç”»æ–¹å¼æ˜¯PID_CURVEæ–¹å¼
+	//Èç¹ûµ±Ç°µÄ¶¯»­·½Ê½ÊÇPID_CURVE·½Ê½
 	if(CurrentMenuPage->General_MoveStyle ==  PID_CURVE){
-		/*è¿™æ˜¯ä¸€ç§å¥‡ç‰¹çš„æ–¹æ³•ï¼Œå› ä¸ºå½“å½“å‰å€¼ç­‰äºç›®æ ‡å€¼çš„æ—¶å€™ï¼Œå…¶ä»–é¡¹ç½®é›¶äº†ï¼Œä½†æ˜¯ç§¯åˆ†é¡¹å¹¶æ²¡æœ‰è¢«ç½®é›¶ã€‚æ ¹æ®å®é™…ç°è±¡ï¼Œè¿™æ ·çš„æ•ˆæœæ˜¯æœ€å¥½çš„ã€‚ */
-		//å¦‚æœç”¨æˆ·å°†é€Ÿåº¦è®¾ç½®ä¸º0ï¼Œé‚£ä¹ˆå½“å‰å€¼ç›´æ¥ç­‰äºç›®æ ‡å€¼ï¼Œå…¶ä»–æ‰€æœ‰ä¸­é—´å€¼ç½®é›¶
+		/*ÕâÊÇÒ»ÖÖÆæÌØµÄ·½·¨£¬ÒòÎªµ±µ±Ç°ÖµµÈÓÚÄ¿±êÖµµÄÊ±ºò£¬ÆäËûÏîÖÃÁãÁË£¬µ«ÊÇ»ı·ÖÏî²¢Ã»ÓĞ±»ÖÃÁã¡£¸ù¾İÊµ¼ÊÏÖÏó£¬ÕâÑùµÄĞ§¹ûÊÇ×îºÃµÄ¡£ */
+		//Èç¹ûÓÃ»§½«ËÙ¶ÈÉèÖÃÎª0£¬ÄÇÃ´µ±Ç°ÖµÖ±½ÓµÈÓÚÄ¿±êÖµ£¬ÆäËûËùÓĞÖĞ¼äÖµÖÃÁã
 		if(CurrentMenuPage->General_MovingSpeed <= 0){
 
 			*ErrorNum = 0;
@@ -291,23 +291,23 @@ void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float 
 		    *CurrentNum = *TargetNum;
 			return;
 		}
-		// å®šä¹‰PIDå‚æ•°
-		//å®šä¹‰PIDå‚æ•°
+		// ¶¨ÒåPID²ÎÊı
+		//¶¨ÒåPID²ÎÊı
 		float Kp = 0.02f * CurrentMenuPage->General_MovingSpeed;
 		float Ki = 0.005f * CurrentMenuPage->General_MovingSpeed;
 		float Kd = 0.002f ;
 
-		//è®°å½•ä¸Šä¸€è½®è¯¯å·®å€¼
+		//¼ÇÂ¼ÉÏÒ»ÂÖÎó²îÖµ
 		*LastErrorNum = *ErrorNum;
-		//è®¡ç®—æœ¬è½®è¯¯å·®å€¼
+		//¼ÆËã±¾ÂÖÎó²îÖµ
 		*ErrorNum = *TargetNum - *CurrentNum; 
-		//è®¡ç®—ç§¯åˆ†å€¼
+		//¼ÆËã»ı·ÖÖµ
 		*IntegralNum += *ErrorNum;
-		//è®¡ç®—å¾®åˆ†å€¼ï¼Œå¹¶å‡è®¾æ—¶é—´é—´éš”ä¸º0.1s
-		*DerivativeNum = (*ErrorNum - *LastErrorNum) / 0.1;
-		//è®¡ç®—å½“å‰å€¼
+		//¼ÆËãÎ¢·ÖÖµ£¬²¢¼ÙÉèÊ±¼ä¼ä¸ôÎª0.1s
+		*DerivativeNum = (*ErrorNum - *LastErrorNum) / 0.1f;
+		//¼ÆËãµ±Ç°Öµ
 		*CurrentNum += Kp * (*ErrorNum) + Ki *  (*IntegralNum) + Kd *(*DerivativeNum);
-		//å½“ç›®æ ‡å€¼ä¸å½“å‰å€¼å·®è·å°äº0.5æ—¶ï¼Œå°†ç›®æ ‡å€¼å¼ºåˆ¶ç­‰äºå½“å‰å€¼ï¼Œé™¤äº†ç§¯åˆ†é¡¹ä¸ç½®é›¶ï¼Œå…¶ä»–æ‰€æœ‰ä¸­é—´å€¼ç½®é›¶
+		//µ±Ä¿±êÖµÓëµ±Ç°Öµ²î¾àĞ¡ÓÚ0.5Ê±£¬½«Ä¿±êÖµÇ¿ÖÆµÈÓÚµ±Ç°Öµ£¬³ıÁË»ı·ÖÏî²»ÖÃÁã£¬ÆäËûËùÓĞÖĞ¼äÖµÖÃÁã
 		if(fabs(*TargetNum - *CurrentNum) < 0.5f){
 
 			*ErrorNum = 0;
@@ -321,28 +321,28 @@ void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float 
 }
 
 /**
- * @brief éçº¿æ€§æ”¹å˜è·ç¦»å‚æ•°
- * @param CurrentNum å½“å‰å€¼çš„æŒ‡é’ˆ
- * @param TargetNum ç›®æ ‡å€¼æŒ‡é’ˆ
- * @param StepNum æ­¥é•¿æŒ‡é’ˆ
+ * @brief ·ÇÏßĞÔ¸Ä±ä¾àÀë²ÎÊı
+ * @param CurrentNum µ±Ç°ÖµµÄÖ¸Õë
+ * @param TargetNum Ä¿±êÖµÖ¸Õë
+ * @param StepNum ²½³¤Ö¸Õë
  */
 void ChangeDistance(OLED_ChangeDistance *distance){
 	ChangeFloatNum(&distance->CurrentDistance,&distance->TargetDistance,&distance->Error,&distance->LastError,&distance->Integral,&distance->Derivative);
 }
 
 /**
- * @brief éçº¿æ€§æ”¹å˜ç‚¹åæ ‡å‚æ•°
- * @param OLED_MovingArea ç»“æ„ä½“æ•°ç»„çš„æŒ‡é’ˆ
- * @return æ— 
+ * @brief ·ÇÏßĞÔ¸Ä±äµã×ø±ê²ÎÊı
+ * @param OLED_MovingArea ½á¹¹ÌåÊı×éµÄÖ¸Õë
+ * @return ÎŞ
  */
 void ChangePoint(OLED_ChangePoint *point){
 	ChangeFloatNum(&point->CurrentPoint.X,&point->TargetPoint.X,&point->Error.X,&point->LastError.X,&point->Integral.X,&point->Derivative.X);
 	ChangeFloatNum(&point->CurrentPoint.Y,&point->TargetPoint.Y,&point->Error.Y,&point->LastError.Y,&point->Integral.Y,&point->Derivative.Y);
 }
 /**
- * @brief éçº¿æ€§æ”¹å˜åŒºåŸŸå‚æ•°
- * @param OLED_MovingArea ç»“æ„ä½“æ•°ç»„çš„æŒ‡é’ˆ
- * @return æ— 
+ * @brief ·ÇÏßĞÔ¸Ä±äÇøÓò²ÎÊı
+ * @param OLED_MovingArea ½á¹¹ÌåÊı×éµÄÖ¸Õë
+ * @return ÎŞ
  */
 void ChangeArea(OLED_ChangeArea *area)	{
 	ChangeFloatNum(&area->CurrentArea.X,&area->TargetArea.X,&area->Error.X,&area->LastError.X,&area->Integral.X,&area->Derivative.X);
@@ -355,111 +355,111 @@ void ChangeArea(OLED_ChangeArea *area)	{
 
 
 /**
- * @brief å¯¹å½“å‰çš„èœå•é¡µé¢çš„å‚æ•°è¿›è¡Œæ£€æŸ¥ä¸åˆå§‹åŒ–
- * @param æ— 
- * @note ç”¨äºç¡®è®¤äº‹ä»¶ä¸‹è¿›å…¥å­èœå•æ—¶çš„æ“ä½œ
- * @return æ— 
+ * @brief ¶Ôµ±Ç°µÄ²Ëµ¥Ò³ÃæµÄ²ÎÊı½øĞĞ¼ì²éÓë³õÊ¼»¯
+ * @param ÎŞ
+ * @note ÓÃÓÚÈ·ÈÏÊÂ¼şÏÂ½øÈë×Ó²Ëµ¥Ê±µÄ²Ù×÷
+ * @return ÎŞ
  */
 void CurrentMenuPageInit(void){
-	//å¦‚æœå½“å‰çš„èœå•ç±»å‹ä¸ºLIST
+	//Èç¹ûµ±Ç°µÄ²Ëµ¥ÀàĞÍÎªLIST
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-		//è®¾ç½®å…¨å±€é¡µé¢å½“å‰èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹+ç›¸å¯¹ä½ç½®èµ·å§‹ç‚¹
+		//ÉèÖÃÈ«¾ÖÒ³Ãæµ±Ç°ÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã+Ïà¶ÔÎ»ÖÃÆğÊ¼µã
 		OLED_UI_PageStartPoint.CurrentPoint.X = OLED_UI_MenuFrame.CurrentArea.X+CurrentMenuPage->List_StartPointX + OLED_WIDTH;
 		OLED_UI_PageStartPoint.CurrentPoint.Y = OLED_UI_MenuFrame.CurrentArea.Y+CurrentMenuPage->List_StartPointY;
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹+ç›¸å¯¹ä½ç½®èµ·å§‹ç‚¹
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã+Ïà¶ÔÎ»ÖÃÆğÊ¼µã
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->List_MenuArea.X+CurrentMenuPage->List_StartPointX;
 		OLED_UI_PageStartPoint.TargetPoint.Y = CurrentMenuPage->List_MenuArea.Y+CurrentMenuPage->List_StartPointY;
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡åŒºåŸŸä¸ºå½“å‰èœå•ç»“æ„ä½“çš„åŒºåŸŸ
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÇøÓòÎªµ±Ç°²Ëµ¥½á¹¹ÌåµÄÇøÓò
 		OLED_UI_MenuFrame.TargetArea.X = CurrentMenuPage->List_MenuArea.X;
 		OLED_UI_MenuFrame.TargetArea.Y = CurrentMenuPage->List_MenuArea.Y;
 		OLED_UI_MenuFrame.TargetArea.Width = CurrentMenuPage->List_MenuArea.Width;
 		OLED_UI_MenuFrame.TargetArea.Height = CurrentMenuPage->List_MenuArea.Height;
 
-		//è®¾ç½®å½“å‰è¡Œé—´è·ä¸º-å­—ä½“å¤§å°ä»¥åˆ¶é€ èœå•é¡¹å±•å¼€çš„åŠ¨ç”»æ•ˆæœ
+		//ÉèÖÃµ±Ç°ĞĞ¼ä¾àÎª-×ÖÌå´óĞ¡ÒÔÖÆÔì²Ëµ¥ÏîÕ¹¿ªµÄ¶¯»­Ğ§¹û
 		OLED_UI_LineStep.CurrentDistance =-3;
-		//è®¾ç½®ç›®æ ‡è¡Œé—´è·ä¸ºç”¨æˆ·è®¾ç½®çš„è¡Œè·
+		//ÉèÖÃÄ¿±êĞĞ¼ä¾àÎªÓÃ»§ÉèÖÃµÄĞĞ¾à
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
-		//è®¾ç½®å½“å‰å…‰æ ‡ä¸ºå½“å‰èœå•é¡¹çš„ç¬¬ä¸€ä¸ª
+		//ÉèÖÃµ±Ç°¹â±êÎªµ±Ç°²Ëµ¥ÏîµÄµÚÒ»¸ö
 		CurrentMenuPage->_ActiveMenuID = 0;
-		//è®¾ç½®å½“å‰æ§½ä½ä¸º0
+		//ÉèÖÃµ±Ç°²ÛÎ»Îª0
 		CurrentMenuPage->_Slot = 0;
 	}
-	//å¦‚æœå½“å‰çš„èœå•ç±»å‹ä¸ºTILES
+	//Èç¹ûµ±Ç°µÄ²Ëµ¥ÀàĞÍÎªTILES
 	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES)
 	{
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡èµ·å§‹ç‚¹ä¸ºå±å¹•ä¸­å¤®å‘å·¦åç§»åŠä¸ªç£è´´å®½åº¦ï¼Œä½¿å¾—å½“å‰èœå•é¡¹å±…ä¸­
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÆğÊ¼µãÎªÆÁÄ»ÖĞÑëÏò×óÆ«ÒÆ°ë¸ö´ÅÌù¿í¶È£¬Ê¹µÃµ±Ç°²Ëµ¥Ïî¾ÓÖĞ
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->Tiles_ScreenWidth/2-CurrentMenuPage->Tiles_TileWidth/2;
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡èµ·å§‹ç‚¹ä¸ºé¢„è®¾çš„èµ·å§‹ç‚¹
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÆğÊ¼µãÎªÔ¤ÉèµÄÆğÊ¼µã
 		OLED_UI_PageStartPoint.TargetPoint.Y = TILES_STARTPOINT_Y;
-		//è®¾ç½®å…¨å±€é¡µé¢å½“å‰èµ·å§‹ç‚¹ä¸ºä¸€ä¸ªè´Ÿçš„ä½ç½®ï¼Œä½¿å¾—å¼€å§‹æ—¶æœ‰åŠ¨ç”»
+		//ÉèÖÃÈ«¾ÖÒ³Ãæµ±Ç°ÆğÊ¼µãÎªÒ»¸ö¸ºµÄÎ»ÖÃ£¬Ê¹µÃ¿ªÊ¼Ê±ÓĞ¶¯»­
 		OLED_UI_PageStartPoint.CurrentPoint.X = -50;
 		OLED_UI_PageStartPoint.CurrentPoint.Y = -CurrentMenuPage->Tiles_TileWidth;
-		//è®¾ç½®å½“å‰ç£è´´é—´è·ä¸º1ä»¥ä¾¿äº§ç”ŸåŠ¨ç”»æ•ˆæœ
+		//ÉèÖÃµ±Ç°´ÅÌù¼ä¾àÎª1ÒÔ±ã²úÉú¶¯»­Ğ§¹û
 		OLED_UI_LineStep.CurrentDistance = 1;
-		//è®¾ç½®ç›®æ ‡ç£è´´é—´è·ä¸ºç”¨æˆ·è®¾ç½®çš„è¡Œè·
+		//ÉèÖÃÄ¿±ê´ÅÌù¼ä¾àÎªÓÃ»§ÉèÖÃµÄĞĞ¾à
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
-		//è®¾ç½®å½“å‰å…‰æ ‡ä¸ºå½“å‰èœå•é¡¹çš„ç¬¬ä¸€ä¸ª
+		//ÉèÖÃµ±Ç°¹â±êÎªµ±Ç°²Ëµ¥ÏîµÄµÚÒ»¸ö
 		CurrentMenuPage->_ActiveMenuID = 0;
 	}
-	//å°†æ»šåŠ¨çš„å¼€å§‹ç‚¹å½’é›¶ï¼Œç¡®ä¿å½“ç¡®è®¤æˆ–æ˜¯è¿”å›æ“ä½œæ—¶ï¼Œæ»šåŠ¨çš„èœå•é¡¹éƒ½ä»æ–°å¼€å§‹
+	//½«¹ö¶¯µÄ¿ªÊ¼µã¹éÁã£¬È·±£µ±È·ÈÏ»òÊÇ·µ»Ø²Ù×÷Ê±£¬¹ö¶¯µÄ²Ëµ¥Ïî¶¼´ÓĞÂ¿ªÊ¼
 	SetLineSplitZero();
 }
 /**
- * @brief è¿˜åŸèœå•å‚æ•°åˆ°ä¸Šä¸€æ¬¡çš„çŠ¶æ€
- * @param æ— 
- * @note ç”¨äºè¿”å›ä¸Šä¸€çº§èœå•æ—¶çš„æ“ä½œ
- * @return æ— 
+ * @brief »¹Ô­²Ëµ¥²ÎÊıµ½ÉÏÒ»´ÎµÄ×´Ì¬
+ * @param ÎŞ
+ * @note ÓÃÓÚ·µ»ØÉÏÒ»¼¶²Ëµ¥Ê±µÄ²Ù×÷
+ * @return ÎŞ
  */
 void CurrentMenuPageBackUp(void){
-	//å¦‚æœå½“å‰çš„èœå•ç±»å‹ä¸ºLIST
+	//Èç¹ûµ±Ç°µÄ²Ëµ¥ÀàĞÍÎªLIST
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-		//è®¾ç½®å…¨å±€é¡µé¢å½“å‰èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹+2
+		//ÉèÖÃÈ«¾ÖÒ³Ãæµ±Ç°ÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã+2
 		OLED_UI_PageStartPoint.CurrentPoint.X = OLED_UI_MenuFrame.CurrentArea.X + CurrentMenuPage->List_StartPointX - OLED_WIDTH;
 		OLED_UI_PageStartPoint.CurrentPoint.Y = CurrentMenuPage->_StartPoint.Y;
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->_StartPoint.X;
 		OLED_UI_PageStartPoint.TargetPoint.Y = CurrentMenuPage->_StartPoint.Y;
-		//è®¾ç½®å½“å‰è¡Œé—´è·ä¸º-å­—ä½“å¤§å°ä»¥åˆ¶é€ åŠ¨ç”»æ•ˆæœ
+		//ÉèÖÃµ±Ç°ĞĞ¼ä¾àÎª-×ÖÌå´óĞ¡ÒÔÖÆÔì¶¯»­Ğ§¹û
 		OLED_UI_LineStep.CurrentDistance = CurrentMenuPage->General_LineSpace;
-		//è®¾ç½®ç›®æ ‡è¡Œé—´è·
+		//ÉèÖÃÄ¿±êĞĞ¼ä¾à
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
 	}
-	//å¦‚æœå½“å‰çš„èœå•ç±»å‹ä¸ºTILES
+	//Èç¹ûµ±Ç°µÄ²Ëµ¥ÀàĞÍÎªTILES
 	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES)
 	{
-		//è®¾ç½®å…¨å±€é¡µé¢å½“å‰èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹+2
+		//ÉèÖÃÈ«¾ÖÒ³Ãæµ±Ç°ÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã+2
 		OLED_UI_PageStartPoint.CurrentPoint.X = CurrentMenuPage->_StartPoint.X + CurrentMenuPage->Tiles_TileWidth;
 		OLED_UI_PageStartPoint.CurrentPoint.Y = -CurrentMenuPage->Tiles_TileHeight-1;
-		//è®¾ç½®å…¨å±€é¡µé¢ç›®æ ‡èµ·å§‹ç‚¹ä¸ºèœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹
+		//ÉèÖÃÈ«¾ÖÒ³ÃæÄ¿±êÆğÊ¼µãÎª²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->_StartPoint.X;
 		OLED_UI_PageStartPoint.TargetPoint.Y = CurrentMenuPage->_StartPoint.Y;
-		//è®¾ç½®å½“å‰è¡Œé—´è·ä¸º-å­—ä½“å¤§å°ä»¥åˆ¶é€ åŠ¨ç”»æ•ˆæœ
+		//ÉèÖÃµ±Ç°ĞĞ¼ä¾àÎª-×ÖÌå´óĞ¡ÒÔÖÆÔì¶¯»­Ğ§¹û
 		OLED_UI_LineStep.CurrentDistance = CurrentMenuPage->General_LineSpace;
-		//è®¾ç½®ç›®æ ‡è¡Œé—´è·
+		//ÉèÖÃÄ¿±êĞĞ¼ä¾à
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
 	}
-	//å°†æ»šåŠ¨çš„å¼€å§‹ç‚¹å½’é›¶ï¼Œç¡®ä¿å½“ç¡®è®¤æˆ–æ˜¯è¿”å›æ“ä½œæ—¶ï¼Œæ»šåŠ¨çš„èœå•é¡¹éƒ½ä»æ–°å¼€å§‹
+	//½«¹ö¶¯µÄ¿ªÊ¼µã¹éÁã£¬È·±£µ±È·ÈÏ»òÊÇ·µ»Ø²Ù×÷Ê±£¬¹ö¶¯µÄ²Ëµ¥Ïî¶¼´ÓĞÂ¿ªÊ¼
 	SetLineSplitZero();
 }
 
 /**
- * @brief åˆå§‹åŒ–OLED_UIï¼Œè®¾ç½®å½“å‰é¡µé¢çš„ç»“æ„ä½“æŒ‡é’ˆï¼Œå¹¶åˆå§‹åŒ–OLEDæ˜¾ç¤ºå±
- * @param Page èœå•é¡µé¢ç»“æ„ä½“
- * @return æ— 
+ * @brief ³õÊ¼»¯OLED_UI£¬ÉèÖÃµ±Ç°Ò³ÃæµÄ½á¹¹ÌåÖ¸Õë£¬²¢³õÊ¼»¯OLEDÏÔÊ¾ÆÁ
+ * @param Page ²Ëµ¥Ò³Ãæ½á¹¹Ìå
+ * @return ÎŞ
  */
 void OLED_UI_Init(MenuPage* Page){
-	//åˆå§‹åŒ–OLEDæ˜¾ç¤ºå±
+	//³õÊ¼»¯OLEDÏÔÊ¾ÆÁ
 	OLED_Init();
 
-	//å¯åŠ¨å®šæ—¶å™¨
+	//Æô¶¯¶¨Ê±Æ÷
 	HAL_TIM_Base_Start_IT(&htim1);
 	Timer_Init();
 	Key_Init();
 	Encoder_Init();
 
-	//è®¾ç½®å½“å‰é¡µé¢çš„ç»“æ„ä½“æŒ‡é’ˆ
-	CurrentMenuPage = Page;	//è®¾ç½®å½“å‰é¡µé¢çš„ç»“æ„ä½“æŒ‡é’ˆ
-	//åˆå§‹åŒ–èœå•é¡µé¢å‚æ•°
+	//ÉèÖÃµ±Ç°Ò³ÃæµÄ½á¹¹ÌåÖ¸Õë
+	CurrentMenuPage = Page;	//ÉèÖÃµ±Ç°Ò³ÃæµÄ½á¹¹ÌåÖ¸Õë
+	//³õÊ¼»¯²Ëµ¥Ò³Ãæ²ÎÊı
 	CurrentMenuPageInit();
 	
 }
@@ -467,9 +467,9 @@ void OLED_UI_Init(MenuPage* Page){
 
 
 /**
- * @brief è·å–enteräº‹ä»¶çŠ¶æ€ï¼Œç”¨äºåˆ¤æ–­æ˜¯å¦æ­£åœ¨æ‰§è¡Œå›è°ƒå‡½æ•°
+ * @brief »ñÈ¡enterÊÂ¼ş×´Ì¬£¬ÓÃÓÚÅĞ¶ÏÊÇ·ñÕıÔÚÖ´ĞĞ»Øµ÷º¯Êı
  * @param void
- * @return æ— 
+ * @return ÎŞ
  */
 bool GetEnterFlag(void){
 	if(KeyEnterFlag == FLAGEND){
@@ -480,9 +480,9 @@ bool GetEnterFlag(void){
 }
 
 /**
- * @brief è·å–enteräº‹ä»¶çŠ¶æ€ï¼Œç”¨äºåˆ¤æ–­æ˜¯å¦æ­£åœ¨æ‰§è¡Œå›è°ƒå‡½æ•°
+ * @brief »ñÈ¡enterÊÂ¼ş×´Ì¬£¬ÓÃÓÚÅĞ¶ÏÊÇ·ñÕıÔÚÖ´ĞĞ»Øµ÷º¯Êı
  * @param void
- * @return æ— 
+ * @return ÎŞ
  */
 bool GetFadeoutFlag(void){
 	if(FadeOutFlag == FLAGEND){
@@ -493,11 +493,11 @@ bool GetFadeoutFlag(void){
 }
 
 /**
- * @brief è®¡ç®—å­—ç¬¦ä¸²çš„å®½åº¦ï¼ˆå¯ä»¥æ˜¯ä¸­è‹±æ–‡å­—ç¬¦ä¸²ï¼‰
- * @param String å­—ç¬¦ä¸²æŒ‡é’ˆ
- * @param ChineseFont ä¸­æ–‡å­—ä½“å®½åº¦
- * @param ASCIIFont ASCIIå­—ä½“å®½åº¦
- * @return å­—ç¬¦ä¸²çš„å®½åº¦
+ * @brief ¼ÆËã×Ö·û´®µÄ¿í¶È£¨¿ÉÒÔÊÇÖĞÓ¢ÎÄ×Ö·û´®£©
+ * @param String ×Ö·û´®Ö¸Õë
+ * @param ChineseFont ÖĞÎÄ×ÖÌå¿í¶È
+ * @param ASCIIFont ASCII×ÖÌå¿í¶È
+ * @return ×Ö·û´®µÄ¿í¶È
  */
 int16_t CalcStringWidth(int16_t ChineseFont, int16_t ASCIIFont, const char *format, ...) {
     int16_t StringLength = 0;
@@ -505,12 +505,12 @@ int16_t CalcStringWidth(int16_t ChineseFont, int16_t ASCIIFont, const char *form
 
     va_list args;
     va_start(args, format);
-    vsnprintf(String, sizeof(String), format, args); // ä½¿ç”¨vsnprintf
+    vsnprintf(String, sizeof(String), format, args); // Ê¹ÓÃvsnprintf
     va_end(args);
 
     char *ptr = String;
     while (*ptr != '\0') {
-        if ((unsigned char)*ptr & 0x80) { // å¤„ç†ä¸­æ–‡å­—ç¬¦
+        if ((unsigned char)*ptr & 0x80) { // ´¦ÀíÖĞÎÄ×Ö·û
             StringLength += ChineseFont;
             ptr += 2;
         } else {
@@ -522,13 +522,13 @@ int16_t CalcStringWidth(int16_t ChineseFont, int16_t ASCIIFont, const char *form
     return StringLength;
 }
 /**
- * @brief è·å–çª—å£æ•°æ®æƒ…å†µ
- * @param *int16_tdata æŒ‡é’ˆï¼Œç”¨äºå­˜å‚¨int16_tæ•°æ®
- * @param *float_tdata æŒ‡é’ˆï¼Œç”¨äºå­˜å‚¨floatæ•°æ®
- * @return æµ®ç‚¹å€¼ä¸ºè¿”å› WINDOW_DATA_STYLE_FLOAT ï¼Œint16_tå€¼ä¸ºè¿”å› WINDOW_DATA_STYLE_INT ï¼Œç©ºæŒ‡é’ˆè¿”å› WINDOW_DATA_STYLE_NONE
+ * @brief »ñÈ¡´°¿ÚÊı¾İÇé¿ö
+ * @param *int16_tdata Ö¸Õë£¬ÓÃÓÚ´æ´¢int16_tÊı¾İ
+ * @param *float_tdata Ö¸Õë£¬ÓÃÓÚ´æ´¢floatÊı¾İ
+ * @return ¸¡µãÖµÎª·µ»Ø WINDOW_DATA_STYLE_FLOAT £¬int16_tÖµÎª·µ»Ø WINDOW_DATA_STYLE_INT £¬¿ÕÖ¸Õë·µ»Ø WINDOW_DATA_STYLE_NONE
  */
 int8_t GetWindowDataStyle(int16_t *int16_tdata,float *float_tdata){
-	//ä¿æŠ¤é¿å…è®¿é—®éæ³•å†…å­˜
+	//±£»¤±ÜÃâ·ÃÎÊ·Ç·¨ÄÚ´æ
 	if(CurrentWindow == NULL){
 		return -1;
 	}
@@ -542,12 +542,12 @@ int8_t GetWindowDataStyle(int16_t *int16_tdata,float *float_tdata){
 }
 
 /**
- * @brief ç»˜åˆ¶çª—å£
- * @param æ— 
- * @return æ— 
+ * @brief »æÖÆ´°¿Ú
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void OLED_DrawWindow(void){
-	//å¦‚æœçª—å£æ ‡å¿—ä½æ²¡æœ‰è¢«ç½®ä½ï¼Œåˆ™ä¸è¿›è¡Œçª—å£æ•ˆæœï¼Œå°†çª—å£çš„ç›®æ ‡ä½ç½®ç½®ä½å±å¹•å¤–éƒ¨
+	//Èç¹û´°¿Ú±êÖ¾Î»Ã»ÓĞ±»ÖÃÎ»£¬Ôò²»½øĞĞ´°¿ÚĞ§¹û£¬½«´°¿ÚµÄÄ¿±êÎ»ÖÃÖÃÎ»ÆÁÄ»Íâ²¿
 	if(OLED_SustainCounter.SustainFlag == false){
 		OLED_UI_Window.TargetArea.Height = 30;
 		OLED_UI_Window.TargetArea.Width = 60;
@@ -561,9 +561,9 @@ void OLED_DrawWindow(void){
 
 	
 
-	//å¦‚æœçª—å£åŠ¨ç”»è¿˜æ²¡æœ‰é€€å‡ºå±å¹•ï¼Œåˆ™ç»˜åˆ¶çª—å£
+	//Èç¹û´°¿Ú¶¯»­»¹Ã»ÓĞÍË³öÆÁÄ»£¬Ôò»æÖÆ´°¿Ú
 	if(OLED_SustainCounter.SustainFlag == true || (OLED_UI_Window.CurrentArea.Height != 30 && OLED_UI_Window.CurrentArea.Width != 60 && OLED_UI_Window.CurrentArea.Y != -40)){
-		//é€šè¿‡å®åˆ¤æ–­æ˜¯å¦éœ€è¦ç»˜åˆ¶åœ†è§’çŸ©å½¢
+		//Í¨¹ıºêÅĞ¶ÏÊÇ·ñĞèÒª»æÖÆÔ²½Ç¾ØĞÎ
 		if(CurrentWindow->General_WindowType == WINDOW_RECTANGLE){
 			OLED_DrawRectangle(OLED_UI_Window.CurrentArea.X - 1,OLED_UI_Window.CurrentArea.Y - 1,OLED_UI_Window.CurrentArea.Width + 2,OLED_UI_Window.CurrentArea.Height + 2,OLED_UNFILLED);
 			OLED_ClearArea(OLED_UI_Window.CurrentArea.X,OLED_UI_Window.CurrentArea.Y,OLED_UI_Window.CurrentArea.Width,OLED_UI_Window.CurrentArea.Height);
@@ -571,37 +571,37 @@ void OLED_DrawWindow(void){
 			OLED_DrawRoundedRectangle(OLED_UI_Window.CurrentArea.X - 1,OLED_UI_Window.CurrentArea.Y - 1,OLED_UI_Window.CurrentArea.Width + 2,OLED_UI_Window.CurrentArea.Height + 2,2,OLED_UNFILLED);
 			OLED_ClearArea(OLED_UI_Window.CurrentArea.X,OLED_UI_Window.CurrentArea.Y,OLED_UI_Window.CurrentArea.Width,OLED_UI_Window.CurrentArea.Height);
 		}
-		//æ˜¾ç¤ºæ–‡å­—
+		//ÏÔÊ¾ÎÄ×Ö
 		/**
-		 * é™åˆ¶æ˜¾ç¤ºçš„åŒºåŸŸï¼š
-		 * Xï¼šå½“å‰çª—å£åŒºåŸŸçš„èµ·å§‹ç‚¹X + æ­¤çª—å£è®¾ç½®çš„å­—ä½“å·¦ä¾§é—´è·
-		 * Yï¼š å½“å‰çª—å£åŒºåŸŸçš„èµ·å§‹ç‚¹Y + å­—ä½“é¡¶éƒ¨é—´è·
-		 * Widthï¼šå½“å‰çª—å£å®½åº¦å‡å» 2*æ–‡å­—è¾¹è· å‡å» æ•°æ®çš„å®½åº¦ å‡å»æ•°æ®å’Œæ–‡å­—çš„è·ç¦»WINDOW_DATA_TEXT_DISTANCE
-		 * Heightï¼šå­—ç¬¦ä¸²é«˜åº¦
-		 * æ˜¾ç¤ºæ–‡å­—çš„èµ·å§‹ç‚¹æ˜¯ï¼š
-		 * Xï¼š å½“å‰çª—å£åŒºåŸŸçš„èµ·å§‹ç‚¹X + æ­¤çª—å£è®¾ç½®çš„å­—ä½“å·¦ä¾§é—´è·
-		 * Yï¼š å½“å‰çª—å£åŒºåŸŸçš„èµ·å§‹ç‚¹Y + å­—ä½“é¡¶éƒ¨é—´è·
-		 * Widthï¼šå­—ç¬¦ä¸²å®½åº¦
-		 * Heightï¼šå­—ç¬¦ä¸²é«˜åº¦
+		 * ÏŞÖÆÏÔÊ¾µÄÇøÓò£º
+		 * X£ºµ±Ç°´°¿ÚÇøÓòµÄÆğÊ¼µãX + ´Ë´°¿ÚÉèÖÃµÄ×ÖÌå×ó²à¼ä¾à
+		 * Y£º µ±Ç°´°¿ÚÇøÓòµÄÆğÊ¼µãY + ×ÖÌå¶¥²¿¼ä¾à
+		 * Width£ºµ±Ç°´°¿Ú¿í¶È¼õÈ¥ 2*ÎÄ×Ö±ß¾à ¼õÈ¥ Êı¾İµÄ¿í¶È ¼õÈ¥Êı¾İºÍÎÄ×ÖµÄ¾àÀëWINDOW_DATA_TEXT_DISTANCE
+		 * Height£º×Ö·û´®¸ß¶È
+		 * ÏÔÊ¾ÎÄ×ÖµÄÆğÊ¼µãÊÇ£º
+		 * X£º µ±Ç°´°¿ÚÇøÓòµÄÆğÊ¼µãX + ´Ë´°¿ÚÉèÖÃµÄ×ÖÌå×ó²à¼ä¾à
+		 * Y£º µ±Ç°´°¿ÚÇøÓòµÄÆğÊ¼µãY + ×ÖÌå¶¥²¿¼ä¾à
+		 * Width£º×Ö·û´®¿í¶È
+		 * Height£º×Ö·û´®¸ß¶È
 		 * */
-        // å…ˆè®¡ç®—ä¸åŒ…å«æ•°æ®å®½åº¦çš„å­—ç¬¦ä¸²å®½åº¦ä½œä¸ºé»˜è®¤å®½åº¦
+        // ÏÈ¼ÆËã²»°üº¬Êı¾İ¿í¶ÈµÄ×Ö·û´®¿í¶È×÷ÎªÄ¬ÈÏ¿í¶È
 		int16_t MaxLength  = OLED_UI_Window.CurrentArea.Width - 2*CurrentWindow->Text_FontSideDistance - WINDOW_DATA_TEXT_DISTANCE;
 		int16_t DataLength = 0;
-		//è®¡ç®—æ•°æ®ç±»å‹
+		//¼ÆËãÊı¾İÀàĞÍ
 		int8_t DataStyle = GetWindowDataStyle(CurrentWindow->Prob_Data_Int,CurrentWindow->Prob_Data_Float);
-		//å¦‚æœè¿›åº¦æ¡æ•°æ®ä¸ä¸ºç©ºï¼Œåˆ™è¯´æ˜ç”¨æˆ·è®¾ç½®äº†è¿›åº¦æ¡ï¼Œåˆ™æ˜¾ç¤ºè¿›åº¦æ¡
-		//å¦‚æœæ•°æ®æŒ‡é’ˆä¸ä¸ºç©º
+		//Èç¹û½ø¶ÈÌõÊı¾İ²»Îª¿Õ£¬ÔòËµÃ÷ÓÃ»§ÉèÖÃÁË½ø¶ÈÌõ£¬ÔòÏÔÊ¾½ø¶ÈÌõ
+		//Èç¹ûÊı¾İÖ¸Õë²»Îª¿Õ
 		if(DataStyle != WINDOW_DATA_STYLE_NONE ){
-			//å¦‚æœæ•°æ®ç±»å‹ä¸ºint16_t
+			//Èç¹ûÊı¾İÀàĞÍÎªint16_t
 			if (DataStyle == WINDOW_DATA_STYLE_INT)
 			{
-				//è®¡ç®—å­—ç¬¦ä¸²è¢«é™åˆ¶çš„æœ€å¤§å®½åº¦
+				//¼ÆËã×Ö·û´®±»ÏŞÖÆµÄ×î´ó¿í¶È
 				MaxLength = OLED_UI_Window.CurrentArea.Width - 2*CurrentWindow->Text_FontSideDistance - CalcStringWidth(ChineseFont,ASCIIFont,"%3d",*CurrentWindow->Prob_Data_Int)- WINDOW_DATA_TEXT_DISTANCE;
-				//è®¡ç®—æ•°æ®æ‰€å çš„å®½åº¦
+				//¼ÆËãÊı¾İËùÕ¼µÄ¿í¶È
 				DataLength = CalcStringWidth(ChineseFont,ASCIIFont,"%3d",*CurrentWindow->Prob_Data_Int);
-				//æ˜¾ç¤ºæ•°æ®
+				//ÏÔÊ¾Êı¾İ
 				OLED_PrintfMixArea(
-					//åŒºåŸŸé™åˆ¶
+					//ÇøÓòÏŞÖÆ
 					OLED_UI_Window.CurrentArea.X,
 					OLED_UI_Window.CurrentArea.Y,
 					OLED_UI_Window.CurrentArea.Width,
@@ -611,15 +611,15 @@ void OLED_DrawWindow(void){
 					ChineseFont,ASCIIFont,
 					"%3d",*CurrentWindow->Prob_Data_Int);
 
-			}else{//å¦åˆ™é»˜è®¤è®¤ä¸ºæ˜¯æµ®ç‚¹å‹æ•°æ®
+			}else{//·ñÔòÄ¬ÈÏÈÏÎªÊÇ¸¡µãĞÍÊı¾İ
 			
-				//è®¡ç®—å­—ç¬¦ä¸²è¢«é™åˆ¶çš„æœ€å¤§å®½åº¦
+				//¼ÆËã×Ö·û´®±»ÏŞÖÆµÄ×î´ó¿í¶È
 				MaxLength = OLED_UI_Window.CurrentArea.Width - 2*CurrentWindow->Text_FontSideDistance - CalcStringWidth(ChineseFont,	ASCIIFont,	"%5.2f",*CurrentWindow->Prob_Data_Float) - WINDOW_DATA_TEXT_DISTANCE;
-				//è®¡ç®—æ•°æ®æ‰€å çš„å®½åº¦
+				//¼ÆËãÊı¾İËùÕ¼µÄ¿í¶È
 				DataLength = CalcStringWidth(ChineseFont,ASCIIFont,"%5.2f",*CurrentWindow->Prob_Data_Float);
-				//æ˜¾ç¤ºæ•°æ®
+				//ÏÔÊ¾Êı¾İ
 				OLED_PrintfMixArea(
-					//åŒºåŸŸé™åˆ¶
+					//ÇøÓòÏŞÖÆ
 					OLED_UI_Window.CurrentArea.X,
 					OLED_UI_Window.CurrentArea.Y,
 					OLED_UI_Window.CurrentArea.Width,
@@ -631,18 +631,18 @@ void OLED_DrawWindow(void){
 			}
 			
 
-			//æ˜¾ç¤ºè¿›åº¦æ¡ï¼ˆå¤–æ¡†ï¼‰
+			//ÏÔÊ¾½ø¶ÈÌõ£¨Íâ¿ò£©
 			OLED_DrawRoundedRectangle(OLED_UI_Window.CurrentArea.X +CurrentWindow->Prob_SideDistance,
 			OLED_UI_Window.CurrentArea.Y + OLED_UI_Window.CurrentArea.Height  - CurrentWindow->Prob_LineHeight - CurrentWindow->Prob_BottomDistance,
 			OLED_UI_Window.CurrentArea.Width- 2*CurrentWindow->Prob_SideDistance,CurrentWindow->Prob_LineHeight,2,OLED_UNFILLED);
-			//æ˜¾ç¤ºè¿›åº¦æ¡ï¼ˆå†…éƒ¨ï¼‰
+			//ÏÔÊ¾½ø¶ÈÌõ£¨ÄÚ²¿£©
 			OLED_DrawRectangle(OLED_UI_Window.CurrentArea.X +CurrentWindow->Prob_SideDistance + 2,
 							OLED_UI_Window.CurrentArea.Y + OLED_UI_Window.CurrentArea.Height  - CurrentWindow->Prob_LineHeight - CurrentWindow->Prob_BottomDistance + 2,
 							OLED_UI_ProbWidth.CurrentDistance>=OLED_UI_Window.CurrentArea.Width- 2*CurrentWindow->Prob_SideDistance - 4  ?OLED_UI_Window.CurrentArea.Width- 2*CurrentWindow->Prob_SideDistance - 4: OLED_UI_ProbWidth.CurrentDistance  ,CurrentWindow->Prob_LineHeight-4,OLED_FILLED);
 		}
 		if(CurrentWindow->Text_String != NULL){
 			int16_t WindowTextStringLength = CalcStringWidth(ChineseFont,ASCIIFont,CurrentWindow->Text_String);
-			//å¦‚æœå­—ç¬¦ä¸²çš„å®½åº¦è¶…è¿‡äº†æœ€å¤§é™å®šå®½åº¦
+			//Èç¹û×Ö·û´®µÄ¿í¶È³¬¹ıÁË×î´óÏŞ¶¨¿í¶È
 			if(WindowTextStringLength > MaxLength){
 #if IF_WAIT_ANIMATION_FINISH
                 if( OLED_UI_Window.CurrentArea.X == OLED_UI_Window.TargetArea.X &&
@@ -650,7 +650,7 @@ void OLED_DrawWindow(void){
                         OLED_UI_Window.CurrentArea.Width == OLED_UI_Window.TargetArea.Width &&
                         OLED_UI_Window.CurrentArea.Height == OLED_UI_Window.TargetArea.Height){
 #endif
-		    	CurrentWindow->_LineSlip-=LINE_SLIP_SPEED;
+		    	CurrentWindow->_LineSlip-= (float)LINE_SLIP_SPEED;
 #if IF_WAIT_ANIMATION_FINISH
                 }
 #endif
@@ -670,7 +670,7 @@ void OLED_DrawWindow(void){
 			}
 
 	}else{
-		// å¦‚æœçª—å£åŠ¨ç”»å·²ç»é€€å‡ºå±å¹•ï¼Œåˆ™å°†å½“å‰çª—å£æŒ‡é’ˆæŒ‡å‘NULL
+		// Èç¹û´°¿Ú¶¯»­ÒÑ¾­ÍË³öÆÁÄ»£¬Ôò½«µ±Ç°´°¿ÚÖ¸ÕëÖ¸ÏòNULL
 		CurrentWindow = NULL;
 	}
 	
@@ -683,41 +683,41 @@ void OLED_DrawWindow(void){
 
 
 /**
- * @brief å°†èœå•æ•´ä½“å‘ä¸Šç§»åŠ¨ä¸€è¡Œ
- * @param æ— 
- * @return æ— 
+ * @brief ½«²Ëµ¥ÕûÌåÏòÉÏÒÆ¶¯Ò»ĞĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void MenuItemsMoveUp(void){
 	OLED_UI_PageStartPoint.TargetPoint.Y -= (OLED_UI_LineStep.TargetDistance + CurrentMenuPage->General_FontSize);
 }
 /**
- * @brief å°†èœå•æ•´ä½“å‘ä¸‹ç§»åŠ¨ä¸€è¡Œ
- * @param æ— 
- * @return æ— 
+ * @brief ½«²Ëµ¥ÕûÌåÏòÏÂÒÆ¶¯Ò»ĞĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void MenuItemsMoveDown(void){
 	OLED_UI_PageStartPoint.TargetPoint.Y += (OLED_UI_LineStep.TargetDistance + CurrentMenuPage->General_FontSize);
 }
 /**
- * @brief å°†èœå•æ•´ä½“å‘å·¦ç§»åŠ¨ä¸€åˆ—
- * @param æ— 
- * @return æ— 
+ * @brief ½«²Ëµ¥ÕûÌåÏò×óÒÆ¶¯Ò»ÁĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void MenuItemsMoveLeft(void){
 	OLED_UI_PageStartPoint.TargetPoint.X -= (OLED_UI_LineStep.TargetDistance + CurrentMenuPage->Tiles_TileWidth);
 }
 /**
- * @brief å°†èœå•æ•´ä½“å‘å³ç§»åŠ¨ä¸€åˆ—
- * @param æ— 
- * @return æ— 
+ * @brief ½«²Ëµ¥ÕûÌåÏòÓÒÒÆ¶¯Ò»ÁĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void MenuItemsMoveRight(void){
 	OLED_UI_PageStartPoint.TargetPoint.X += (OLED_UI_LineStep.TargetDistance + CurrentMenuPage->Tiles_TileWidth);
 }
 /**
- * @brief è·å–å½“å‰èœå•é¡µé¢çš„æ§½ä½æ•°é‡
- * @param æ— 
- * @return å½“å‰èœå•é¡µé¢çš„æ§½ä½æ•°é‡
+ * @brief »ñÈ¡µ±Ç°²Ëµ¥Ò³ÃæµÄ²ÛÎ»ÊıÁ¿
+ * @param ÎŞ
+ * @return µ±Ç°²Ëµ¥Ò³ÃæµÄ²ÛÎ»ÊıÁ¿
  */
 int16_t GetCurrentMenuPageMaxSlotNum(void){
 	return (int16_t)(CurrentMenuPage->List_MenuArea.Height - CurrentMenuPage->List_StartPointY+OLED_UI_LineStep.TargetDistance-1) / (OLED_UI_LineStep.TargetDistance + CurrentMenuPage->General_FontSize );
@@ -726,42 +726,42 @@ int16_t GetCurrentMenuPageMaxSlotNum(void){
 
 
 /**
- * @brief è®¾ç½®ç›®æ ‡å…‰æ ‡åŒºåŸŸ
- * @param æ— 
- * @return æ— 
+ * @brief ÉèÖÃÄ¿±ê¹â±êÇøÓò
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetTargetCursor(void){
-	//å¦‚æœå½“å‰é¡µé¢çš„ç±»å‹ä¸ºListç±»
+	//Èç¹ûµ±Ç°Ò³ÃæµÄÀàĞÍÎªListÀà
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-		//ç›®æ ‡å…‰æ ‡xåæ ‡ç­‰äº å¼€å§‹æ‰“å°é¡µé¢èµ·å§‹ç‚¹çš„xåæ ‡å‡1ã€å‡å»1æ˜¯ä¸ºäº†ç¡®ä¿å…‰æ ‡è¦†ç›–åˆ°èœå•é¡¹çš„æ–‡å­—ã€‘
+		//Ä¿±ê¹â±êx×ø±êµÈÓÚ ¿ªÊ¼´òÓ¡Ò³ÃæÆğÊ¼µãµÄx×ø±ê¼õ1¡¾¼õÈ¥1ÊÇÎªÁËÈ·±£¹â±ê¸²¸Çµ½²Ëµ¥ÏîµÄÎÄ×Ö¡¿
 		OLED_UI_Cursor.TargetArea.X = OLED_UI_PageStartPoint.TargetPoint.X -1;
 
-		//ç›®æ ‡å…‰æ ‡yåæ ‡ç­‰äº å¼€å§‹æ‰“å°é¡µé¢èµ·å§‹ç‚¹çš„yåæ ‡  åŠ ä¸Š  (å­—ä½“é«˜åº¦ åŠ  è¡Œè·)ä¹˜ å½“å‰é¡µé¢çš„IDå· å‡1ã€å‡å»1æ˜¯ä¸ºäº†ç¡®ä¿å…‰æ ‡è¦†ç›–åˆ°èœå•é¡¹çš„æ–‡å­—ã€‘
+		//Ä¿±ê¹â±êy×ø±êµÈÓÚ ¿ªÊ¼´òÓ¡Ò³ÃæÆğÊ¼µãµÄy×ø±ê  ¼ÓÉÏ  (×ÖÌå¸ß¶È ¼Ó ĞĞ¾à)³Ë µ±Ç°Ò³ÃæµÄIDºÅ ¼õ1¡¾¼õÈ¥1ÊÇÎªÁËÈ·±£¹â±ê¸²¸Çµ½²Ëµ¥ÏîµÄÎÄ×Ö¡¿
 		OLED_UI_Cursor.TargetArea.Y = OLED_UI_PageStartPoint.TargetPoint.Y + 
 		CurrentMenuPage->_ActiveMenuID * ( CurrentMenuPage->General_LineSpace + CurrentMenuPage->General_FontSize) -1 ;
-		//ç›®æ ‡å…‰æ ‡é«˜åº¦ç­‰äº å­—ä½“é«˜åº¦ åŠ 2ã€åŠ 2æ˜¯ä¸ºäº†ç¡®ä¿å…‰æ ‡è¦†ç›–åˆ°èœå•é¡¹çš„æ–‡å­—ã€‘
+		//Ä¿±ê¹â±ê¸ß¶ÈµÈÓÚ ×ÖÌå¸ß¶È ¼Ó2¡¾¼Ó2ÊÇÎªÁËÈ·±£¹â±ê¸²¸Çµ½²Ëµ¥ÏîµÄÎÄ×Ö¡¿
 		OLED_UI_Cursor.TargetArea.Height = CurrentMenuPage->General_FontSize + 2;
-		//ç›®æ ‡å…‰æ ‡å®½åº¦ç­‰äº å½“å‰å­—ç¬¦ä¸²çš„å®½åº¦	ã€åŠ 2æ˜¯ä¸ºäº†ç¡®ä¿å…‰æ ‡è¦†ç›–åˆ°èœå•é¡¹çš„æ–‡å­—ã€‘
-		//å¦‚æœæœ‰è¡Œå‰ç¼€
+		//Ä¿±ê¹â±ê¿í¶ÈµÈÓÚ µ±Ç°×Ö·û´®µÄ¿í¶È	¡¾¼Ó2ÊÇÎªÁËÈ·±£¹â±ê¸²¸Çµ½²Ëµ¥ÏîµÄÎÄ×Ö¡¿
+		//Èç¹ûÓĞĞĞÇ°×º
 		int8_t LinePerfixWidth = 0;
 		if(CurrentMenuPage->List_IfDrawLinePerfix == true){
 			LinePerfixWidth = GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII) + LINEPERFIX_DISTANCE;
 		}
-		////å•é€‰æ¡†å®½åº¦
+		////µ¥Ñ¡¿ò¿í¶È
 		int8_t RadioCompensationWidth = 0;
-		//å¦‚æœéœ€è¦ç»˜åˆ¶å•é€‰æ¡†(å³BoolRadioBoxä¸ä¸ºç©º)
+		//Èç¹ûĞèÒª»æÖÆµ¥Ñ¡¿ò(¼´BoolRadioBox²»Îª¿Õ)
 		if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_BoolRadioBox != NULL){
 				RadioCompensationWidth = (GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE) + 2);
 		}
 		else if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_IntBox != NULL){
-				char IntBoxValue[5]; // ç”¨äºå­˜å‚¨IntBoxçš„å€¼è½¬æ¢åçš„å­—ç¬¦ä¸²
-				// å°†IntBoxçš„å€¼è½¬æ¢ä¸ºå­—ç¬¦ä¸²
+				char IntBoxValue[5]; // ÓÃÓÚ´æ´¢IntBoxµÄÖµ×ª»»ºóµÄ×Ö·û´®
+				// ½«IntBoxµÄÖµ×ª»»Îª×Ö·û´®
 				sprintf(IntBoxValue, "%d", *CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_IntBox);
 				RadioCompensationWidth = (GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE) + (strlen(IntBoxValue) * 4));
 		}
 		else if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_FloatBox != NULL){
-				char FloatBoxValue[6]; // ç”¨äºå­˜å‚¨IntBoxçš„å€¼è½¬æ¢åçš„å­—ç¬¦ä¸²
-				// å°†IntBoxçš„å€¼è½¬æ¢ä¸ºå­—ç¬¦ä¸²
+				char FloatBoxValue[6]; // ÓÃÓÚ´æ´¢IntBoxµÄÖµ×ª»»ºóµÄ×Ö·û´®
+				// ½«IntBoxµÄÖµ×ª»»Îª×Ö·û´®
 				sprintf(FloatBoxValue, "%.2f", *CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_FloatBox);
 				RadioCompensationWidth = (GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE) + (strlen(FloatBoxValue) * 4));
 		}
@@ -770,14 +770,14 @@ void SetTargetCursor(void){
 		}
 		OLED_UI_Cursor.TargetArea.Width = 
 		fmin((float)CalcStringWidth(
-			//å­—ç¬¦ä¸²é•¿åº¦
+			//×Ö·û´®³¤¶È
 			GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE),GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII),CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_item_text) + 2 + LinePerfixWidth ,
-			//å½“å‰é¡µé¢çš„å®½åº¦åŠ å½“å‰é¡µé¢çš„èµ·å§‹åæ ‡å‡å»å¼€å§‹æ‰“å°é¡µé¢èµ·å§‹ç‚¹çš„åæ ‡å‡å»6ï¼ˆæ˜¯æ»šåŠ¨æ¡å®½åº¦åŠ ä¸€ï¼‰åŠ ä¸Šè¡Œå‰ç¼€çš„å®½åº¦
+			//µ±Ç°Ò³ÃæµÄ¿í¶È¼Óµ±Ç°Ò³ÃæµÄÆğÊ¼×ø±ê¼õÈ¥¿ªÊ¼´òÓ¡Ò³ÃæÆğÊ¼µãµÄ×ø±ê¼õÈ¥6£¨ÊÇ¹ö¶¯Ìõ¿í¶È¼ÓÒ»£©¼ÓÉÏĞĞÇ°×ºµÄ¿í¶È
 			OLED_UI_MenuFrame.CurrentArea.Width + OLED_UI_MenuFrame.CurrentArea.X - OLED_UI_PageStartPoint.CurrentPoint.X - 6 - LinePerfixWidth + LinePerfixWidth - RadioCompensationWidth) ;
 	}
-	//å¦‚æœå½“å‰é¡µé¢çš„ç±»å‹ä¸ºTilesç±»
+	//Èç¹ûµ±Ç°Ò³ÃæµÄÀàĞÍÎªTilesÀà
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES){
-		//ç£è´´ç±»ä¸éœ€è¦å…‰æ ‡çš„æ˜¾ç¤ºï¼Œæ‰€ä»¥è®¾ç½®ä¸º0.
+		//´ÅÌùÀà²»ĞèÒª¹â±êµÄÏÔÊ¾£¬ËùÒÔÉèÖÃÎª0.
 		// SetCursorZero();
 		OLED_UI_Cursor.TargetArea.X = CurrentMenuPage->Tiles_ScreenWidth/2 - CalcStringWidth(GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE),GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII),CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_item_text)/2 - 1;
 		OLED_UI_Cursor.TargetArea.Y = CurrentMenuPage->Tiles_ScreenHeight - CurrentMenuPage->General_FontSize - TILES_BOTTOM_DISTANCE - 1;
@@ -787,9 +787,9 @@ void SetTargetCursor(void){
 	}
 }
 /**
- * @brief è®¾ç½®ç›®æ ‡èœå•è¾¹æ¡†
- * @param æ— 
- * @return æ— 
+ * @brief ÉèÖÃÄ¿±ê²Ëµ¥±ß¿ò
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetTargetMenuFrame(void){
 	OLED_UI_MenuFrame.TargetArea.X = CurrentMenuPage->List_MenuArea.X;
@@ -799,9 +799,9 @@ void SetTargetMenuFrame(void){
 
 }
 /**
- * @brief å°†å½“å‰é¡µé¢çš„LineSlip è®¾ç½®ä¸º0
- * @param æ— 
- * @return æ— 
+ * @brief ½«µ±Ç°Ò³ÃæµÄLineSlip ÉèÖÃÎª0
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetLineSplitZero(void){
 	MenuPage* page = CurrentMenuPage;
@@ -811,9 +811,9 @@ void SetLineSplitZero(void){
 }
 
 /**
- * @brief è®¾ç½®ç›®æ ‡æ»šåŠ¨æ¡é«˜åº¦
- * @param æ— 
- * @return æ— 
+ * @brief ÉèÖÃÄ¿±ê¹ö¶¯Ìõ¸ß¶È
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetTargetScrollBarHeight(void){
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
@@ -823,13 +823,13 @@ void SetTargetScrollBarHeight(void){
 	}
 }
 /**
- * @brief è®¾ç½®ç›®æ ‡è¿›åº¦æ¡é•¿åº¦
- * @param æ— 
- * @return æ— 
+ * @brief ÉèÖÃÄ¿±ê½ø¶ÈÌõ³¤¶È
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetTargetProbWidth(void){
 	
-	//ç¡®è®¤æ•°æ®ç±»å‹
+	//È·ÈÏÊı¾İÀàĞÍ
 	int8_t DataStyle = GetWindowDataStyle(CurrentWindow->Prob_Data_Int,CurrentWindow->Prob_Data_Float);
 	if(DataStyle != WINDOW_DATA_STYLE_NONE){
 		if(DataStyle == WINDOW_DATA_STYLE_INT){
@@ -842,20 +842,20 @@ void SetTargetProbWidth(void){
 }
 
 /**
- * @brief æ ¹æ®å½“å‰é¡µé¢æƒ…å†µå†³å®šæ˜¯å¦ç»˜åˆ¶è¡Œå‰ç¼€
- * @param page èœå•é¡µé¢ç»“æ„ä½“æŒ‡é’ˆ
- * @param id èœå•é¡¹IDå·
- * @param CursorPoint å…‰æ ‡çš„åæ ‡
- * @return æ— 
+ * @brief ¸ù¾İµ±Ç°Ò³ÃæÇé¿ö¾ö¶¨ÊÇ·ñ»æÖÆĞĞÇ°×º
+ * @param page ²Ëµ¥Ò³Ãæ½á¹¹ÌåÖ¸Õë
+ * @param id ²Ëµ¥ÏîIDºÅ
+ * @param CursorPoint ¹â±êµÄ×ø±ê
+ * @return ÎŞ
  */
 void DrawLinePermix(MenuPage* page,MenuID i,OLED_Point* CursorPoint,OLED_Font ChineseFont,OLED_Font ASCIIFont){
-	//å¦‚æœéœ€è¦æ‰“å°è¡Œå‰ç¼€
+	//Èç¹ûĞèÒª´òÓ¡ĞĞÇ°×º
 	if(page->List_IfDrawLinePerfix == true){
 		char* LinePerfixSymb = "";
-		//å¦‚æœå½“å‰çš„èœå•é¡¹æœ‰å­èœå•ä¸”æ²¡æœ‰å›è°ƒå‡½æ•°ï¼Œé‚£ä¹ˆæ‰“å°ç›¸åº”çš„ç¬¦å·
+		//Èç¹ûµ±Ç°µÄ²Ëµ¥ÏîÓĞ×Ó²Ëµ¥ÇÒÃ»ÓĞ»Øµ÷º¯Êı£¬ÄÇÃ´´òÓ¡ÏàÓ¦µÄ·ûºÅ
 		if(CurrentMenuPage->General_MenuItems[i].General_SubMenuPage != NULL && page->General_MenuItems[i].General_callback == NULL && page->General_MenuItems[i].List_BoolRadioBox == NULL){
 			LinePerfixSymb = SUBMENU_PREFIX;
-		}else//å¦‚æœæœ‰å›è°ƒå‡½æ•°
+		}else//Èç¹ûÓĞ»Øµ÷º¯Êı
 		if(CurrentMenuPage->General_MenuItems[i].General_SubMenuPage == NULL && page->General_MenuItems[i].General_callback != NULL && page->General_MenuItems[i].List_BoolRadioBox == NULL){
 			LinePerfixSymb = FUNCTION_PREFIX;
 		}else
@@ -866,18 +866,18 @@ void DrawLinePermix(MenuPage* page,MenuID i,OLED_Point* CursorPoint,OLED_Font Ch
 			LinePerfixSymb = NONE_PREFIX;
 		}
 
-		OLED_PrintfMixArea(//åœ¨é™åˆ¶çš„åŒºåŸŸå†…æ‰“å°æ–‡å­—
-					   //å…‰æ ‡çš„èµ·å§‹xåæ ‡
+		OLED_PrintfMixArea(//ÔÚÏŞÖÆµÄÇøÓòÄÚ´òÓ¡ÎÄ×Ö
+					   //¹â±êµÄÆğÊ¼x×ø±ê
 				       OLED_UI_MenuFrame.CurrentArea.X ,
 					   OLED_UI_MenuFrame.CurrentArea.Y,
 					   OLED_UI_MenuFrame.CurrentArea.Width - 6,
 					   OLED_UI_MenuFrame.CurrentArea.Height,
-					   //æ‰“å°æ–‡å­—çš„åæ ‡
+					   //´òÓ¡ÎÄ×ÖµÄ×ø±ê
 					   CursorPoint->X,
 					   CursorPoint->Y,
-					   //æ‰“å°æ–‡å­—çš„å¤§å°
+					   //´òÓ¡ÎÄ×ÖµÄ´óĞ¡
 					   ChineseFont,ASCIIFont,
-					   //æ‰“å°æ–‡å­—çš„å†…å®¹
+					   //´òÓ¡ÎÄ×ÖµÄÄÚÈİ
 					   LinePerfixSymb);
 		
 	}
@@ -885,42 +885,42 @@ void DrawLinePermix(MenuPage* page,MenuID i,OLED_Point* CursorPoint,OLED_Font Ch
 }
 
 /**
- * @brief æ ¹æ®ä¼ å…¥çš„ç»“æ„ä½“æ•°ç»„æŒ‡é’ˆæ‰“å°èœå•å…ƒç´ 
- * @param æ— 
- * @return æ— 
+ * @brief ¸ù¾İ´«ÈëµÄ½á¹¹ÌåÊı×éÖ¸Õë´òÓ¡²Ëµ¥ÔªËØ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void PrintMenuElements(void){
-	//ã€è¸©å‘ã€‘å°†å½“å‰é¡µé¢çš„ç»“æ„ä½“æŒ‡é’ˆå–å‡ºï¼Œå¦‚æœä¸è¿™æ ·åšï¼Œè‹¥æ˜¯åœ¨forå¾ªç¯å½“ä¸­æ”¹å˜ç»“æ„ä½“æŒ‡é’ˆï¼Œåˆ™ä¼šå¯¼è‡´forå¾ªç¯å‡ºé”™ï¼Œè®¿é—®åˆ°NULLæŒ‡é’ˆï¼Œå‘ç”Ÿç¡¬ä»¶é”™è¯¯é€ æˆå¡æ­»
+	//¡¾²È¿Ó¡¿½«µ±Ç°Ò³ÃæµÄ½á¹¹ÌåÖ¸ÕëÈ¡³ö£¬Èç¹û²»ÕâÑù×ö£¬ÈôÊÇÔÚforÑ­»·µ±ÖĞ¸Ä±ä½á¹¹ÌåÖ¸Õë£¬Ôò»áµ¼ÖÂforÑ­»·³ö´í£¬·ÃÎÊµ½NULLÖ¸Õë£¬·¢ÉúÓ²¼ş´íÎóÔì³É¿¨ËÀ
 	MenuPage* page = CurrentMenuPage;
 	OLED_ChangePoint TempTargetPoint = OLED_UI_PageStartPoint;
 	OLED_ChangeArea TempTargetArea = OLED_UI_MenuFrame;
 	
-	//è·å–å½“å‰é¡µé¢çš„èœå•é¡¹æ•°é‡
+	//»ñÈ¡µ±Ç°Ò³ÃæµÄ²Ëµ¥ÏîÊıÁ¿
 	MenuID num = GetMenuItemNum(page->General_MenuItems);
-	//è·å–æ–‡æœ¬å¤§å°ï¼Œä»å½“å‰é¡µé¢çš„å­—ä½“å®½åº¦æ¨ç®—å‡ºASCIIå­—ä½“å®½åº¦ä¸ä¸­æ–‡å­—ä½“å®½åº¦
+	//»ñÈ¡ÎÄ±¾´óĞ¡£¬´Óµ±Ç°Ò³ÃæµÄ×ÖÌå¿í¶ÈÍÆËã³öASCII×ÖÌå¿í¶ÈÓëÖĞÎÄ×ÖÌå¿í¶È
 	OLED_Font ChineseFont = GetOLED_Font(page->General_FontSize,CHINESE),ASCIIFont = GetOLED_Font(page->General_FontSize,ASCII);
-	//ç»˜åˆ¶æ‰€éœ€çš„åæ ‡å…‰æ ‡,åˆå§‹åŒ–ä¸ºå½“å‰èœå•ç»“æ„ä½“çš„å¼€å§‹ç‚¹
+	//»æÖÆËùĞèµÄ×ø±ê¹â±ê,³õÊ¼»¯Îªµ±Ç°²Ëµ¥½á¹¹ÌåµÄ¿ªÊ¼µã
 	OLED_Point CursorPoint = TempTargetPoint.CurrentPoint;
     
-	//å¦‚æœå½“å‰é¡µé¢çš„ç±»å‹ä¸ºåˆ—è¡¨ç±»
+	//Èç¹ûµ±Ç°Ò³ÃæµÄÀàĞÍÎªÁĞ±íÀà
 	if(page->General_MenuType == MENU_TYPE_LIST){
-		//è¡Œå‰ç¼€å®½åº¦
+		//ĞĞÇ°×º¿í¶È
 		int16_t LinePerfixWidth = 0;
-		////å•é€‰æ¡†å®½åº¦
+		////µ¥Ñ¡¿ò¿í¶È
 		int16_t RadioCompensationWidth = 0;
 
-		//ç»˜åˆ¶è¾¹æ¡†ã€åæ ‡å‡ä¸€å®½åº¦åŠ äºŒæ˜¯ä¸ºäº†ä½¿å¾—å¤–æ¡†ä¸ä¼šæŒ¡ä½èœå•åŒºåŸŸï¼Œæ‰€ä»¥å®é™…ä¸Šå¤–æ¡†ä¸å±äºèœå•åŒºåŸŸã€‘
+		//»æÖÆ±ß¿ò¡¾×ø±ê¼õÒ»¿í¶È¼Ó¶şÊÇÎªÁËÊ¹µÃÍâ¿ò²»»áµ²×¡²Ëµ¥ÇøÓò£¬ËùÒÔÊµ¼ÊÉÏÍâ¿ò²»ÊôÓÚ²Ëµ¥ÇøÓò¡¿
 		if(page->List_IfDrawFrame == true){
 			OLED_DrawRectangle(TempTargetArea.CurrentArea.X-1,TempTargetArea.CurrentArea.Y-1,	TempTargetArea.CurrentArea.Width+2,TempTargetArea.CurrentArea.Height+2,OLED_UNFILLED);
 		}
-		//å¦‚æœéœ€è¦ç»˜åˆ¶è¡Œå‰ç¼€
+		//Èç¹ûĞèÒª»æÖÆĞĞÇ°×º
 		if(page->List_IfDrawLinePerfix == true){
-			//å°†è¡Œå‰ç¼€å®½åº¦è®¾ç½®ä¸ºASCIIå­—ä½“å®½åº¦åŠ LINEPERFIX_DISTANCEï¼ˆä¸åæ–¹å­—ç¬¦ä¸²çš„è·ç¦»ï¼‰
+			//½«ĞĞÇ°×º¿í¶ÈÉèÖÃÎªASCII×ÖÌå¿í¶È¼ÓLINEPERFIX_DISTANCE£¨Óëºó·½×Ö·û´®µÄ¾àÀë£©
 			LinePerfixWidth = ASCIIFont + LINEPERFIX_DISTANCE;
 		}
 
 
-		//æ‰“å°èœå•é¡¹
+		//´òÓ¡²Ëµ¥Ïî
 		for(MenuID i = 0; i<num;i++){
 			
 			if(CursorPoint.Y + ChineseFont <0 || CursorPoint.Y > OLED_HEIGHT){
@@ -928,77 +928,77 @@ void PrintMenuElements(void){
 				continue;
 			}
 
-			//è®°å½•æ­¤è½®å¾ªç¯çš„å­—ç¬¦ä¸²å®½åº¦
+			//¼ÇÂ¼´ËÂÖÑ­»·µÄ×Ö·û´®¿í¶È
 			int16_t StringLength = CalcStringWidth(ChineseFont,ASCIIFont,page->General_MenuItems[i].General_item_text);
 
-			//æ ¹æ®æƒ…å†µç»˜åˆ¶è¡Œå‰ç¼€
+			//¸ù¾İÇé¿ö»æÖÆĞĞÇ°×º
 			DrawLinePermix(page,i,&CursorPoint,ChineseFont,ASCIIFont);
 
-			//å¦‚æœéœ€è¦ç»˜åˆ¶å•é€‰æ¡†(å³BoolRadioBoxä¸ä¸ºç©º)
+			//Èç¹ûĞèÒª»æÖÆµ¥Ñ¡¿ò(¼´BoolRadioBox²»Îª¿Õ)
 			if(page->General_MenuItems[i].List_BoolRadioBox != NULL){
 				RadioCompensationWidth = (ChineseFont + 2);
 				char* RadioBoxSymb = "";
 				if(*page->General_MenuItems[i].List_BoolRadioBox == true){
-					RadioBoxSymb = "â– ";
+					RadioBoxSymb = "¡ö";
 				}else{
-					RadioBoxSymb = "â–¡";
+					RadioBoxSymb = "¡õ";
 				}
 
 
-				OLED_PrintfMixArea(//åœ¨é™åˆ¶çš„åŒºåŸŸå†…æ‰“å°æ–‡å­—
-							   //å…‰æ ‡çš„èµ·å§‹xåæ ‡åŠ å…¥è¡Œå‰ç¼€å®½åº¦ï¼Œè¿™æ ·å¯ä»¥è‡ªåŠ¨ç•™å‡ºæ‰“å°è¡Œå‰ç¼€çš„ç©ºé—´
+				OLED_PrintfMixArea(//ÔÚÏŞÖÆµÄÇøÓòÄÚ´òÓ¡ÎÄ×Ö
+							   //¹â±êµÄÆğÊ¼x×ø±ê¼ÓÈëĞĞÇ°×º¿í¶È£¬ÕâÑù¿ÉÒÔ×Ô¶¯Áô³ö´òÓ¡ĞĞÇ°×ºµÄ¿Õ¼ä
 						       TempTargetArea.CurrentArea.X ,
 							   TempTargetArea.CurrentArea.Y,
 							   TempTargetArea.CurrentArea.Width - 6,
 							   TempTargetArea.CurrentArea.Height,
 
-							   //æ‰“å°æ–‡å­—çš„åæ ‡
+							   //´òÓ¡ÎÄ×ÖµÄ×ø±ê
 							   CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth -9 ,
 							   CursorPoint.Y,
-							   //æ‰“å°æ–‡å­—çš„å¤§å°
+							   //´òÓ¡ÎÄ×ÖµÄ´óĞ¡
 							   ChineseFont,ASCIIFont,
-							   //æ‰“å°æ–‡å­—çš„å†…å®¹
+							   //´òÓ¡ÎÄ×ÖµÄÄÚÈİ
 							   RadioBoxSymb);
 			}	
-			// å¦‚æœéœ€è¦æ˜¾ç¤ºIntBoxçš„å€¼(å³IntBoxä¸ä¸ºç©º)
+			// Èç¹ûĞèÒªÏÔÊ¾IntBoxµÄÖµ(¼´IntBox²»Îª¿Õ)
 			else if(page->General_MenuItems[i].List_IntBox != NULL){
-				char IntBoxValue[5]; // ç”¨äºå­˜å‚¨IntBoxçš„å€¼è½¬æ¢åçš„å­—ç¬¦ä¸²
-				// å°†IntBoxçš„å€¼è½¬æ¢ä¸ºå­—ç¬¦ä¸²
+				char IntBoxValue[5]; // ÓÃÓÚ´æ´¢IntBoxµÄÖµ×ª»»ºóµÄ×Ö·û´®
+				// ½«IntBoxµÄÖµ×ª»»Îª×Ö·û´®
 				sprintf(IntBoxValue, "%d", *page->General_MenuItems[i].List_IntBox);
 				
 				RadioCompensationWidth = (ChineseFont + (strlen(IntBoxValue) * 4));
 							
-					// åœ¨é™åˆ¶çš„åŒºåŸŸå†…æ‰“å°IntBoxçš„å€¼
+					// ÔÚÏŞÖÆµÄÇøÓòÄÚ´òÓ¡IntBoxµÄÖµ
 				OLED_PrintfMixArea(
-						TempTargetArea.CurrentArea.X, // å…‰æ ‡çš„èµ·å§‹xåæ ‡åŠ å…¥è¡Œå‰ç¼€å®½åº¦
+						TempTargetArea.CurrentArea.X, // ¹â±êµÄÆğÊ¼x×ø±ê¼ÓÈëĞĞÇ°×º¿í¶È
 						TempTargetArea.CurrentArea.Y,
 						TempTargetArea.CurrentArea.Width - 6,
 						TempTargetArea.CurrentArea.Height,
-						CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth -9, // æ‰“å°æ–‡å­—çš„åæ ‡
+						CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth -9, // ´òÓ¡ÎÄ×ÖµÄ×ø±ê
 						CursorPoint.Y,
-						ChineseFont, ASCIIFont, // æ‰“å°æ–‡å­—çš„å¤§å°
-						IntBoxValue // æ‰“å°IntBoxçš„å€¼
+						ChineseFont, ASCIIFont, // ´òÓ¡ÎÄ×ÖµÄ´óĞ¡
+						IntBoxValue // ´òÓ¡IntBoxµÄÖµ
 				);
 			}
-			// å¦‚æœéœ€è¦æ˜¾ç¤ºFloatBoxçš„å€¼(å³FloatBoxä¸ä¸ºç©º)
+			// Èç¹ûĞèÒªÏÔÊ¾FloatBoxµÄÖµ(¼´FloatBox²»Îª¿Õ)
 			else if (page->General_MenuItems[i].List_FloatBox != NULL) {
-					char FloatBoxValue[5]; // ç”¨äºå­˜å‚¨FloatBoxçš„å€¼è½¬æ¢åçš„å­—ç¬¦ä¸²
-					// å°†FloatBoxçš„å€¼è½¬æ¢ä¸ºå­—ç¬¦ä¸²ï¼Œä¿ç•™ä¸¤ä½å°æ•°
+					char FloatBoxValue[5]; // ÓÃÓÚ´æ´¢FloatBoxµÄÖµ×ª»»ºóµÄ×Ö·û´®
+					// ½«FloatBoxµÄÖµ×ª»»Îª×Ö·û´®£¬±£ÁôÁ½Î»Ğ¡Êı
 					sprintf(FloatBoxValue, "%.2f", *page->General_MenuItems[i].List_FloatBox);
 
-					// è®¡ç®—è¡¥å¿å®½åº¦
+					// ¼ÆËã²¹³¥¿í¶È
 					RadioCompensationWidth = (ChineseFont + (strlen(FloatBoxValue) * 4));
 
-					// åœ¨é™åˆ¶çš„åŒºåŸŸå†…æ‰“å°FloatBoxçš„å€¼
+					// ÔÚÏŞÖÆµÄÇøÓòÄÚ´òÓ¡FloatBoxµÄÖµ
 					OLED_PrintfMixArea(
-							TempTargetArea.CurrentArea.X, // å…‰æ ‡çš„èµ·å§‹xåæ ‡åŠ å…¥è¡Œå‰ç¼€å®½åº¦
+							TempTargetArea.CurrentArea.X, // ¹â±êµÄÆğÊ¼x×ø±ê¼ÓÈëĞĞÇ°×º¿í¶È
 							TempTargetArea.CurrentArea.Y,
 							TempTargetArea.CurrentArea.Width - 6,
 							TempTargetArea.CurrentArea.Height,
-							CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth - 9, // æ‰“å°æ–‡å­—çš„åæ ‡
+							CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth - 9, // ´òÓ¡ÎÄ×ÖµÄ×ø±ê
 							CursorPoint.Y,
-							ChineseFont, ASCIIFont, // æ‰“å°æ–‡å­—çš„å¤§å°
-							FloatBoxValue // æ‰“å°FloatBoxçš„å€¼
+							ChineseFont, ASCIIFont, // ´òÓ¡ÎÄ×ÖµÄ´óĞ¡
+							FloatBoxValue // ´òÓ¡FloatBoxµÄÖµ
 					);
 			}
 			else{
@@ -1006,7 +1006,7 @@ void PrintMenuElements(void){
 			}
 			
 
-			//å¦‚æœå­—ç¬¦ä¸²çš„å®½åº¦è¶…è¿‡äº†æœ€å¤§é™å®šå®½åº¦
+			//Èç¹û×Ö·û´®µÄ¿í¶È³¬¹ıÁË×î´óÏŞ¶¨¿í¶È
 			if(StringLength > (TempTargetArea.TargetArea.X + TempTargetArea.TargetArea.Width - 6 - 2) - TempTargetPoint.TargetPoint.X - LinePerfixWidth - RadioCompensationWidth ){
 #if IF_WAIT_ANIMATION_FINISH
 			    if(TempTargetArea.TargetArea.Width == TempTargetArea.CurrentArea.Width &&
@@ -1014,15 +1014,15 @@ void PrintMenuElements(void){
 					TempTargetArea.TargetArea.Height == TempTargetArea.CurrentArea.Height &&
 					TempTargetArea.TargetArea.Y == TempTargetArea.CurrentArea.Y){
 #endif
-						page->General_MenuItems[i]._LineSlip -= LINE_SLIP_SPEED;
+						page->General_MenuItems[i]._LineSlip -= (float)LINE_SLIP_SPEED;
 #if IF_WAIT_ANIMATION_FINISH
 					}
 #endif
 				
 				
-				//å¦‚æœpage->MenuItems[i]._LineSlipå°äºè´Ÿçš„å­—ç¬¦ä¸²å®½åº¦ï¼Œè¯´æ˜å­—ç¬¦ä¸²å·²ç»å·¦ç§»åˆ°çœ‹ä¸è§
+				//Èç¹ûpage->MenuItems[i]._LineSlipĞ¡ÓÚ¸ºµÄ×Ö·û´®¿í¶È£¬ËµÃ÷×Ö·û´®ÒÑ¾­×óÒÆµ½¿´²»¼û
 				if(page->General_MenuItems[i]._LineSlip < -StringLength){
-					//å°†ä½ç½®è®¾åœ¨æœ€å¤§é™å®šå®½åº¦çš„å³ä¾§åˆšåˆšå¥½çœ‹ä¸è§çš„åœ°æ–¹
+					//½«Î»ÖÃÉèÔÚ×î´óÏŞ¶¨¿í¶ÈµÄÓÒ²à¸Õ¸ÕºÃ¿´²»¼ûµÄµØ·½
 					page->General_MenuItems[i]._LineSlip = (TempTargetArea.TargetArea.X + TempTargetArea.TargetArea.Width - 6) - CursorPoint.X - LinePerfixWidth;
 				}
 
@@ -1033,68 +1033,68 @@ void PrintMenuElements(void){
 			 					TempTargetArea.CurrentArea.Y,
 			 					TempTargetArea.CurrentArea.Width - 6 - LinePerfixWidth - CurrentMenuPage->List_StartPointX  -2 - RadioCompensationWidth,
 			 					TempTargetArea.CurrentArea.Height,
-								//åæ ‡åŠ ä¸ŠLinePerfixWidthæ˜¯ä¸ºäº†ç»™è¡Œå‰ç¼€ç•™ä¸‹ç©ºé—´
+								//×ø±ê¼ÓÉÏLinePerfixWidthÊÇÎªÁË¸øĞĞÇ°×ºÁôÏÂ¿Õ¼ä
 							   	CursorPoint.X + LinePerfixWidth + page->General_MenuItems[i]._LineSlip,
 							   	CursorPoint.Y,
 							   	ChineseFont,ASCIIFont,page->General_MenuItems[i].General_item_text);
 
-			// æ‰“å°å…‰æ ‡ä¸‹ç§»
+			// ´òÓ¡¹â±êÏÂÒÆ
 			CursorPoint.Y += (page->General_FontSize + OLED_UI_LineStep.CurrentDistance);
 
 		}
 
-		//ç»˜åˆ¶æ»šåŠ¨æ¡ä¸å…¶ä¸­å¿ƒçº¿
+		//»æÖÆ¹ö¶¯ÌõÓëÆäÖĞĞÄÏß
 		OLED_DrawRectangle(TempTargetArea.CurrentArea.X + TempTargetArea.CurrentArea.Width - 5,TempTargetArea.CurrentArea.Y,5,(OLED_UI_ScrollBarHeight.CurrentDistance > page->List_MenuArea.Height) ?page->List_MenuArea.Height:OLED_UI_ScrollBarHeight.CurrentDistance,OLED_FILLED);
 		OLED_DrawLine(TempTargetArea.CurrentArea.X + TempTargetArea.CurrentArea.Width - 3,TempTargetArea.CurrentArea.Y,TempTargetArea.CurrentArea.X + TempTargetArea.CurrentArea.Width-3,TempTargetArea.CurrentArea.Height + TempTargetArea.CurrentArea.Y-1);
 	}
-	//å¦‚æœå½“å‰çš„é¡µé¢ä¸ºç£è´´ç±»å‹
+	//Èç¹ûµ±Ç°µÄÒ³ÃæÎª´ÅÌùÀàĞÍ
 	if(page->General_MenuType == MENU_TYPE_TILES){
 		
-		//æ‰“å°ç£è´´é¡¹
+		//´òÓ¡´ÅÌùÏî
 		for(MenuID i = 0; i<num;i++){
 			if(CursorPoint.X + page->Tiles_TileWidth < 0 || CursorPoint.X > OLED_WIDTH){
 				CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
 				continue;
 			}
-			//åŠ¨ç”»æˆ–é™æ€icon
+			//¶¯»­»ò¾²Ì¬icon
 			if (page->_ActiveMenuID == i && page->General_MenuItems[i].Tiles_GifIcon != NULL) {
         OLED_ShowImageArea(ceil(CursorPoint.X),CursorPoint.Y,page->Tiles_TileWidth,page->Tiles_TileHeight,0,0,page->Tiles_ScreenWidth,page->Tiles_ScreenHeight,page->General_MenuItems[i].Tiles_GifIcon == NULL?UnKnown:page->General_MenuItems[i].Tiles_GifIcon[page->General_MenuItems[i].Gif_index]);
-				if(tmpi==GIFICON_SLIP_SPEED) page->General_MenuItems[i].Gif_index++,tmpi=0;//æ’­æ”¾é€Ÿåº¦
+				if(tmpi==GIFICON_SLIP_SPEED) page->General_MenuItems[i].Gif_index++,tmpi=0;//²¥·ÅËÙ¶È
 				else tmpi++;
 				if(page->General_MenuItems[i].Gif_index>31) page->General_MenuItems[i].Gif_index=0;
       }else{
-				//æ˜¾ç¤ºç£è´´å›¾æ ‡
+				//ÏÔÊ¾´ÅÌùÍ¼±ê
 				OLED_ShowImageArea(ceil(CursorPoint.X),CursorPoint.Y,page->Tiles_TileWidth,page->Tiles_TileHeight,0,0,page->Tiles_ScreenWidth,page->Tiles_ScreenHeight,page->General_MenuItems[i].Tiles_Icon == NULL?UnKnown:page->General_MenuItems[i].Tiles_Icon);
 			}
-			// æ‰“å°å…‰æ ‡å³ç§»
+			// ´òÓ¡¹â±êÓÒÒÆ
 			CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
-			//æ˜¾ç¤ºèœå•é¡¹æ–‡å­—
+			//ÏÔÊ¾²Ëµ¥ÏîÎÄ×Ö
 			
 		}
-		//ç»˜åˆ¶æŒ‡ç¤ºæ¡†Arrow1
+		//»æÖÆÖ¸Ê¾¿òArrow1
 		OLED_ShowImageArea(page->Tiles_ScreenWidth/2 -16-2,4,36,36,0,0,page->Tiles_ScreenWidth,page->Tiles_ScreenHeight,Arrow1);
-		//ç»˜åˆ¶æŒ‡ç¤ºç®­å¤´Arrow
+		//»æÖÆÖ¸Ê¾¼ıÍ·Arrow
 		//OLED_ShowImageArea(page->Tiles_ScreenWidth/2 - 3,0,6,5,0,0,page->Tiles_ScreenWidth,page->Tiles_ScreenHeight,Arrow);
 
 
-		//è®°å½•æ­¤è½®å¾ªç¯çš„å­—ç¬¦ä¸²å®½åº¦
+		//¼ÇÂ¼´ËÂÖÑ­»·µÄ×Ö·û´®¿í¶È
 		int16_t StringLength = CalcStringWidth(ChineseFont,ASCIIFont,page->General_MenuItems[page->_ActiveMenuID].General_item_text);
-		//å¦‚æœå­—ç¬¦ä¸²çš„å®½åº¦å¤§äºç”¨æˆ·æ‰€è®¾ç½®çš„å±å¹•å®½åº¦
+		//Èç¹û×Ö·û´®µÄ¿í¶È´óÓÚÓÃ»§ËùÉèÖÃµÄÆÁÄ»¿í¶È
 		if(StringLength > page->Tiles_ScreenWidth){
 #if IF_WAIT_ANIMATION_FINISH
 		    if(OLED_UI_PageStartPoint.CurrentPoint.X == OLED_UI_PageStartPoint.TargetPoint.X &&
 		        OLED_UI_PageStartPoint.CurrentPoint.Y == OLED_UI_PageStartPoint.TargetPoint.Y ){
 #endif
-		        page->General_MenuItems[page->_ActiveMenuID]._LineSlip -= LINE_SLIP_SPEED;
+		        page->General_MenuItems[page->_ActiveMenuID]._LineSlip -= (float)LINE_SLIP_SPEED;
 #if IF_WAIT_ANIMATION_FINISH
 		    }
 #endif
 		}else{
 		    SetLineSplitZero();
 		}
-		//å¦‚æœpage->MenuItems[i]._LineSlipå°äºè´Ÿçš„å­—ç¬¦ä¸²å®½åº¦ï¼Œè¯´æ˜å­—ç¬¦ä¸²å·²ç»å·¦ç§»åˆ°çœ‹ä¸è§
+		//Èç¹ûpage->MenuItems[i]._LineSlipĞ¡ÓÚ¸ºµÄ×Ö·û´®¿í¶È£¬ËµÃ÷×Ö·û´®ÒÑ¾­×óÒÆµ½¿´²»¼û
 		if(page->General_MenuItems[page->_ActiveMenuID]._LineSlip < -StringLength){
-		     //å°†ä½ç½®è®¾åœ¨æœ€å¤§é™å®šå®½åº¦çš„å³ä¾§åˆšåˆšå¥½çœ‹ä¸è§çš„åœ°æ–¹
+		     //½«Î»ÖÃÉèÔÚ×î´óÏŞ¶¨¿í¶ÈµÄÓÒ²à¸Õ¸ÕºÃ¿´²»¼ûµÄµØ·½
 		     page->General_MenuItems[page->_ActiveMenuID]._LineSlip = page->Tiles_ScreenWidth + 1;
 		}
 
@@ -1103,7 +1103,7 @@ void PrintMenuElements(void){
 							   page->Tiles_ScreenHeight - page->General_FontSize - TILES_BOTTOM_DISTANCE,
 							   ChineseFont,ASCIIFont,
 							   page->General_MenuItems[page->_ActiveMenuID].General_item_text);
-		//ç»˜åˆ¶æ»šåŠ¨æ¡ä¸å…¶ä¸­å¿ƒçº¿
+		//»æÖÆ¹ö¶¯ÌõÓëÆäÖĞĞÄÏß
 		int16_t ScrollBarHeight = (page->Tiles_ScreenHeight >= 128? 5:3);
 		OLED_DrawRectangle(0,TILES_STARTPOINT_Y + page->Tiles_TileHeight + TILES_SCROLLBAR_Y,
 						OLED_UI_ScrollBarHeight.CurrentDistance,ScrollBarHeight,OLED_FILLED);
@@ -1113,7 +1113,7 @@ void PrintMenuElements(void){
 		
 	}
 	if(page->General_ShowAuxiliaryFunction != NULL){
-		//ç»˜åˆ¶è¾…åŠ©åŠŸèƒ½
+		//»æÖÆ¸¨Öú¹¦ÄÜ
 		page->General_ShowAuxiliaryFunction();
 	}
 	
@@ -1122,21 +1122,21 @@ void PrintMenuElements(void){
 
 
 /**
- * @brief æŒ‰é”®ä¸ç¼–ç å™¨è®°å½•å‡½æ•°
- * @param æ— 
- * @return ä¸Šä¸€è½®ä¸è¿™ä¸€è½®çš„_ActiveMenuIDå·®å€¼
- * @note å®é™…ä¸Š_ActiveMenuIDçš„å€¼ä¸å˜ã€‚
+ * @brief °´¼üÓë±àÂëÆ÷¼ÇÂ¼º¯Êı
+ * @param ÎŞ
+ * @return ÉÏÒ»ÂÖÓëÕâÒ»ÂÖµÄ_ActiveMenuID²îÖµ
+ * @note Êµ¼ÊÉÏ_ActiveMenuIDµÄÖµ²»±ä¡£
   */
 MenuID_Type OLED_KeyAndEncoderRecord(void){
     static bool IfUpTapAndHold = false;
     static bool IfDownTapAndHold = false;
-	//è®°å½•ä¸Šä¸€è½®æŒ‰é”®çŠ¶æ€
+	//¼ÇÂ¼ÉÏÒ»ÂÖ°´¼ü×´Ì¬
     OLED_UI_LastKey.Up=OLED_UI_Key.Up;
 	OLED_UI_LastKey.Down=OLED_UI_Key.Down;
 	OLED_UI_LastKey.Enter=OLED_UI_Key.Enter;
 	OLED_UI_LastKey.Back=OLED_UI_Key.Back;
     
-    //è®°å½•å½“å‰æŒ‰é”®çŠ¶æ€
+    //¼ÇÂ¼µ±Ç°°´¼ü×´Ì¬
 	OLED_UI_Key.Enter = Key_GetEnterStatus();
 	OLED_UI_Key.Back = Key_GetBackStatus();
 	OLED_UI_Key.Up = Key_GetUpStatus();
@@ -1147,7 +1147,7 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 	static int16_t UpPressedCounter  = 0;
 	static int16_t DownPressCounter = 0;
 	static int16_t DownPressedCounter = 0;
-	//å¦‚æœä¸Šä¸€æ¬¡å’Œè¿™ä¸€æ¬¡éƒ½æŒ‰ä¸‹çš„çŠ¶æ€æŒç»­
+	//Èç¹ûÉÏÒ»´ÎºÍÕâÒ»´Î¶¼°´ÏÂµÄ×´Ì¬³ÖĞø
 	if(OLED_UI_LastKey.Up == 0 && OLED_UI_Key.Up == 0){
 	    UpPressCounter++;
 	    if(UpPressCounter >= (float)PRESS_TIME * 50){
@@ -1166,7 +1166,7 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 	    UpPressedCounter = 0;
 	    IfUpTapAndHold = false;
 	}
-	//å¦‚æœä¸Šä¸€æ¬¡å’Œè¿™ä¸€æ¬¡éƒ½æŒ‰ä¸‹çš„çŠ¶æ€æŒç»­
+	//Èç¹ûÉÏÒ»´ÎºÍÕâÒ»´Î¶¼°´ÏÂµÄ×´Ì¬³ÖĞø
 	    if(OLED_UI_LastKey.Down == 0 && OLED_UI_Key.Down == 0){
 	        DownPressCounter++;
 
@@ -1194,26 +1194,26 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 
 	}
 
-	//è·å–å½“å‰é¡µé¢çš„èœå•é¡¹æ•°é‡
+	//»ñÈ¡µ±Ç°Ò³ÃæµÄ²Ëµ¥ÏîÊıÁ¿
 	int16_t MaxID = GetMenuItemNum(CurrentMenuPage->General_MenuItems);
 	MenuID_Type IncreaseID = {0,0};
 	int16_t ActiveMenuID = CurrentMenuPage->_ActiveMenuID;
 	int16_t LastActiveID = ActiveMenuID;
-	//è·å–ç¼–ç å™¨çŠ¶æ€
+	//»ñÈ¡±àÂëÆ÷×´Ì¬
 	ActiveMenuID += Encoder_Get();
 
-	//å¦‚æœæ£€æµ‹åˆ°ã€ä¸Šã€‘æŒ‰é”®çš„ä¸Šä¸€çŠ¶æ€ä¸è¿™æ¬¡çš„çŠ¶æ€ä¸åŒï¼Œä¸”è¿™ä¸€çŠ¶æ€æ˜¯æŠ¬èµ·çŠ¶æ€ï¼Œè¯´æ˜ç”¨æˆ·æŒ‰ä¸‹äº†ã€ä¸Šã€‘æŒ‰é”®ï¼Œå¹¶ä¸”åˆšåˆšæ‰æŠ¬èµ·
+	//Èç¹û¼ì²âµ½¡¾ÉÏ¡¿°´¼üµÄÉÏÒ»×´Ì¬ÓëÕâ´ÎµÄ×´Ì¬²»Í¬£¬ÇÒÕâÒ»×´Ì¬ÊÇÌ§Æğ×´Ì¬£¬ËµÃ÷ÓÃ»§°´ÏÂÁË¡¾ÉÏ¡¿°´¼ü£¬²¢ÇÒ¸Õ¸Õ²ÅÌ§Æğ
 	if((OLED_UI_Key.Up != OLED_UI_LastKey.Up && OLED_UI_Key.Up == 1) || IfUpTapAndHold){
 		ActiveMenuID--;
 	}
 
-	//å¦‚æœæ£€æµ‹åˆ°ã€ä¸‹ã€‘æŒ‰é”®çš„ä¸Šä¸€çŠ¶æ€ä¸è¿™æ¬¡çš„çŠ¶æ€ä¸åŒï¼Œä¸”è¿™ä¸€çŠ¶æ€æ˜¯æŠ¬èµ·çŠ¶æ€ï¼Œè¯´æ˜ç”¨æˆ·æŒ‰ä¸‹äº†ã€ä¸‹ã€‘æŒ‰é”®ï¼Œå¹¶ä¸”åˆšåˆšæ‰æŠ¬èµ·
+	//Èç¹û¼ì²âµ½¡¾ÏÂ¡¿°´¼üµÄÉÏÒ»×´Ì¬ÓëÕâ´ÎµÄ×´Ì¬²»Í¬£¬ÇÒÕâÒ»×´Ì¬ÊÇÌ§Æğ×´Ì¬£¬ËµÃ÷ÓÃ»§°´ÏÂÁË¡¾ÏÂ¡¿°´¼ü£¬²¢ÇÒ¸Õ¸Õ²ÅÌ§Æğ
 	if((OLED_UI_Key.Down != OLED_UI_LastKey.Down && OLED_UI_Key.Down == 1) || IfDownTapAndHold){
 		ActiveMenuID++;
 	}
 	
 	IncreaseID.Unsafe = ActiveMenuID - LastActiveID;
-	//å¦‚æœå½“å‰èœå•é¡¹IDå·è¶Šç•Œï¼Œåˆ™å°†å…¶é™åˆ¶åœ¨0~MaxID-1ä¹‹é—´
+	//Èç¹ûµ±Ç°²Ëµ¥ÏîIDºÅÔ½½ç£¬Ôò½«ÆäÏŞÖÆÔÚ0~MaxID-1Ö®¼ä
 	if(ActiveMenuID > MaxID-1){
 		//ActiveMenuID = MaxID-1;
 		ActiveMenuID = 0;
@@ -1227,19 +1227,19 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 	return IncreaseID;
 }
 /**
- * @brief å°†KeyEnterFlagç½®FLAGSTARTï¼Œç”¨äºæ ‡è®°å›è°ƒå‡½æ•°æ­£åœ¨æ‰§è¡Œ
- * @param æ— 
- * @return æ— 
+ * @brief ½«KeyEnterFlagÖÃFLAGSTART£¬ÓÃÓÚ±ê¼Ç»Øµ÷º¯ÊıÕıÔÚÖ´ĞĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetEnterFlag(void){
 	KeyEnterFlag = FLAGSTART;
-	Encoder_Disable();  // å¤±èƒ½ç¼–ç å™¨
+	Encoder_Disable();  // Ê§ÄÜ±àÂëÆ÷
 }
 
 /**
- * @brief å°†KeyEnterFlagç½®FLAGENDï¼Œç”¨äºè¡¨ç¤ºå›è°ƒå‡½æ•°æ²¡æœ‰æ­£åœ¨æ‰§è¡Œ
+ * @brief ½«KeyEnterFlagÖÃFLAGEND£¬ÓÃÓÚ±íÊ¾»Øµ÷º¯ÊıÃ»ÓĞÕıÔÚÖ´ĞĞ
  * @param void
- * @return æ— 
+ * @return ÎŞ
  */
 void ResetEnterFlag(void){
 	KeyEnterFlag = FLAGEND;
@@ -1247,40 +1247,40 @@ void ResetEnterFlag(void){
 
 
 /**
- * @brief å°†FadeOutFlagç½®FLAGSTARTï¼Œç”¨äºæ ‡è®°æ¸éšæ•ˆæœæ­£åœ¨æ‰§è¡Œ
- * @param æ— 
- * @return æ— 
+ * @brief ½«FadeOutFlagÖÃFLAGSTART£¬ÓÃÓÚ±ê¼Ç½¥ÒşĞ§¹ûÕıÔÚÖ´ĞĞ
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetFadeOutFlag(MutexFlag action){
 	FadeOutFlag = action;
-	Encoder_Disable();  // å¤±èƒ½ç¼–ç å™¨
+	Encoder_Disable();  // Ê§ÄÜ±àÂëÆ÷
 }
 
 /**
- * @brief å°†FadeOutFlagç½®FLAGENDï¼Œç”¨äºè¡¨ç¤ºæ¸éšæ•ˆæœæ²¡æœ‰æ­£åœ¨æ‰§è¡Œ
+ * @brief ½«FadeOutFlagÖÃFLAGEND£¬ÓÃÓÚ±íÊ¾½¥ÒşĞ§¹ûÃ»ÓĞÕıÔÚÖ´ĞĞ
  * @param void
- * @return æ— 
+ * @return ÎŞ
  */
 void ResetFadeOutFlag(void){
 	FadeOutFlag = FLAGEND;
 }
 
 /**
- * @brief æ­¤å‡½æ•°å¤„ç†æŒ‰ä¸‹EnteræŒ‰é”®åçš„æƒ…å†µï¼Œåˆ†ä¸ºä»¥ä¸‹å‡ ç§æƒ…å†µï¼š
- * 		1. å½“å‰èœå•é¡¹æœ‰å›è°ƒå‡½æ•°ï¼Œé‚£ä¹ˆå°±å°†KeyEnterFlagç½®ä½ã€‚
- * 		2. å½“å‰èœå•é¡¹æ²¡æœ‰å›è°ƒå‡½æ•°ï¼Œä½†æ˜¯æœ‰å­èœå•ï¼Œé‚£ä¹ˆå°±è¿›å…¥å­èœå•
- * 		3. å½“å‰èœå•é¡¹æ²¡æœ‰å›è°ƒå‡½æ•°ï¼Œä¹Ÿæ²¡æœ‰å­èœå•ï¼Œé‚£ä¹ˆå°±ä»€ä¹ˆéƒ½ä¸åš
- * 		4. å½“å‰èœå•é¡¹æ—¢æœ‰å›è°ƒå‡½æ•°ï¼Œåˆæœ‰å­èœå•ï¼Œé‚£ä¹ˆå°±ä»€ä¹ˆä¹Ÿä¸åš
- * @param æ— 
- * @return æ— 
+ * @brief ´Ëº¯Êı´¦Àí°´ÏÂEnter°´¼üºóµÄÇé¿ö£¬·ÖÎªÒÔÏÂ¼¸ÖÖÇé¿ö£º
+ * 		1. µ±Ç°²Ëµ¥ÏîÓĞ»Øµ÷º¯Êı£¬ÄÇÃ´¾Í½«KeyEnterFlagÖÃÎ»¡£
+ * 		2. µ±Ç°²Ëµ¥ÏîÃ»ÓĞ»Øµ÷º¯Êı£¬µ«ÊÇÓĞ×Ó²Ëµ¥£¬ÄÇÃ´¾Í½øÈë×Ó²Ëµ¥
+ * 		3. µ±Ç°²Ëµ¥ÏîÃ»ÓĞ»Øµ÷º¯Êı£¬Ò²Ã»ÓĞ×Ó²Ëµ¥£¬ÄÇÃ´¾ÍÊ²Ã´¶¼²»×ö
+ * 		4. µ±Ç°²Ëµ¥Ïî¼ÈÓĞ»Øµ÷º¯Êı£¬ÓÖÓĞ×Ó²Ëµ¥£¬ÄÇÃ´¾ÍÊ²Ã´Ò²²»×ö
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void EnterEventMenuItem(void){
-    //å¦‚æœå½“å‰é€‰ä¸­èœå•é¡¹æœ‰å›è°ƒå‡½æ•°å¹¶ä¸”æ²¡æœ‰å­èœå•ï¼Œé‚£ä¹ˆå°±å°†KeyEnterFlagç½®ä½
+    //Èç¹ûµ±Ç°Ñ¡ÖĞ²Ëµ¥ÏîÓĞ»Øµ÷º¯Êı²¢ÇÒÃ»ÓĞ×Ó²Ëµ¥£¬ÄÇÃ´¾Í½«KeyEnterFlagÖÃÎ»
     if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_callback != NULL && CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage == NULL){
 
         SetEnterFlag();
     }
-	//å¦‚æœå½“å‰é€‰ä¸­èœå•é¡¹æ²¡æœ‰å›è°ƒå‡½æ•°ï¼Œä½†æ˜¯æœ‰å­èœå•ï¼Œé‚£ä¹ˆç½®ç¡®è®¤æ ‡å¿—ä½
+	//Èç¹ûµ±Ç°Ñ¡ÖĞ²Ëµ¥ÏîÃ»ÓĞ»Øµ÷º¯Êı£¬µ«ÊÇÓĞ×Ó²Ëµ¥£¬ÄÇÃ´ÖÃÈ·ÈÏ±êÖ¾Î»
     if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage != NULL 
 	&& CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_callback == NULL){
 		SetFadeOutFlag(ENTER_FLAGSTART);
@@ -1288,50 +1288,50 @@ void EnterEventMenuItem(void){
 
 }
 /**
- * @brief æŒ‰ä¸‹ã€è¿”å›ã€‘æŒ‰é”®åçš„æ“ä½œ
- * @param æ— 
- * @return æ— 
+ * @brief °´ÏÂ¡¾·µ»Ø¡¿°´¼üºóµÄ²Ù×÷
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void BackEventMenuItem(void){
-	//å¦‚æœå½“å‰èœå•çš„çˆ¶èœå•ä¸ä¸ºç©º
+	//Èç¹ûµ±Ç°²Ëµ¥µÄ¸¸²Ëµ¥²»Îª¿Õ
 	if(CurrentMenuPage->General_ParentMenuPage != NULL){
-		//ç½®è¿”å›æ ‡ç½®ä½
+		//ÖÃ·µ»Ø±êÖÃÎ»
         SetFadeOutFlag(BACK_FLAGSTART);
     }
 }
 /**
- * @brief è¿”å›å‡½æ•°
- * @param æ— 
- * @note æ¨¡æ‹ŸæŒ‰ä¸‹ã€è¿”å›ã€‘æŒ‰é”®
- * @return æ— 
+ * @brief ·µ»Øº¯Êı
+ * @param ÎŞ
+ * @note Ä£Äâ°´ÏÂ¡¾·µ»Ø¡¿°´¼ü
+ * @return ÎŞ
  */
 void OLED_UI_Back(void){
 	BackEventMenuItem();
 }
 
 /**
- * @brief è¿›å…¥å¹¶è¿è¡Œå›è°ƒå‡½æ•°
- * @param æ— 
- * @return æ— 
- * @note åœ¨OLED_UIçš„ä¸»å¾ªç¯å‡½æ•°ä¸­è°ƒç”¨
+ * @brief ½øÈë²¢ÔËĞĞ»Øµ÷º¯Êı
+ * @param ÎŞ
+ * @return ÎŞ
+ * @note ÔÚOLED_UIµÄÖ÷Ñ­»·º¯ÊıÖĞµ÷ÓÃ
  */
 void RunCurrentCallBackFunction(void){
-	//KeyEnterFlag == FLAGSTARTè¿™ä¸ªæ¡ä»¶è¡¨ç¤ºenterè¢«è§¦å‘
+	//KeyEnterFlag == FLAGSTARTÕâ¸öÌõ¼ş±íÊ¾enter±»´¥·¢
 	if(KeyEnterFlag == FLAGSTART){
-		//æ£€æŸ¥å›è°ƒå‡½æ•°æŒ‡é’ˆæ˜¯å¦ä¸ºç©ºï¼Œå¦‚æœä¸ä¸ºç©ºï¼Œåˆ™æ‰§è¡Œå›è°ƒå‡½æ•°
+		//¼ì²é»Øµ÷º¯ÊıÖ¸ÕëÊÇ·ñÎª¿Õ£¬Èç¹û²»Îª¿Õ£¬ÔòÖ´ĞĞ»Øµ÷º¯Êı
 		if (CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_callback != NULL){
-			//æ‰§è¡Œå›è°ƒå‡½æ•°
+			//Ö´ĞĞ»Øµ÷º¯Êı
 			CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_callback();	
 		}
-		//åœ¨å›è°ƒå‡½æ•°æ‰§è¡Œå®Œæ¯•ä¹‹åï¼Œå°†KeyEnterFlagå¤ä½ã€‚
+		//ÔÚ»Øµ÷º¯ÊıÖ´ĞĞÍê±ÏÖ®ºó£¬½«KeyEnterFlag¸´Î»¡£
 		ResetEnterFlag();
-		Encoder_Enable();  // ä½¿èƒ½ç¼–ç å™¨
+		Encoder_Enable();  // Ê¹ÄÜ±àÂëÆ÷
 	}
 }
 /**
- * @brief å°†å½“å‰å…‰æ ‡åŒºåŸŸä¸ç›®æ ‡å…‰æ ‡åŒºåŸŸéƒ½è®¾ç½®ä¸º0
- * @param æ— 
- * @return æ— 
+ * @brief ½«µ±Ç°¹â±êÇøÓòÓëÄ¿±ê¹â±êÇøÓò¶¼ÉèÖÃÎª0
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void SetCursorZero(void){
 	OLED_UI_Cursor.TargetArea.X = 0;
@@ -1344,27 +1344,27 @@ void SetCursorZero(void){
 	OLED_UI_Cursor.CurrentArea.Height = 0;
 }
 /**
- * @brief è®¾ç½®çª—å£å¤§å°
- * @param Width çª—å£å®½åº¦
- * @param Height çª—å£é«˜åº¦
- * @return æ— 
+ * @brief ÉèÖÃ´°¿Ú´óĞ¡
+ * @param Width ´°¿Ú¿í¶È
+ * @param Height ´°¿Ú¸ß¶È
+ * @return ÎŞ
  */
 void OLED_UI_CreateWindow(MenuWindow* window){
-	//å°†çª—å£æ ‡å¿—ä½è®¾ç½®ä¸ºtrueï¼Œè¡¨ç¤ºå¼€å§‹çª—å£æ•ˆæœ
+	//½«´°¿Ú±êÖ¾Î»ÉèÖÃÎªtrue£¬±íÊ¾¿ªÊ¼´°¿ÚĞ§¹û
 	OLED_SustainCounter.SustainFlag = true;
-	//å°†å½“å‰è¿›åº¦æ¡é•¿åº¦ç½®é›¶
+	//½«µ±Ç°½ø¶ÈÌõ³¤¶ÈÖÃÁã
 	OLED_UI_ProbWidth.CurrentDistance = 0;
-	//é‡ç½®çª—å£æ•ˆæœæ—¶é—´è®¡æ•°å™¨
+	//ÖØÖÃ´°¿ÚĞ§¹ûÊ±¼ä¼ÆÊıÆ÷
 	OLED_SustainCounter.count = 0;
-	//å¦‚æœçª—å£æ ‡å¿—ä½è¢«ç½®ä½ï¼Œåˆ™è®¾ç½®ç›®æ ‡çª—å£çš„ä½ç½®åˆ°å±å¹•ä¸­å¤®
+	//Èç¹û´°¿Ú±êÖ¾Î»±»ÖÃÎ»£¬ÔòÉèÖÃÄ¿±ê´°¿ÚµÄÎ»ÖÃµ½ÆÁÄ»ÖĞÑë
 	
-	//è®¾ç½®ç›®æ ‡çª—å£çš„ä½ç½®ä¸ºå±å¹•ä¸­å¤®å±…ä¸­æ˜¾ç¤º
+	//ÉèÖÃÄ¿±ê´°¿ÚµÄÎ»ÖÃÎªÆÁÄ»ÖĞÑë¾ÓÖĞÏÔÊ¾
 	OLED_UI_Window.TargetArea.Width = window->General_Width;
 	OLED_UI_Window.TargetArea.Height = window->General_Height;
 	OLED_UI_Window.TargetArea.X = (OLED_WIDTH - window->General_Width)/2;
 	OLED_UI_Window.TargetArea.Y = (OLED_HEIGHT - window->General_Height)/2;
 	window->_LineSlip = 0;
-	//å°†å½“å‰çª—å£æŒ‡é’ˆæŒ‡å‘window
+	//½«µ±Ç°´°¿ÚÖ¸ÕëÖ¸Ïòwindow
 	CurrentWindow = window;
 	
 }
@@ -1373,9 +1373,9 @@ void OLED_UI_CreateWindow(MenuWindow* window){
 
 
 /**
- * @brief è¿è¡Œæ¸éšæ•ˆæœ
- * @param æ— 
- * @return æ— 
+ * @brief ÔËĞĞ½¥ÒşĞ§¹û
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void RunFadeOut(void){
 
@@ -1383,33 +1383,33 @@ void RunFadeOut(void){
 	static uint32_t FadeOut_Seq_StartTick;
 	static int16_t FadeOut_x0, FadeOut_y0, FadeOut_width, FadeOut_height;
 
-	/*å¦‚æœå½“å‰çš„FadeOutFlagå·²ç»è¢«ç½®ä½ï¼Œåˆ™è¯´æ˜æ­£åœ¨è¿è¡Œæ¸éšæ•ˆæœã€‚
-	å½“å‰åœ¨è¿è¡Œæ¸éšæ•ˆæœçš„å‰ææ¡ä»¶æœ‰2ä¸ªï¼š
-	1.ã€åœ¨æŒ‰ä¸‹ç¡®è®¤é”®çš„æƒ…å†µä¸‹ã€‘ã€å¦‚æœå½“å‰é€‰ä¸­èœå•é¡¹æ²¡æœ‰å›è°ƒå‡½æ•°ï¼Œä½†æ˜¯æœ‰å­èœå•ã€‘ï¼Œæ­¤æ—¶ FadeOutFlag == ENTER_FLAGSTART
-	2.ã€åœ¨æŒ‰ä¸‹è¿”å›é”®çš„æƒ…å†µä¸‹ã€‘ã€å¦‚æœå½“å‰èœå•çš„çˆ¶èœå•ä¸ä¸ºç©ºã€‘ï¼Œæ­¤æ—¶ FadeOutFlag == BACK_FLAGSTART
+	/*Èç¹ûµ±Ç°µÄFadeOutFlagÒÑ¾­±»ÖÃÎ»£¬ÔòËµÃ÷ÕıÔÚÔËĞĞ½¥ÒşĞ§¹û¡£
+	µ±Ç°ÔÚÔËĞĞ½¥ÒşĞ§¹ûµÄÇ°ÌáÌõ¼şÓĞ2¸ö£º
+	1.¡¾ÔÚ°´ÏÂÈ·ÈÏ¼üµÄÇé¿öÏÂ¡¿¡¾Èç¹ûµ±Ç°Ñ¡ÖĞ²Ëµ¥ÏîÃ»ÓĞ»Øµ÷º¯Êı£¬µ«ÊÇÓĞ×Ó²Ëµ¥¡¿£¬´ËÊ± FadeOutFlag == ENTER_FLAGSTART
+	2.¡¾ÔÚ°´ÏÂ·µ»Ø¼üµÄÇé¿öÏÂ¡¿¡¾Èç¹ûµ±Ç°²Ëµ¥µÄ¸¸²Ëµ¥²»Îª¿Õ¡¿£¬´ËÊ± FadeOutFlag == BACK_FLAGSTART
 	*/
 	if(FadeOutFlag != FLAGEND){
-		if (FadeOut_Seq != 0){	//å¦‚æœå½“å‰ä¸æ˜¯æ­¥éª¤0
-			if ((FadeOut_Seq_StartTick + FADEOUT_TIME) < HAL_GetTick()){	//è®¡æ—¶FADEOUT_TIMEæ¯«ç§’
+		if (FadeOut_Seq != 0){	//Èç¹ûµ±Ç°²»ÊÇ²½Öè0
+			if ((FadeOut_Seq_StartTick + FADEOUT_TIME) < HAL_GetTick()){	//¼ÆÊ±FADEOUT_TIMEºÁÃë
 				FadeOut_Seq++;
-				FadeOut_Seq_StartTick = HAL_GetTick();	//è®°å½•æ¯ä¸€æ­¥çš„å¼€å§‹æ—¶é—´
+				FadeOut_Seq_StartTick = HAL_GetTick();	//¼ÇÂ¼Ã¿Ò»²½µÄ¿ªÊ¼Ê±¼ä
 			}
 		}
-		if (FadeOut_Seq == 0){	//æ­¥éª¤0ï¼šè®¡ç®—æ•ˆæœå‚æ•°
-			//å¦‚æœå½“å‰èœå•æ˜¯åˆ—è¡¨ç±»
+		if (FadeOut_Seq == 0){	//²½Öè0£º¼ÆËãĞ§¹û²ÎÊı
+			//Èç¹ûµ±Ç°²Ëµ¥ÊÇÁĞ±íÀà
 			if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†ç¡®è®¤æŒ‰é”®
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀàµÄÇé¿öÏÂ£¬°´ÏÂÁËÈ·ÈÏ°´¼ü
 				if(FadeOutFlag == ENTER_FLAGSTART){
-					//ï¼ˆåœ¨æœ‰å­èœå•çš„æƒ…å†µä¸‹ï¼‰å¦‚æœå½“å‰é¡µé¢çš„å½“å‰å­èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»
+					//£¨ÔÚÓĞ×Ó²Ëµ¥µÄÇé¿öÏÂ£©Èç¹ûµ±Ç°Ò³ÃæµÄµ±Ç°×Ó²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀà
 					if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage->General_MenuType == MENU_TYPE_LIST){
-						//åªæ¸…é™¤å½“å‰é¡µé¢åŒºåŸŸ
+						//Ö»Çå³ıµ±Ç°Ò³ÃæÇøÓò
 						//OLED_UI_FadeoutCurrentArea(CurrentMenuPage->List_MenuArea.X,CurrentMenuPage->List_MenuArea.Y,CurrentMenuPage->List_MenuArea.Width-5,CurrentMenuPage->List_MenuArea.Height-2);
 						FadeOut_x0 = CurrentMenuPage->List_MenuArea.X;
 						FadeOut_y0 = CurrentMenuPage->List_MenuArea.Y;
 						FadeOut_width = CurrentMenuPage->List_MenuArea.Width-5;
 						FadeOut_height = CurrentMenuPage->List_MenuArea.Height-2;
 					}else{
-						//æ¸…é™¤å…¨éƒ¨åŒºåŸŸ
+						//Çå³ıÈ«²¿ÇøÓò
 						//OLED_UI_FadeoutAllArea();
 						FadeOut_x0 = 0;
 						FadeOut_y0 = 0;
@@ -1417,11 +1417,11 @@ void RunFadeOut(void){
 						FadeOut_height = OLED_HEIGHT;
 					}
 				}
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†å–æ¶ˆæŒ‰é”®
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀàµÄÇé¿öÏÂ£¬°´ÏÂÁËÈ¡Ïû°´¼ü
 				if(FadeOutFlag == BACK_FLAGSTART) {
-					//å¦‚æœå½“å‰é¡µé¢çš„çˆ¶èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»
+					//Èç¹ûµ±Ç°Ò³ÃæµÄ¸¸²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀà
 					if(CurrentMenuPage->General_ParentMenuPage->General_MenuType == MENU_TYPE_LIST){
-						//åªæ¸…é™¤å½“å‰é¡µé¢åŒºåŸŸ
+						//Ö»Çå³ıµ±Ç°Ò³ÃæÇøÓò
 						//OLED_UI_FadeoutCurrentArea(CurrentMenuPage->List_MenuArea.X,CurrentMenuPage->List_MenuArea.Y,CurrentMenuPage->List_MenuArea.Width-5,CurrentMenuPage->List_MenuArea.Height-2);
 						FadeOut_x0 = CurrentMenuPage->List_MenuArea.X;
 						FadeOut_y0 = CurrentMenuPage->List_MenuArea.Y;
@@ -1429,7 +1429,7 @@ void RunFadeOut(void){
 						FadeOut_height = CurrentMenuPage->List_MenuArea.Height-2;
 
 					}else{
-						//æ¸…é™¤å…¨éƒ¨åŒºåŸŸ
+						//Çå³ıÈ«²¿ÇøÓò
 						//OLED_UI_FadeoutAllArea();
 						FadeOut_x0 = 0;
 						FadeOut_y0 = 0;
@@ -1438,9 +1438,9 @@ void RunFadeOut(void){
 					}
 				}
 
-			}else //å¦‚æœå½“å‰èœå•ç±»å‹æ˜¯ç£è´´ç±»
+			}else //Èç¹ûµ±Ç°²Ëµ¥ÀàĞÍÊÇ´ÅÌùÀà
 			if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES){
-				//æ¸…é™¤å…¨éƒ¨åŒºåŸŸ
+				//Çå³ıÈ«²¿ÇøÓò
 				//OLED_UI_FadeoutAllArea();
 				FadeOut_x0 = 0;
 				FadeOut_y0 = 0;
@@ -1450,132 +1450,132 @@ void RunFadeOut(void){
 			}
 			FadeOut_Seq++;
 		}else
-		if(FadeOut_Seq == 6){	//æ­¥éª¤6ï¼šæ¸éšå®Œæ¯•ï¼Œå¤ä½å˜é‡
-			OLED_UI_FadeOut_Masking(FadeOut_x0, FadeOut_y0, FadeOut_width, FadeOut_height, 5);	//è¿™ä¸€å¸§åº”ä¸æ­¥éª¤5ä¸€æ ·æ˜¾ç¤ºå…¨é»‘
+		if(FadeOut_Seq == 6){	//²½Öè6£º½¥ÒşÍê±Ï£¬¸´Î»±äÁ¿
+			OLED_UI_FadeOut_Masking(FadeOut_x0, FadeOut_y0, FadeOut_width, FadeOut_height, 5);	//ÕâÒ»Ö¡Ó¦Óë²½Öè5Ò»ÑùÏÔÊ¾È«ºÚ
 			FadeOut_Seq = 0;
-			//å¦‚æœå½“å‰èœå•æ˜¯åˆ—è¡¨ç±»
+			//Èç¹ûµ±Ç°²Ëµ¥ÊÇÁĞ±íÀà
 			if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†ç¡®è®¤æŒ‰é”®
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀàµÄÇé¿öÏÂ£¬°´ÏÂÁËÈ·ÈÏ°´¼ü
 				if(FadeOutFlag == ENTER_FLAGSTART){
-					//ï¼ˆåœ¨æœ‰å­èœå•çš„æƒ…å†µä¸‹ï¼‰å¦‚æœå½“å‰é¡µé¢çš„å½“å‰å­èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»
+					//£¨ÔÚÓĞ×Ó²Ëµ¥µÄÇé¿öÏÂ£©Èç¹ûµ±Ç°Ò³ÃæµÄµ±Ç°×Ó²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀà
 					if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage->General_MenuType == MENU_TYPE_LIST){
 					}else{
-						//å°†æ»šåŠ¨æ¡çš„å½“å‰é«˜åº¦è®¾ä¸º0
+						//½«¹ö¶¯ÌõµÄµ±Ç°¸ß¶ÈÉèÎª0
 						OLED_UI_ScrollBarHeight.CurrentDistance = 0;
 					}
 
-					//å°†å½“å‰èœå•çš„ä½ç½®ä¿å­˜ï¼Œä»¥ä¾¿è¿”å›æ—¶æ¢å¤
+					//½«µ±Ç°²Ëµ¥µÄÎ»ÖÃ±£´æ£¬ÒÔ±ã·µ»ØÊ±»Ö¸´
 					CurrentMenuPage->_StartPoint.X = OLED_UI_PageStartPoint.TargetPoint.X;
 					CurrentMenuPage->_StartPoint.Y = OLED_UI_PageStartPoint.TargetPoint.Y;
 
-					//å°†å½“å‰èœå•çš„æŒ‡é’ˆæŒ‡å‘å­èœå•
+					//½«µ±Ç°²Ëµ¥µÄÖ¸ÕëÖ¸Ïò×Ó²Ëµ¥
 					CurrentMenuPage = CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage;
-					//å¯¹å½“å‰å­èœå•è¿›è¡Œåˆå§‹åŒ–
+					//¶Ôµ±Ç°×Ó²Ëµ¥½øĞĞ³õÊ¼»¯
 					CurrentMenuPageInit();
 				}
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†å–æ¶ˆæŒ‰é”®
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀàµÄÇé¿öÏÂ£¬°´ÏÂÁËÈ¡Ïû°´¼ü
 				if(FadeOutFlag == BACK_FLAGSTART) {
-					//å¦‚æœå½“å‰é¡µé¢çš„çˆ¶èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯åˆ—è¡¨ç±»
+					//Èç¹ûµ±Ç°Ò³ÃæµÄ¸¸²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇÁĞ±íÀà
 					if(CurrentMenuPage->General_ParentMenuPage->General_MenuType == MENU_TYPE_LIST){
 					}else{
-						//å°†æ»šåŠ¨æ¡çš„å½“å‰é«˜åº¦è®¾ä¸º0
+						//½«¹ö¶¯ÌõµÄµ±Ç°¸ß¶ÈÉèÎª0
 						OLED_UI_ScrollBarHeight.CurrentDistance = 0;
 					}
-					//å°†å½“å‰èœå•çš„æŒ‡é’ˆæŒ‡å‘çˆ¶èœå•
+					//½«µ±Ç°²Ëµ¥µÄÖ¸ÕëÖ¸Ïò¸¸²Ëµ¥
 					CurrentMenuPage = CurrentMenuPage->General_ParentMenuPage;
-					//å°†å½“å‰èœå•çš„ä½ç½®ç­‰å‚æ•°æ¢å¤
+					//½«µ±Ç°²Ëµ¥µÄÎ»ÖÃµÈ²ÎÊı»Ö¸´
 					CurrentMenuPageBackUp();
 				}
 
-				//å°†FadeOutFlagå¤ä½
+				//½«FadeOutFlag¸´Î»
 				ResetFadeOutFlag();
-				//å°†å½“å‰å…‰æ ‡åŒºåŸŸä¸ç›®æ ‡å…‰æ ‡åŒºåŸŸéƒ½è®¾ç½®ä¸º0
+				//½«µ±Ç°¹â±êÇøÓòÓëÄ¿±ê¹â±êÇøÓò¶¼ÉèÖÃÎª0
 				SetCursorZero();
 
-			}else //å¦‚æœå½“å‰èœå•ç±»å‹æ˜¯ç£è´´ç±»
+			}else //Èç¹ûµ±Ç°²Ëµ¥ÀàĞÍÊÇ´ÅÌùÀà
 			if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES){
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯ç£è´´ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†ç¡®è®¤æ“ä½œ
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇ´ÅÌùÀàµÄÇé¿öÏÂ£¬°´ÏÂÁËÈ·ÈÏ²Ù×÷
 				if(FadeOutFlag == ENTER_FLAGSTART){
-					//å°†å½“å‰èœå•çš„ä½ç½®ä¿å­˜ï¼Œä»¥ä¾¿è¿”å›æ—¶æ¢å¤
+					//½«µ±Ç°²Ëµ¥µÄÎ»ÖÃ±£´æ£¬ÒÔ±ã·µ»ØÊ±»Ö¸´
 					CurrentMenuPage->_StartPoint.X = OLED_UI_PageStartPoint.TargetPoint.X;
 					CurrentMenuPage->_StartPoint.Y = OLED_UI_PageStartPoint.TargetPoint.Y;
-					//å°†å½“å‰èœå•çš„æŒ‡é’ˆæŒ‡å‘å­èœå•
+					//½«µ±Ç°²Ëµ¥µÄÖ¸ÕëÖ¸Ïò×Ó²Ëµ¥
 					CurrentMenuPage = CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_SubMenuPage;
-					//å¯¹å½“å‰å­èœå•è¿›è¡Œåˆå§‹åŒ–
+					//¶Ôµ±Ç°×Ó²Ëµ¥½øĞĞ³õÊ¼»¯
 					CurrentMenuPageInit();
 
 				}
-				//å½“å‰èœå•é¡¹çš„é¡µé¢ç±»å‹æ˜¯ç£è´´ç±»çš„æƒ…å†µä¸‹ï¼ŒæŒ‰ä¸‹äº†è¿”å›æ“ä½œ
+				//µ±Ç°²Ëµ¥ÏîµÄÒ³ÃæÀàĞÍÊÇ´ÅÌùÀàµÄÇé¿öÏÂ£¬°´ÏÂÁË·µ»Ø²Ù×÷
 				if(FadeOutFlag == BACK_FLAGSTART){
-					//å°†å½“å‰èœå•çš„æŒ‡é’ˆæŒ‡å‘çˆ¶èœå•
+					//½«µ±Ç°²Ëµ¥µÄÖ¸ÕëÖ¸Ïò¸¸²Ëµ¥
 					CurrentMenuPage = CurrentMenuPage->General_ParentMenuPage;
-					//å°†å½“å‰èœå•çš„ä½ç½®ç­‰å‚æ•°æ¢å¤
+					//½«µ±Ç°²Ëµ¥µÄÎ»ÖÃµÈ²ÎÊı»Ö¸´
 					CurrentMenuPageBackUp();
 				}
-				//å°†æ»šåŠ¨æ¡çš„å½“å‰é«˜åº¦è®¾ä¸º0
+				//½«¹ö¶¯ÌõµÄµ±Ç°¸ß¶ÈÉèÎª0
 				OLED_UI_ScrollBarHeight.CurrentDistance = 0;
-				//å°†å½“å‰å…‰æ ‡åŒºåŸŸä¸ç›®æ ‡å…‰æ ‡åŒºåŸŸéƒ½è®¾ç½®ä¸º0
+				//½«µ±Ç°¹â±êÇøÓòÓëÄ¿±ê¹â±êÇøÓò¶¼ÉèÖÃÎª0
 				SetCursorZero();
-				//å°†FadeOutFlagå¤ä½
+				//½«FadeOutFlag¸´Î»
 				ResetFadeOutFlag();
 			}
-			//å°†å½“å‰å…‰æ ‡åŒºåŸŸä¸ç›®æ ‡å…‰æ ‡åŒºåŸŸéƒ½è®¾ç½®ä¸º0
+			//½«µ±Ç°¹â±êÇøÓòÓëÄ¿±ê¹â±êÇøÓò¶¼ÉèÖÃÎª0
 			SetCursorZero();
-			//å°†FadeOutFlagå¤ä½
+			//½«FadeOutFlag¸´Î»
 			ResetFadeOutFlag();
-			// ä½¿èƒ½ç¼–ç å™¨
+			// Ê¹ÄÜ±àÂëÆ÷
 			Encoder_Enable();
 		}
-		else{					//æ­¥éª¤1-5ï¼šæ¸éšä¸­
+		else{					//²½Öè1-5£º½¥ÒşÖĞ
 			OLED_UI_FadeOut_Masking(FadeOut_x0, FadeOut_y0, FadeOut_width, FadeOut_height, FadeOut_Seq);
 		}
 	}
 }
 /**
- * @brief æ‰“å°èœå•å…ƒç´ å¹¶æ ¹æ®ç›®æ ‡å€¼æ”¹å˜å…ƒç´ çš„å‚æ•°
- * @param æ— 
- * @return æ— 
+ * @brief ´òÓ¡²Ëµ¥ÔªËØ²¢¸ù¾İÄ¿±êÖµ¸Ä±äÔªËØµÄ²ÎÊı
+ * @param ÎŞ
+ * @return ÎŞ
  */
 void MoveMenuElements(void){
 
-	//è®¾ç½®ç›®æ ‡å…‰æ ‡åŒºåŸŸ
+	//ÉèÖÃÄ¿±ê¹â±êÇøÓò
 	SetTargetCursor();
-	//è®¾ç½®ç›®æ ‡èœå•è¾¹æ¡†
+	//ÉèÖÃÄ¿±ê²Ëµ¥±ß¿ò
 	SetTargetMenuFrame();
-	//è®¾ç½®ç›®æ ‡è¿›åº¦æ¡é•¿åº¦
+	//ÉèÖÃÄ¿±ê½ø¶ÈÌõ³¤¶È
 	SetTargetProbWidth();
-	//è®¾ç½®ç›®æ ‡æ»šåŠ¨æ¡é«˜åº¦
+	//ÉèÖÃÄ¿±ê¹ö¶¯Ìõ¸ß¶È
 	SetTargetScrollBarHeight();
 
 
-	// æ”¹å˜èœå•èµ·å§‹å…ƒç´ çš„åæ ‡
+	// ¸Ä±ä²Ëµ¥ÆğÊ¼ÔªËØµÄ×ø±ê
 	ChangePoint(&OLED_UI_PageStartPoint);
-	// æ”¹å˜èœå•é¡¹çš„è¡Œé—´è·
+	// ¸Ä±ä²Ëµ¥ÏîµÄĞĞ¼ä¾à
 	ChangeDistance(&OLED_UI_LineStep);
-	// æ”¹å˜æ»šåŠ¨æ¡é«˜åº¦
+	// ¸Ä±ä¹ö¶¯Ìõ¸ß¶È
 	ChangeDistance(&OLED_UI_ScrollBarHeight);
 	
 	
 
-	// æ”¹å˜èœå•è¾¹æ¡†å‚æ•°
+	// ¸Ä±ä²Ëµ¥±ß¿ò²ÎÊı
 	ChangeArea(&OLED_UI_MenuFrame);
 
-	// æ‰“å°èœå•é¡µé¢çš„å…ƒç´ 
+	// ´òÓ¡²Ëµ¥Ò³ÃæµÄÔªËØ
 	PrintMenuElements();
 
-	//æ”¹å˜å…‰æ ‡çš„å‚æ•°
+	//¸Ä±ä¹â±êµÄ²ÎÊı
 	ChangeArea(&OLED_UI_Cursor);
-	//æ˜¾ç¤ºå…‰æ ‡
+	//ÏÔÊ¾¹â±ê
 	ReverseCoordinate(OLED_UI_Cursor.CurrentArea.X,OLED_UI_Cursor.CurrentArea.Y,OLED_UI_Cursor.CurrentArea.Width,OLED_UI_Cursor.CurrentArea.Height,CurrentMenuPage->General_CursorStyle);
-	//è®¾ç½®é¢œè‰²æ¨¡å¼
+	//ÉèÖÃÑÕÉ«Ä£Ê½
 	OLED_SetColorMode(ColorMode);
 
 	OLED_Brightness(OLED_UI_Brightness);
 
 	ChangeDistance(&OLED_UI_ProbWidth);
-	// æ”¹å˜çª—å£å‚æ•°
+	// ¸Ä±ä´°¿Ú²ÎÊı
 	ChangeArea(&OLED_UI_Window);
-	// ç»˜åˆ¶çª—å£
+	// »æÖÆ´°¿Ú
 	OLED_DrawWindow();
 
 
@@ -1584,33 +1584,33 @@ void MoveMenuElements(void){
 }
 
 /**
- * @brief OLED_UIçš„ä¸»å¾ªç¯å‡½æ•°
- * @param æ— 
- * @note è¯¥å‡½æ•°éœ€è¦æ”¾åœ¨ä¸»å¾ªç¯ä¸­è°ƒç”¨ï¼Œä»¥ä¾¿å®ç°UIçš„åˆ·æ–°
- * @return æ— 
+ * @brief OLED_UIµÄÖ÷Ñ­»·º¯Êı
+ * @param ÎŞ
+ * @note ¸Ãº¯ÊıĞèÒª·ÅÔÚÖ÷Ñ­»·ÖĞµ÷ÓÃ£¬ÒÔ±ãÊµÏÖUIµÄË¢ĞÂ
+ * @return ÎŞ
  */
 void OLED_UI_MainLoop(void){
 
 	
 
-	//æ¸…å±
+	//ÇåÆÁ
 	OLED_Clear();
 
 	
 
-	//ç§»åŠ¨èœå•å…ƒç´ 
+	//ÒÆ¶¯²Ëµ¥ÔªËØ
 	MoveMenuElements();
 
 	
-	//å½“äº’æ–¥é”è¢«ç½®ä½æ—¶ï¼Œè¿è¡Œå½“å‰èœå•é¡¹çš„å›è°ƒå‡½æ•°
+	//µ±»¥³âËø±»ÖÃÎ»Ê±£¬ÔËĞĞµ±Ç°²Ëµ¥ÏîµÄ»Øµ÷º¯Êı
 	RunCurrentCallBackFunction();
 	
-	//å½“æ¸éšäº’æ–¥é”è¢«ç½®ä½æ—¶ï¼Œè¿è¡Œæ¸éšæ•ˆæœ
+	//µ±½¥Òş»¥³âËø±»ÖÃÎ»Ê±£¬ÔËĞĞ½¥ÒşĞ§¹û
 	RunFadeOut();
 
-	//æ˜¾ç¤ºFPS
+	//ÏÔÊ¾FPS
 	OLED_UI_ShowFPS();
-	//åˆ·å±
+	//Ë¢ÆÁ
 	OLED_Update();
 	
 }
@@ -1619,30 +1619,30 @@ void OLED_UI_MainLoop(void){
 
 
 /**
- * @brief  OLED_UIçš„ä¸­æ–­å‡½æ•°ï¼Œå†…éƒ¨åŒ…å«éœ€åœ¨ä¸­æ–­å†…å¤„ç†çš„ä»»åŠ¡
- * @param  æ— 
- * @return æ— 
+ * @brief  OLED_UIµÄÖĞ¶Ïº¯Êı£¬ÄÚ²¿°üº¬ĞèÔÚÖĞ¶ÏÄÚ´¦ÀíµÄÈÎÎñ
+ * @param  ÎŞ
+ * @return ÎŞ
  */
 void OLED_UI_InterruptHandler(void){
-	// è·å–å½“å‰å±å¹•åˆ·æ–°ç‡
+	// »ñÈ¡µ±Ç°ÆÁÄ»Ë¢ĞÂÂÊ
     GetFPS();
     
-	// å¦‚æœå½“å‰æœ‰æ­£åœ¨æ‰§è¡Œçš„å›è°ƒå‡½æ•°ï¼Œåˆ™ä¸å¤„ç†ä¸­æ–­å†…çš„ä»»åŠ¡
+	// Èç¹ûµ±Ç°ÓĞÕıÔÚÖ´ĞĞµÄ»Øµ÷º¯Êı£¬Ôò²»´¦ÀíÖĞ¶ÏÄÚµÄÈÎÎñ
     if(GetEnterFlag() && GetFadeoutFlag()){
     	
 
-		//è·å–_ActiveMenuIDçš„å˜åŒ–å€¼ï¼Œ_ActiveMenuIDçš„å€¼ä¸å˜ï¼Œå¹¶è®°å½•äº†æŒ‰é”®çš„å˜åŒ–
+		//»ñÈ¡_ActiveMenuIDµÄ±ä»¯Öµ£¬_ActiveMenuIDµÄÖµ²»±ä£¬²¢¼ÇÂ¼ÁË°´¼üµÄ±ä»¯
 		MenuID_Type IncreaseID = OLED_KeyAndEncoderRecord();
 
 
-		//å¦‚æœçª—å£åœç•™çš„æ ‡å¿—ä½ä¸ºtrueï¼Œè¯´æ˜å½“å‰æ­£åœ¨è¿è¡Œçª—å£
+		//Èç¹û´°¿ÚÍ£ÁôµÄ±êÖ¾Î»Îªtrue£¬ËµÃ÷µ±Ç°ÕıÔÚÔËĞĞ´°¿Ú
 		if(OLED_SustainCounter.SustainFlag == true){
-			//å¦‚æœç¼–ç å™¨æˆ–æ˜¯æŒ‰é”®çš„å˜åŒ–å€¼ä¸æ˜¯0
+			//Èç¹û±àÂëÆ÷»òÊÇ°´¼üµÄ±ä»¯Öµ²»ÊÇ0
 			if(IncreaseID.Unsafe != 0){
-				//çª—å£è®¡æ•°å€¼æ¸…é›¶
+				//´°¿Ú¼ÆÊıÖµÇåÁã
 				OLED_SustainCounter.count = 0;
 			}
-			//å¦‚æœçª—å£æœ‰æ•°æ®
+			//Èç¹û´°¿ÚÓĞÊı¾İ
 			int8_t DataStyle = GetWindowDataStyle(CurrentWindow->Prob_Data_Int,CurrentWindow->Prob_Data_Float);
 			if(DataStyle != WINDOW_DATA_STYLE_NONE){
 				if(DataStyle == WINDOW_DATA_STYLE_INT){
@@ -1658,24 +1658,24 @@ void OLED_UI_InterruptHandler(void){
 			IncreaseID.Safe = 0;
 		}
 		 
-		//å¦‚æœå˜åŒ–å€¼å°äº0ï¼Œé‚£ä¹ˆç›¸å½“äºæŒ‰ä¸‹IncreaseID.Safeæ¬¡ã€ä¸Šã€‘æŒ‰é”®
+		//Èç¹û±ä»¯ÖµĞ¡ÓÚ0£¬ÄÇÃ´Ïàµ±ÓÚ°´ÏÂIncreaseID.Safe´Î¡¾ÉÏ¡¿°´¼ü
 		if(IncreaseID.Safe < 0 ){
 			for(int i = 0; i < -IncreaseID.Safe; i++){
-				//å¦‚æœå½“å‰èœå•ç±»å‹æ˜¯åˆ—è¡¨ç±»
+				//Èç¹ûµ±Ç°²Ëµ¥ÀàĞÍÊÇÁĞ±íÀà
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-					/*********************æŒ‰ä¸‹ã€ä¸Šã€‘æŒ‰é”®è¿›è¡Œçš„æ“ä½œ*************************/
-					//å¦‚æœå½“å‰èœå•é¡µé¢çš„å…‰æ ‡å·²ç»åˆ°è¾¾æœ€é¡¶éƒ¨çš„æ§½ä½,å¹¶ä¸”å½“å‰èœå•é¡¹ä¸æ˜¯ç¬¬ä¸€ä¸ªèœå•é¡¹ï¼Œé‚£ä¹ˆå°±å‘ä¸‹ç§»åŠ¨èœå•é¡¹çš„ç›®æ ‡ä½ç½®
+					/*********************°´ÏÂ¡¾ÉÏ¡¿°´¼ü½øĞĞµÄ²Ù×÷*************************/
+					//Èç¹ûµ±Ç°²Ëµ¥Ò³ÃæµÄ¹â±êÒÑ¾­µ½´ï×î¶¥²¿µÄ²ÛÎ»,²¢ÇÒµ±Ç°²Ëµ¥Ïî²»ÊÇµÚÒ»¸ö²Ëµ¥Ïî£¬ÄÇÃ´¾ÍÏòÏÂÒÆ¶¯²Ëµ¥ÏîµÄÄ¿±êÎ»ÖÃ
            			if(CurrentMenuPage->_Slot == 0 && CurrentMenuPage->_ActiveMenuID !=0){
 						MenuItemsMoveDown();
 
 					}
-					//å¦‚æœå…‰æ ‡è¿˜æ²¡æœ‰åˆ°è¾¾æœ€é¡¶éƒ¨çš„æ§½ä½ï¼Œé‚£ä¹ˆå°±å‘ä¸Šç§»åŠ¨æ§½ä½
+					//Èç¹û¹â±ê»¹Ã»ÓĞµ½´ï×î¶¥²¿µÄ²ÛÎ»£¬ÄÇÃ´¾ÍÏòÉÏÒÆ¶¯²ÛÎ»
 					if(CurrentMenuPage->_Slot > 0){
 						CurrentMenuPage->_Slot--;
 					}
 					CurrentMenuPage->_ActiveMenuID--;
 				}
-				//å¦‚æœå½“å‰èœå•ç±»å‹æ˜¯åˆ—è¡¨ç±»
+				//Èç¹ûµ±Ç°²Ëµ¥ÀàĞÍÊÇÁĞ±íÀà
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES){
 					CurrentMenuPage->_ActiveMenuID--;
 					MenuItemsMoveRight();
@@ -1684,20 +1684,20 @@ void OLED_UI_InterruptHandler(void){
 		}
 		if(IncreaseID.Safe > 0){
 			for(int i = 0; i < IncreaseID.Safe; i++){
-				/*********************æŒ‰ä¸‹ã€ä¸‹ã€‘æŒ‰é”®è¿›è¡Œçš„æ“ä½œ*************************/
+				/*********************°´ÏÂ¡¾ÏÂ¡¿°´¼ü½øĞĞµÄ²Ù×÷*************************/
 					if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-					//å¦‚æœå½“å‰èœå•é¡µé¢çš„å…‰æ ‡å·²ç»åˆ°è¾¾æœ€åº•éƒ¨çš„æ§½ä½,å¹¶ä¸”å½“å‰èœå•é¡¹ä¸æ˜¯æœ€åä¸€ä¸ªèœå•é¡¹ï¼Œé‚£ä¹ˆå°±å‘ä¸Šç§»åŠ¨èœå•é¡¹çš„ç›®æ ‡ä½ç½®
+					//Èç¹ûµ±Ç°²Ëµ¥Ò³ÃæµÄ¹â±êÒÑ¾­µ½´ï×îµ×²¿µÄ²ÛÎ»,²¢ÇÒµ±Ç°²Ëµ¥Ïî²»ÊÇ×îºóÒ»¸ö²Ëµ¥Ïî£¬ÄÇÃ´¾ÍÏòÉÏÒÆ¶¯²Ëµ¥ÏîµÄÄ¿±êÎ»ÖÃ
 					if(CurrentMenuPage->_Slot == GetCurrentMenuPageMaxSlotNum()-1 && CurrentMenuPage->_ActiveMenuID != GetMenuItemNum(CurrentMenuPage->General_MenuItems)){
 						MenuItemsMoveUp();
 
 					}
-					//å¦‚æœå…‰æ ‡è¿˜æ²¡æœ‰åˆ°è¾¾æœ€åº•éƒ¨çš„æ§½ä½ï¼Œé‚£ä¹ˆå°±å‘ä¸‹ç§»åŠ¨æ§½ä½
+					//Èç¹û¹â±ê»¹Ã»ÓĞµ½´ï×îµ×²¿µÄ²ÛÎ»£¬ÄÇÃ´¾ÍÏòÏÂÒÆ¶¯²ÛÎ»
 					if(CurrentMenuPage->_Slot < GetCurrentMenuPageMaxSlotNum()-1){
 						CurrentMenuPage->_Slot++;
 					}
 					CurrentMenuPage->_ActiveMenuID++;
 				}
-				//å¦‚æœå½“å‰èœå•ç±»å‹æ˜¯åˆ—è¡¨ç±»
+				//Èç¹ûµ±Ç°²Ëµ¥ÀàĞÍÊÇÁĞ±íÀà
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES){
 					CurrentMenuPage->_ActiveMenuID++;
 					MenuItemsMoveLeft();
@@ -1708,9 +1708,9 @@ void OLED_UI_InterruptHandler(void){
 		
 	
     	
-		//å¦‚æœæ£€æµ‹åˆ°ã€è¿”å›ã€‘æŒ‰é”®çš„ä¸Šä¸€çŠ¶æ€ä¸è¿™æ¬¡çš„çŠ¶æ€ä¸åŒï¼Œä¸”è¿™ä¸€çŠ¶æ€æ˜¯æŠ¬èµ·çŠ¶æ€ï¼Œè¯´æ˜ç”¨æˆ·æŒ‰ä¸‹äº†ã€è¿”å›ã€‘æŒ‰é”®ï¼Œå¹¶ä¸”åˆšåˆšæ‰æŠ¬èµ·
+		//Èç¹û¼ì²âµ½¡¾·µ»Ø¡¿°´¼üµÄÉÏÒ»×´Ì¬ÓëÕâ´ÎµÄ×´Ì¬²»Í¬£¬ÇÒÕâÒ»×´Ì¬ÊÇÌ§Æğ×´Ì¬£¬ËµÃ÷ÓÃ»§°´ÏÂÁË¡¾·µ»Ø¡¿°´¼ü£¬²¢ÇÒ¸Õ¸Õ²ÅÌ§Æğ
 		if(OLED_UI_Key.Back != OLED_UI_LastKey.Back && OLED_UI_Key.Back == 1){
-			//å¦‚æœå½“å‰æ²¡æœ‰è¿è¡Œçª—å£
+			//Èç¹ûµ±Ç°Ã»ÓĞÔËĞĞ´°¿Ú
 			if(OLED_SustainCounter.SustainFlag == false){
 				BackEventMenuItem();
 			}else{
@@ -1718,7 +1718,7 @@ void OLED_UI_InterruptHandler(void){
 			}
 			
 		}
-		//å¦‚æœæ£€æµ‹åˆ°ã€ç¡®è®¤ã€‘æŒ‰é”®çš„ä¸Šä¸€çŠ¶æ€ä¸è¿™æ¬¡çš„çŠ¶æ€ä¸åŒï¼Œä¸”è¿™ä¸€çŠ¶æ€æ˜¯æŠ¬èµ·çŠ¶æ€ï¼Œè¯´æ˜ç”¨æˆ·æŒ‰ä¸‹äº†ã€ç¡®è®¤ã€‘æŒ‰é”®ï¼Œå¹¶ä¸”åˆšåˆšæ‰æŠ¬èµ·
+		//Èç¹û¼ì²âµ½¡¾È·ÈÏ¡¿°´¼üµÄÉÏÒ»×´Ì¬ÓëÕâ´ÎµÄ×´Ì¬²»Í¬£¬ÇÒÕâÒ»×´Ì¬ÊÇÌ§Æğ×´Ì¬£¬ËµÃ÷ÓÃ»§°´ÏÂÁË¡¾È·ÈÏ¡¿°´¼ü£¬²¢ÇÒ¸Õ¸Õ²ÅÌ§Æğ
 		if(OLED_UI_Key.Enter != OLED_UI_LastKey.Enter && OLED_UI_Key.Enter == 1){
 			if(OLED_SustainCounter.SustainFlag == false){
 				EnterEventMenuItem();
@@ -1732,7 +1732,7 @@ void OLED_UI_InterruptHandler(void){
 		
 	}
 
-	//å¦‚æœå½“å‰æ­£åœ¨è¿è¡Œçª—å£ï¼Œé‚£ä¹ˆè®¡æ•°
+	//Èç¹ûµ±Ç°ÕıÔÚÔËĞĞ´°¿Ú£¬ÄÇÃ´¼ÆÊı
 	if(OLED_SustainCounter.SustainFlag == true){
 		OLED_SustainCounter.count++;
 	}

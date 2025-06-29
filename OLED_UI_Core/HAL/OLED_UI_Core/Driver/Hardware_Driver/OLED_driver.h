@@ -32,20 +32,20 @@
 #else
 
 // 使用宏定义，速度更快（寄存器方式）
-#define OLED_SCL_Clr() (GPIOB->BRR = GPIO_Pin_8)  // 复位 SCL (将 GPIOB 的 8 号引脚拉低)
-#define OLED_SCL_Set() (GPIOB->BSRR = GPIO_Pin_8) // 置位 SCL (将 GPIOB 的 8 号引脚拉高)
+#define OLED_SCL_Clr() (OLED_CLK_GPIO_Port->BRR = OLED_CLK_Pin)  // 复位 SCL (将 GPIOB 的 8 号引脚拉低)
+#define OLED_SCL_Set() (OLED_CLK_GPIO_Port->BSRR = OLED_CLK_Pin) // 置位 SCL (将 GPIOB 的 8 号引脚拉高)
 
-#define OLED_SDA_Clr() (GPIOB->BRR = GPIO_Pin_9)  // 复位 SDA (将 GPIOB 的 9 号引脚拉低)
-#define OLED_SDA_Set() (GPIOB->BSRR = GPIO_Pin_9) // 置位 SDA (将 GPIOB 的 9 号引脚拉高)
+#define OLED_SDA_Clr() (OLED_MOSI_GPIO_Port->BRR = OLED_MOSI_Pin)  // 复位 SDA (将 GPIOB 的 9 号引脚拉低)
+#define OLED_SDA_Set() (OLED_MOSI_GPIO_Port->BSRR = OLED_MOSI_Pin) // 置位 SDA (将 GPIOB 的 9 号引脚拉高)
 
-#define OLED_RES_Clr() (GPIOB->BRR = GPIO_Pin_5)  // 复位 RES (将 GPIOB 的 5 号引脚拉低)
-#define OLED_RES_Set() (GPIOB->BSRR = GPIO_Pin_5) // 置位 RES (将 GPIOB 的 5 号引脚拉高)
+#define OLED_RES_Clr() (OLED_RST_GPIO_Port->BRR = OLED_RST_Pin)  // 复位 RES (将 GPIOB 的 5 号引脚拉低)
+#define OLED_RES_Set() (OLED_RST_GPIO_Port->BSRR = OLED_RST_Pin) // 置位 RES (将 GPIOB 的 5 号引脚拉高)
 
-#define OLED_DC_Clr() (GPIOB->BRR = GPIO_Pin_6)  // 复位 DC (将 GPIOB 的 6 号引脚拉低)
-#define OLED_DC_Set() (GPIOB->BSRR = GPIO_Pin_6) // 置位 DC (将 GPIOB 的 6 号引脚拉高)
+#define OLED_DC_Clr() (OLED_DC_GPIO_Port->BRR = OLED_DC_Pin)  // 复位 DC (将 GPIOB 的 6 号引脚拉低)
+#define OLED_DC_Set() (OLED_DC_GPIO_Port->BSRR = OLED_DC_Pin) // 置位 DC (将 GPIOB 的 6 号引脚拉高)
 
-#define OLED_CS_Clr() (GPIOB->BRR = GPIO_Pin_7)  // 复位 CS (将 GPIOB 的 7 号引脚拉低)
-#define OLED_CS_Set() (GPIOB->BSRR = GPIO_Pin_7) // 置位 CS (将 GPIOB 的 7 号引脚拉高)
+#define OLED_CS_Clr() (OLED_CS_GPIO_Port->BRR = OLED_CS_Pin)  // 复位 CS (将 GPIOB 的 7 号引脚拉低)
+#define OLED_CS_Set() (OLED_CS_GPIO_Port->BSRR = OLED_CS_Pin) // 置位 CS (将 GPIOB 的 7 号引脚拉高)
 
 #endif
 

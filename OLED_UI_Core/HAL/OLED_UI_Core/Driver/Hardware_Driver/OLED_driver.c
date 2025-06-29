@@ -6,13 +6,15 @@
 #include "stm32f4xx_hal.h"
 #include "OLED_driver.h"
 
-extern SPI_HandleTypeDef hspi1;
+
 
 uint8_t OLED_DisplayBuf[64 / 8][128]; // от╢Ф
 bool OLED_ColorMode = true;
 bool spi_busy = 0;
 
 #ifdef OLED_UI_USE_HW_SPI
+extern SPI_HandleTypeDef hspi1;
+
 void OLED_Write_DATA(uint8_t data)
 {
 	while (spi_busy != 0)

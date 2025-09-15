@@ -8,15 +8,9 @@
 //获取确认，取消，上，下按键状态的函数(【Q：为什么使用宏定义而不是函数？A：因为这样可以提高效率，减少代码量】)
 //按下0 松开1
 #define Key_GetEnterStatus()    key_menu.enter
-#define Key_GetBackStatus()     !(key_menu.back)
-#define Key_GetUpStatus()      key_menu.up
+#define Key_GetBackStatus()     key_menu.back
+#define Key_GetUpStatus()       key_menu.up
 #define Key_GetDownStatus()     key_menu.down
-// #define Key_GetEnterStatus()    (DL_GPIO_readPins(KEY_ENTER_PORT, KEY_ENTER_PIN)?1:0)//(key_menu.enter)
-// #define Key_GetBackStatus()     !(DL_GPIO_readPins(KEY_BACK_PORT, KEY_BACK_PIN)?1:0)//(key_menu.back)
-// #define Key_GetUpStatus()       1//(DL_GPIO_readPins(KEY_UP_PORT, KEY_UP_PIN)?1:0)//(key_menu.up)
-// #define Key_GetDownStatus()     1//(DL_GPIO_readPins(KEY_DOWN_PORT, KEY_DOWN_PIN)?1:0)//(key_menu.down)
-
-
 
 //定时器中断初始化函数
 void Timer_Init(void);

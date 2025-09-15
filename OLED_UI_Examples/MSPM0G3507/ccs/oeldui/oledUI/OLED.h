@@ -1,63 +1,63 @@
 #ifndef __OLED_H
 #define __OLED_H
 
-// ¼ì²âÊÇ·ñÊÇC++±àÒëÆ÷
+// æ£€æµ‹æ˜¯å¦æ˜¯C++ç¼–è¯‘å™¨
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "OLED_driver.h"			//oledµ×²ãÇı¶¯Í·ÎÄ¼ş
-#include "OLED_Fonts.h"				//oled×ÖÌå¿âÍ·ÎÄ¼ş
+#include "OLED_driver.h"			//oledåº•å±‚é©±åŠ¨å¤´æ–‡ä»¶
+#include "OLED_Fonts.h"				//oledå­—ä½“åº“å¤´æ–‡ä»¶
 #include "stdbool.h"
 
 
-//Ê¹ÓÃºê¶¨ÒåµÄ·½Ê½È·¶¨oledµÄºáÏòÏñËØÓëÊúÏòÏñËØ
+//ä½¿ç”¨å®å®šä¹‰çš„æ–¹å¼ç¡®å®šoledçš„æ¨ªå‘åƒç´ ä¸ç«–å‘åƒç´ 
 #define OLED_WIDTH						(128)					
 #define OLED_HEIGHT 					(64)
-/*°ë½Ç×Ö·û²ÎÊıÈ¡Öµ*/
-/*´Ë²ÎÊıÖµ²»½öÓÃÓÚÅĞ¶Ï£¬¶øÇÒÓÃÓÚ¼ÆËãºáÏò×Ö·ûÆ«ÒÆ£¬Ä¬ÈÏÖµÎª×ÖÌåÏñËØ¿í¶È*/
+/*åŠè§’å­—ç¬¦å‚æ•°å–å€¼*/
+/*æ­¤å‚æ•°å€¼ä¸ä»…ç”¨äºåˆ¤æ–­ï¼Œè€Œä¸”ç”¨äºè®¡ç®—æ¨ªå‘å­—ç¬¦åç§»ï¼Œé»˜è®¤å€¼ä¸ºå­—ä½“åƒç´ å®½åº¦*/
 #define OLED_10X20_HALF				(10)
 #define OLED_8X16_HALF				(8)
 #define OLED_7X12_HALF				(7)				
 #define OLED_6X8_HALF 			    (6)
 
-/*È«½Ç´óĞ¡²ÎÊıÈ¡Öµ*/
+/*å…¨è§’å¤§å°å‚æ•°å–å€¼*/
 #define OLED_8X8_FULL					(8)
 #define OLED_12X12_FULL				    (12)
 #define OLED_16X16_FULL			        (16)
 #define OLED_20X20_FULL			        (20)
 
-/*IsFilled²ÎÊıÊıÖµ*/
+/*IsFilledå‚æ•°æ•°å€¼*/
 #define OLED_UNFILLED			        (0)
 #define OLED_FILLED				        (1)
 
-/**¹ØÓÚ×Ö·û´®×î´ó³¤¶ÈµÄºê£¬ÓÃÓÚ¸ñÊ½»¯Êä³ö×Ö·û´®*/
+/**å…³äºå­—ç¬¦ä¸²æœ€å¤§é•¿åº¦çš„å®ï¼Œç”¨äºæ ¼å¼åŒ–è¾“å‡ºå­—ç¬¦ä¸²*/
 #define  MAX_STRING_LENGTH 128
 
 
-//Çå¿ÕÆÁÄ»
+//æ¸…ç©ºå±å¹•
 void OLED_Clear(void);
 void OLED_ClearArea(int16_t X, int16_t Y, int16_t Width, int16_t Height);
-//ÆÁÄ»·´É«
+//å±å¹•åè‰²
 void OLED_Reverse(void);
 void OLED_ReverseArea(int16_t X, int16_t Y, int16_t Width, int16_t Height);
-//»æÖÆÎ»Í¼
+//ç»˜åˆ¶ä½å›¾
 void OLED_ShowImage(int16_t X, int16_t Y, uint16_t Width, uint16_t Height, const uint8_t *Image);
-//ÏÔÊ¾ASCII×Ö·ûÓëÊı×Ö
+//æ˜¾ç¤ºASCIIå­—ç¬¦ä¸æ•°å­—
 void OLED_ShowChar(int16_t X, int16_t Y, char Char, uint8_t FontSize);
 void OLED_ShowNum(int16_t X, int16_t Y, uint32_t Number, uint8_t Length, uint8_t FontSize);
 void OLED_ShowSignedNum(int16_t X, int16_t Y, int32_t Number, uint8_t Length, uint8_t FontSize);
 void OLED_ShowHexNum(int16_t X, int16_t Y, uint32_t Number, uint8_t Length, uint8_t FontSize);
 void OLED_ShowBinNum(int16_t X, int16_t Y, uint32_t Number, uint8_t Length, uint8_t FontSize);
 void OLED_ShowFloatNum(int16_t X, int16_t Y, double Number, uint8_t IntLength, uint8_t FraLength, uint8_t FontSize);
-//ÏÔÊ¾ÖĞÓ¢ÎÄ×Ö·û´®
+//æ˜¾ç¤ºä¸­è‹±æ–‡å­—ç¬¦ä¸²
 void OLED_ShowString(int16_t X, int16_t Y, char *String, uint8_t FontSize);
 void OLED_ShowMixString(int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize, uint8_t ASCIIFontSize);
 void OLED_ShowChinese(int16_t X, int16_t Y, char *Chinese, uint8_t FontSize);
 void OLED_Printf(int16_t X, int16_t Y, uint8_t FontSize, char *format, ...);
 void OLED_PrintfMix(int16_t X, int16_t Y, uint8_t ChineseFontSize,uint8_t ASCIIFontSize,const char *format, ...);
 
-//AreaÏµÁĞÏÔÊ¾º¯Êı£¬¿ÉÒÔÏëÏóÎª½«ÆÁÄ»Ê¹ÓÃÃÉ°æÕÚµ²£¬²¢ÔÚÉÏÃæÍÚ³öÒ»¸öX2£¬Y2£¬AreaWidth£¬AreaHeightµÄÍ¸Ã÷ÇøÓò£¬Í¼Æ¬½ö½ö»áÔÚÕâ¸öÇøÓòÄÚÏÔÊ¾
+//Areaç³»åˆ—æ˜¾ç¤ºå‡½æ•°ï¼Œå¯ä»¥æƒ³è±¡ä¸ºå°†å±å¹•ä½¿ç”¨è’™ç‰ˆé®æŒ¡ï¼Œå¹¶åœ¨ä¸Šé¢æŒ–å‡ºä¸€ä¸ªX2ï¼ŒY2ï¼ŒAreaWidthï¼ŒAreaHeightçš„é€æ˜åŒºåŸŸï¼Œå›¾ç‰‡ä»…ä»…ä¼šåœ¨è¿™ä¸ªåŒºåŸŸå†…æ˜¾ç¤º
 void OLED_ShowImageArea(int16_t X_Pic, int16_t Y_Pic, int16_t PictureWidth, int16_t PictureHeight, int16_t X_Area, int16_t Y_Area, int16_t AreaWidth, int16_t AreaHeight, const uint8_t *Image);
 void OLED_ShowCharArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t RangeHeight, int16_t X, int16_t Y, char Char, uint8_t FontSize);
 void OLED_ShowStringArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t RangeHeight, int16_t X, int16_t Y, char *String, uint8_t FontSize);
@@ -66,7 +66,7 @@ void OLED_PrintfArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t Ra
 void OLED_ShowMixStringArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t RangeHeight,int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize,uint8_t ASCIIFontSize);
 void OLED_PrintfMixArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t RangeHeight,int16_t X, int16_t Y, uint8_t ChineseFontSize,uint8_t ASCIIFontSize, char *format, ...);
 
-//»æÖÆº¯Êı£¬»æÖÆ»ù´¡µÄui
+//ç»˜åˆ¶å‡½æ•°ï¼Œç»˜åˆ¶åŸºç¡€çš„ui
 void OLED_DrawPoint(int16_t X, int16_t Y);
 uint8_t OLED_GetPoint(uint8_t X, uint8_t Y);
 void OLED_DrawLine(int16_t X0, int16_t Y0, int16_t X1, int16_t Y1);

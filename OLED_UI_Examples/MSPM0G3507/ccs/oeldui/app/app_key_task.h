@@ -2,7 +2,6 @@
 #define _APP_KEY_TASK_H_
 
 #include "ti_msp_dl_config.h"
-#include "mid_button.h"
 
 typedef struct {
     unsigned int enter : 1; // 使用位字段来节省空间
@@ -16,8 +15,29 @@ typedef struct {
 
 extern KEY_MENU_STATUS key_menu;
 
-void btn_enter_cb(flex_button_t *btn);
-void btn_back_cb(flex_button_t *btn);
+void user_keyBSP_init(void);
 
+void key0_press_down_Handler(void *btn);
 
+void key0_press_up_Handler(void* btn);
+
+void key0_press_repeat_Handler(void *btn);
+
+void key0_single_click_Handler(void *btn);
+
+void key0_long_press_start_Handler(void* btn);
+
+void key0_long_press_hold_Handler(void *btn);
+
+void key1_press_down_Handler(void* btn);
+
+void key1_press_up_Handler(void* btn);
+
+void key1_press_repeat_Handler(void *btn);
+
+void key1_single_click_Handler(void *btn);
+
+void key1_long_press_start_Handler(void *btn);
+
+void key1_long_press_hold_Handler(void *btn);
 #endif

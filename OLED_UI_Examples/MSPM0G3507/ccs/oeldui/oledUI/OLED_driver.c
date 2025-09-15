@@ -28,7 +28,7 @@ void OLED_W_SCL(uint8_t BitValue)
 	/*如果单片机速度过快，可在此添加适量延时，以避免超出I2C通信的最大速度*/
 	//...
 	
-	delay_cycles(  2   );
+	delay_cycles(  2   ); 
 }
 
 /**
@@ -234,7 +234,7 @@ void OLED_Init(void)
 	
 	OLED_WriteCommand(0xA1);	//设置左右方向，0xA1正常，0xA0左右反置
 	
-	OLED_WriteCommand(0xC8);	//设置上下方向，0xC8正常，0xC0上下反置
+	OLED_WriteCommand(0xC0);	//设置上下方向，0xC8正常，0xC0上下反置
 
 	OLED_WriteCommand(0xDA);	//设置COM引脚硬件配置
 	OLED_WriteCommand(0x12);

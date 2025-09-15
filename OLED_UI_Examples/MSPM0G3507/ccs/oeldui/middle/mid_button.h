@@ -1,124 +1,84 @@
-/**
- * @File:    flexible_button.h
- * @Author:  MurphyZhao
- * @Date:    2018-09-29
- * 
- * Copyright (c) 2018-2019 MurphyZhao <d2014zjt@163.com>
- *               https://github.com/murphyzhao
- * All rights reserved.
- * License-Identifier: Apache-2.0
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Change logs:
- * Date        Author       Notes
- * 2018-09-29  MurphyZhao   First add
- * 2019-08-02  MurphyZhao   ??? murphyzhao ?
- * 
-*/
+/*
+ * Copyright (c) 2016 Zibin Zheng <znbin@qq.com>
+ * All rights reserved
+ */
 
-#ifndef __FLEXIBLE_BUTTON_H__
-#define __FLEXIBLE_BUTTON_H__
+#ifndef _MULTI_BUTTON_H_
+#define _MULTI_BUTTON_H_
 
-#include "stdint.h"
-#include "string.h"
+#include <stdint.h>
+#include <string.h>
 
+// Configuration constants - can be modified according to your needs
+#define TICKS_INTERVAL          5    // ms - timer interrupt interval
+#define DEBOUNCE_TICKS          3    // MAX 7 (0 ~ 7) - debounce filter depth
+#define SHORT_TICKS             (100 / TICKS_INTERVAL)   // short press threshold
+#define LONG_TICKS              (500 / TICKS_INTERVAL)  // long press threshold
+#define PRESS_REPEAT_MAX_NUM    15   // maximum repeat counter value
 
-typedef void (*flex_button_response_callback)(void*);
+// Forward declaration
+typedef struct _Button Button;
 
-typedef enum
-{
-    FLEX_BTN_PRESS_DOWN = 0,        // 按下事件
-    FLEX_BTN_PRESS_CLICK,           // 单击事件
-    FLEX_BTN_PRESS_DOUBLE_CLICK,    // 双击事件
-    FLEX_BTN_PRESS_REPEAT_CLICK,    // 连击事件，使用 flex_button_t 中的 click_cnt 断定连击次数
-    FLEX_BTN_PRESS_SHORT_START,     // 短按开始事件
-    FLEX_BTN_PRESS_SHORT_UP,        // 短按抬起事件
-    FLEX_BTN_PRESS_LONG_START,      // 长按开始事件
-    FLEX_BTN_PRESS_LONG_UP,         // 长按抬起事件
-    FLEX_BTN_PRESS_LONG_HOLD,       // 长按保持事件
-    FLEX_BTN_PRESS_LONG_HOLD_UP,    // 长按保持的抬起事件
-    FLEX_BTN_PRESS_MAX,
-    FLEX_BTN_PRESS_NONE,
-} flex_button_event_t;
+// Button callback function type
+typedef void (*BtnCallback)(Button* btn_handle);
 
-/**
- * flex_button_t
- * 
- * @brief Button data structure
- *        Below are members that need to user init before scan.
- * 
- * @member pressed_logic_level:    Logic level when the button is pressed.
- *                                 Must be inited by 'flex_button_register' API
- *                                                     before start button scan.
- * @member debounce_tick:          The time of button debounce.
- *                                 The value is number of button scan cycles.
- * @member click_start_tick:       The time of start click.
- *                                 The value is number of button scan cycles.
- * @member short_press_start_tick: The time of short press start tick.
- *                                 The value is number of button scan cycles.
- * @member long_press_start_tick:  The time of long press start tick.
- *                                 The value is number of button scan cycles.
- * @member long_hold_start_tick:   The time of hold press start tick.
- *                                 The value is number of button scan cycles.
- * @member usr_button_read:        Read the logic level value of specified button.
- * @member cb:                     Button event callback function.
- *                                 If use 'flex_button_event_read' api,
- *                                 you don't need to initialize the 'cb' member.
- * @member next :                  Next button struct
-*/
-typedef struct flex_button
-{
-    uint8_t pressed_logic_level : 1; /* need user to init */
+// Button event types
+typedef enum {
+	BTN_PRESS_DOWN = 0,     // button pressed down
+	BTN_PRESS_UP,           // button released
+	BTN_PRESS_REPEAT,       // repeated press detected
+	BTN_SINGLE_CLICK,       // single click completed
+	BTN_DOUBLE_CLICK,       // double click completed
+	BTN_LONG_PRESS_START,   // long press started
+	BTN_LONG_PRESS_HOLD,    // long press holding
+	BTN_EVENT_COUNT,        // total number of events
+	BTN_NONE_PRESS          // no event
+} ButtonEvent;
 
-    /**
-     * @event
-     * The event of button in flex_button_evnt_t enum list.
-     * Automatically initialized to the default value FLEX_BTN_PRESS_NONE
-     *                                      by 'flex_button_register' API.
-    */
-    uint8_t event               : 4;
+// Button state machine states
+typedef enum {
+	BTN_STATE_IDLE = 0,     // idle state
+	BTN_STATE_PRESS,        // pressed state
+	BTN_STATE_RELEASE,      // released state waiting for timeout
+	BTN_STATE_REPEAT,       // repeat press state
+	BTN_STATE_LONG_HOLD     // long press hold state
+} ButtonState;
 
-    /**
-     * @status
-     * Used to record the status of the button 
-     * Automatically initialized to the default value 0.
-    */
-    uint8_t status              : 3;
-    uint16_t scan_cnt;  /* default 0. Used to record the number of key scans */
-    uint16_t click_cnt; /* default 0. Used to record the number of key click */
-
-    uint16_t debounce_tick;          
-    uint16_t click_start_tick;
-    uint16_t short_press_start_tick;
-    uint16_t long_press_start_tick;
-    uint16_t long_hold_start_tick;
-
-    uint8_t  (*usr_button_read)(void);
-    flex_button_response_callback  cb;
-    struct flex_button* next;
-} flex_button_t;
+// Button structure
+struct _Button {
+	uint16_t ticks;                     // tick counter
+	uint8_t  repeat : 4;                // repeat counter (0-15)
+	uint8_t  event : 4;                 // current event (0-15)
+	uint8_t  state : 3;                 // state machine state (0-7)
+	uint8_t  debounce_cnt : 3;          // debounce counter (0-7)
+	uint8_t  active_level : 1;          // active GPIO level (0 or 1)
+	uint8_t  button_level : 1;          // current button level
+	uint8_t  button_id;                 // button identifier
+	uint8_t  (*hal_button_level)(uint8_t button_id);  // HAL function to read GPIO
+	BtnCallback cb[BTN_EVENT_COUNT];    // callback function array
+	Button* next;                       // next button in linked list
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int8_t flex_button_register(flex_button_t *button);
-flex_button_event_t flex_button_event_read(flex_button_t* button);
-void flex_button_scan(void);
+// Public API functions
+void button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_level, uint8_t button_id);
+void button_attach(Button* handle, ButtonEvent event, BtnCallback cb);
+void button_detach(Button* handle, ButtonEvent event);
+ButtonEvent button_get_event(Button* handle);
+int  button_start(Button* handle);
+void button_stop(Button* handle);
+void button_ticks(void);
 
-void user_button_init(void);
+// Utility functions
+uint8_t button_get_repeat_count(Button* handle);
+void button_reset(Button* handle);
+int button_is_pressed(Button* handle);
+
 #ifdef __cplusplus
 }
-#endif  
-#endif /* __FLEXIBLE_BUTTON_H__ */
+#endif
+
+#endif

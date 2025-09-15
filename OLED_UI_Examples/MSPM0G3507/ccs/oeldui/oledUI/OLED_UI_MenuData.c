@@ -1,11 +1,13 @@
 #include "OLED_UI_MenuData.h"
 #include "OLED_UI.h"
+# include "mid_music.h"
 
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
+extern BEEPER_Tag Beeper0;
 // OLED_UI_Brightness 是一个在OLED_UI当中定义的int16_t类型变量，用于控制OLED显示的亮度。这里将其引出是为了创建调整亮度的滑动条窗口，范围0-255。
 extern int16_t OLED_UI_Brightness;
 float testfloatnum = 0.5;
@@ -218,7 +220,8 @@ MenuItem MainMenuItems[] = {
 MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
-	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps},
+	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps}, 
+	{.General_item_text = "蜂鸣器开关 ",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "感谢观看,一键三连! Thanks for watching, three clicks!",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
@@ -229,13 +232,13 @@ MenuItem SettingsMenuItems[] = {
 
 MenuItem AboutThisDeviceMenuItems[] = {
 	{.General_item_text = "-[MCU:]",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = " STM32F103",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = " RAM:20KB",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = " ROM:64KB",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " MSPM0G3507",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " RAM:32KB",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " FLASH:128KB",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "-[Screen:]",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = " SSD1306 128x64 OLED",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " SSD1312 128x64 OLED",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "-[CP:]",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = " SoftWare SPI",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " SoftWare I2C",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
@@ -246,7 +249,8 @@ MenuItem AboutOLED_UIMenuItems[] = {
 	{.General_item_text = " bilibili @上nm网课呢",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "-[Adress:]",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = " https://github.com/bdth-7777777/OLED_UI",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-
+	{.General_item_text = "-[Secondary Developer:]",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = " LCKFB",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
@@ -523,7 +527,7 @@ MenuPage MainMenuPage = {
 	.General_FontSize = OLED_UI_FONT_16,			//字高
 	.General_ParentMenuPage = NULL,				//由于这是根菜单，所以父菜单为NULL
 	.General_LineSpace = 5,						//磁贴间距 单位：像素（对于磁贴类型菜单，此值表示每个磁贴之间的间距，对于列表类型菜单，此值表示行间距）
-	.General_MoveStyle = UNLINEAR,				//移动方式
+	.General_MoveStyle = PID_CURVE,				//移动方式 
 	.General_MovingSpeed = SPEED,					//动画移动速度(此值根据实际效果调整)
 	.General_ShowAuxiliaryFunction = MainAuxFunc,		 //显示辅助函数
 	.General_MenuItems = MainMenuItems,			//菜单项内容数组
@@ -545,7 +549,7 @@ MenuPage SettingsMenuPage = {
 	.General_LineSpace = 4,						//行间距 单位：像素
 	.General_MoveStyle = UNLINEAR,				//移动方式为非线性曲线动画
 	.General_MovingSpeed = SPEED,					//动画移动速度(此值根据实际效果调整)
-	.General_ShowAuxiliaryFunction = SettingAuxFunc,		 //显示辅助函数
+	.General_ShowAuxiliaryFunction = SettingAuxFunc,//显示辅助函数
 	.General_MenuItems = SettingsMenuItems,		 //菜单项内容数组
 
 	//特殊属性，根据.General_MenuType的类型选择

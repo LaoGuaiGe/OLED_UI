@@ -496,17 +496,57 @@ void CurrentMenuPageBackUp(void){
  * @return 无
  */
 void OLED_UI_Init(MenuPage* Page){
+
+	uint8_t Enter_flag = 1;
+    uint8_t Init_flag = 1;
+
+	int screen_height = 64;
+	int screen_width = 128;
+	int disp_x = 5;
+
 	//初始化OLED显示屏
 	OLED_Init();
 //	Timer_Init();
 	Key_Init();
 	Encoder_Init();
 
+
 	//设置当前页面的结构体指针
 	CurrentMenuPage = Page;	//设置当前页面的结构体指针
 	//初始化菜单页面参数
 	CurrentMenuPageInit();
 	
+	while(1)
+	{
+		if( disp_x < 120 )
+		{
+			disp_x = disp_x + 2;
+		}
+		else
+		{
+			OLED_Clear();
+			break;
+		}
+		//清屏
+		OLED_Clear();
+
+		OLED_ShowString(screen_width/2 - (5*7)/2, screen_height/4, "LCKFB", OLED_7X12_HALF);
+		
+		//空白圆角矩形
+		OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, 120, 12 + 3 + 3, 4, OLED_UNFILLED);  
+		// //填充圆角矩形
+		// OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, disp_x, 12 + 3 + 3, 4, OLED_FILLED);  
+		
+		//8*12+(2*7)
+		OLED_ShowMixString(screen_width/2 - 110/2,  screen_height/2, " 请等待初始化完成 ",OLED_12X12_FULL, OLED_7X12_HALF); 
+
+		//圆角矩形颜色取反填充
+		OLED_ReverseArea(5, (screen_height/2) - 4, disp_x, 12 + 4 + 4);
+		//刷屏
+		OLED_Update();
+
+		
+	}
 }
 
 
@@ -1304,12 +1344,16 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 	ActiveMenuID += Encoder_Get();
 
 	//如果检测到【上】按键的上一状态与这次的状态不同，且这一状态是抬起状态，说明用户按下了【上】按键，并且刚刚才抬起
-	if((OLED_UI_Key.Up != OLED_UI_LastKey.Up && OLED_UI_Key.Up == 1) || IfUpTapAndHold){
+	//if((OLED_UI_Key.Up != OLED_UI_LastKey.Up && OLED_UI_Key.Up == 1) || IfUpTapAndHold){
+	//适配单按键双功能 --250915 laoguaige
+	if((OLED_UI_Key.Up != OLED_UI_LastKey.Up && OLED_UI_Key.Up == 0)){
 		ActiveMenuID--;
 	}
 
 	//如果检测到【下】按键的上一状态与这次的状态不同，且这一状态是抬起状态，说明用户按下了【下】按键，并且刚刚才抬起
-	if((OLED_UI_Key.Down != OLED_UI_LastKey.Down && OLED_UI_Key.Down == 1) || IfDownTapAndHold){
+	//if((OLED_UI_Key.Down != OLED_UI_LastKey.Down && OLED_UI_Key.Down == 1) || IfDownTapAndHold){
+	//适配单按键双功能 --250915 laoguaige
+	if((OLED_UI_Key.Down != OLED_UI_LastKey.Down && OLED_UI_Key.Down == 0)){
 		ActiveMenuID++;
 	}
 	
@@ -1692,10 +1736,6 @@ void MoveMenuElements(void){
 
 	// 绘制窗口
 	OLED_DrawWindow();
-
-
-	
-	
 }
 
 
@@ -1713,12 +1753,9 @@ void OLED_UI_MainLoop(void){
 	//清屏
 	OLED_Clear();
 
-	
-
 	//移动菜单元素
 	MoveMenuElements();
 
-	
 	//当互斥锁被置位时，运行当前菜单项的回调函数
 	RunCurrentCallBackFunction();
 	
@@ -1727,7 +1764,6 @@ void OLED_UI_MainLoop(void){
 	//刷屏
 	OLED_Update();
 }
-
 
 
 
@@ -1814,7 +1850,9 @@ void OLED_UI_InterruptHandler(void){
 	
     	
 		//如果检测到【返回】按键的上一状态与这次的状态不同，且这一状态是抬起状态，说明用户按下了【返回】按键，并且刚刚才抬起
-		if(OLED_UI_Key.Back != OLED_UI_LastKey.Back && OLED_UI_Key.Back == 1){
+		//if(OLED_UI_Key.Back != OLED_UI_LastKey.Back && OLED_UI_Key.Back == 1){
+		//适配单按键双功能 --250915 laoguaige
+		if(OLED_UI_Key.Back != OLED_UI_LastKey.Back && OLED_UI_Key.Back == 0){
 			//如果当前没有运行窗口
 			if(OLED_SustainCounter.SustainFlag != true){
 				BackEventMenuItem();
@@ -1824,7 +1862,9 @@ void OLED_UI_InterruptHandler(void){
 			
 		}
 		//如果检测到【确认】按键的上一状态与这次的状态不同，且这一状态是抬起状态，说明用户按下了【确认】按键，并且刚刚才抬起
-		if(OLED_UI_Key.Enter != OLED_UI_LastKey.Enter && OLED_UI_Key.Enter == 1){
+		//if(OLED_UI_Key.Enter != OLED_UI_LastKey.Enter && OLED_UI_Key.Enter == 1){
+		//适配单按键双功能 --250915 laoguaige
+		if(OLED_UI_Key.Enter != OLED_UI_LastKey.Enter && OLED_UI_Key.Enter == 0){
 			//如果当前没有运行窗口
 			if(OLED_SustainCounter.SustainFlag != true){
 				EnterEventMenuItem();

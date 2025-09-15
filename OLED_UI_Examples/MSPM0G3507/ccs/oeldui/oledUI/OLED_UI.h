@@ -54,7 +54,7 @@ extern uint8_t OLED_DisplayBuf[OLED_HEIGHT/8][OLED_WIDTH];
 #define IF_WAIT_ANIMATION_FINISH          (true)
 
 /*******************关于长按按键的宏******************/
-#define IF_START_UP_AND_DOWN_LONG_PRESS    (false)   //是否开启上按键与下按键的长按功能
+#define IF_START_UP_AND_DOWN_LONG_PRESS    (false)   //是否开启上按键与下按键的长按功能 true false
 #define PRESS_TIME                      (0.6)    //按下按键视为长按的时间（单位秒）
 #define CONTINUE_PRESS_TIME             (2.0)    //在长按0.8秒之后继续长按的时间（单位秒）
 #define PRESS_MOVE_SPEED                (5)      //长按按键之后选项滚动的速度，1为最快，数字越大越慢。

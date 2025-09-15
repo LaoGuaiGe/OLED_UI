@@ -3,7 +3,7 @@
 #include "mid_debug_led.h"
 #include "OLED_UI.h"
 #include "OLED_UI_MenuData.h"
-
+#include "hw_buzzer.h"
 
 // 定义枚举类型
 typedef enum {
@@ -36,21 +36,30 @@ void timer_init(void)
 	NVIC_EnableIRQ(TIMER_TICK_INST_INT_IRQN);
 }
 
-//电机编码器脉冲计数
+//5ms定时器中断服务函数
 void TIMER_TICK_INST_IRQHandler(void)
 {
-	//20ms归零中断触发
+	static char oled_time_num = 0, buzzer_time_num = 0;
+	//5ms归零中断触发
 	if( DL_TimerA_getPendingInterrupt(TIMER_TICK_INST) == DL_TIMER_IIDX_ZERO )
 	{
 
-		//按键扫描+事件管理
-		flex_button_scan();
+		//按键扫描
+		button_ticks();
 		
-		OLED_UI_InterruptHandler();
-		
-		set_debug_led_toggle();
+		// 屏幕刷新 4x5ms=20ms
+		if( (oled_time_num++) >= 4 )
+		{
+			oled_time_num = 0;
+			OLED_UI_InterruptHandler();
+			set_debug_led_toggle();
+		}
 
-
-		
+		// 蜂鸣器音调控制 2x5ms=10ms
+		if( (buzzer_time_num++) >= 1 )
+		{
+			buzzer_time_num = 0;
+			Beeper_Proc();
+		}
 	}
 }

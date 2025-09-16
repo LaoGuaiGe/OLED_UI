@@ -3,7 +3,7 @@
 #include "mid_debug_led.h"
 #include "OLED_UI.h"
 #include "OLED_UI_MenuData.h"
-#include "hw_buzzer.h"
+#include "mid_music.h"
 
 // 定义枚举类型
 typedef enum {

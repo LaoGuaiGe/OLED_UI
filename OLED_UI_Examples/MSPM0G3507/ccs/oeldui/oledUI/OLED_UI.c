@@ -496,17 +496,13 @@ void CurrentMenuPageBackUp(void){
  * @return 无
  */
 void OLED_UI_Init(MenuPage* Page){
-
-	uint8_t Enter_flag = 1;
-    uint8_t Init_flag = 1;
-
 	int screen_height = 64;
 	int screen_width = 128;
 	int disp_x = 5;
 
 	//初始化OLED显示屏
 	OLED_Init();
-//	Timer_Init();
+	Timer_Init();
 	Key_Init();
 	Encoder_Init();
 
@@ -529,23 +525,16 @@ void OLED_UI_Init(MenuPage* Page){
 		}
 		//清屏
 		OLED_Clear();
-
+		//显示标题
 		OLED_ShowString(screen_width/2 - (5*7)/2, screen_height/4, "LCKFB", OLED_7X12_HALF);
-		
 		//空白圆角矩形
-		OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, 120, 12 + 3 + 3, 4, OLED_UNFILLED);  
-		// //填充圆角矩形
-		// OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, disp_x, 12 + 3 + 3, 4, OLED_FILLED);  
-		
+		OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, 120, 12 + 3 + 3, 4, OLED_UNFILLED);   
 		//8*12+(2*7)
 		OLED_ShowMixString(screen_width/2 - 110/2,  screen_height/2, " 请等待初始化完成 ",OLED_12X12_FULL, OLED_7X12_HALF); 
-
 		//圆角矩形颜色取反填充
 		OLED_ReverseArea(5, (screen_height/2) - 4, disp_x, 12 + 4 + 4);
 		//刷屏
 		OLED_Update();
-
-		
 	}
 }
 

@@ -249,10 +249,10 @@ void Beeper_Proc(void)
                 // printf("Ps:%d ", Beeper0.Beep_Play_Schedule);
                 /*给预重装载值赋值，改变音调*/
                 uint16_t arr = (uint16_t)Set_Musical_Note(MusicNoteFrequency[MySound[Beeper0.Beep_Play_Schedule].Note]);   
-                buzzer_Set_reload_value(arr);
+                buzzer_set_reload_value(arr);
 
                 /*给PWM占空比赋值，改变音量*/
-                buzzer_Set_duty((uint16_t)arr / (100 - Beeper0.Sound_Loud));  
+                buzzer_set_duty((uint16_t)arr / (100 - Beeper0.Sound_Loud));  
                 /*赋值新的延时长度给count*/
                 Beeper0.Beeper_Count = MySound[Beeper0.Beep_Play_Schedule].Delay;
                 /*音符表走到下一个音符*/

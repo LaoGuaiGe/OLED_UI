@@ -5,8 +5,8 @@
 
 void buzzer_on(void);
 void buzzer_off(void);
-void buzzer_Set_duty(uint16_t value);
-void buzzer_Set_reload_value(uint16_t value);
+void buzzer_set_duty(uint16_t value);
+void buzzer_set_reload_value(uint16_t value);
 
 #endif
 

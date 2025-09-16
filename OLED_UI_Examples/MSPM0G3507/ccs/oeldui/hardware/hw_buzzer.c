@@ -14,14 +14,14 @@ void buzzer_off(void)
 
 //设置蜂鸣器PWM占空比
 //用于音量调节
-void buzzer_Set_duty(uint16_t value)
+void buzzer_set_duty(uint16_t value)
 {
     DL_TimerA_setCaptureCompareValue(BUZZER_INST, value, GPIO_BUZZER_C1_IDX);
 }
 
 //设置蜂鸣器PWM定时器重装载值
 //用于音调调节
-void buzzer_Set_reload_value(uint16_t value)
+void buzzer_set_reload_value(uint16_t value)
 {
     DL_Timer_setLoadValue(BUZZER_INST, value);
 }

@@ -70,6 +70,7 @@ extern const uint8_t Image_alipay_QR_Code[];
 extern const uint8_t OLED_UI_SettingsLogo[];
 /*按照上面的格式，在这个位置加入新的图像数据声明*/
 //...
+extern const unsigned char gImage_gyro[]; 
 
 #endif
 

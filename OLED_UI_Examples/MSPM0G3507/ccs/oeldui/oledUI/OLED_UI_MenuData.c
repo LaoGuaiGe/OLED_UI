@@ -18,7 +18,7 @@ int32_t testintnum = 1;
 MenuWindow SetBrightnessWindow = {
 	.General_Width = 80,								//窗口宽度
 	.General_Height = 28, 							//窗口高度
-	.Text_String = "屏幕亮度屏幕亮度",					//窗口标题
+	.Text_String = "屏幕亮度",					//窗口标题
 	.Text_FontSize = OLED_UI_FONT_12,				//字高
 	.Text_FontSideDistance = 4,							//字体距离左侧的距离
 	.Text_FontTopDistance = 3,							//字体距离顶部的距离
@@ -33,11 +33,61 @@ MenuWindow SetBrightnessWindow = {
 	.Prob_LineHeight = 8,								//进度条高度
 	.Prob_SideDistance = 4,								//边距
 };
+MenuWindow SetBuzzerVolumeWindow = {
+	.General_Width = 80,								//窗口宽度
+	.General_Height = 28, 							//窗口高度
+	.Text_String = "蜂鸣器音量",					//窗口标题
+	.Text_FontSize = OLED_UI_FONT_12,				//字高
+	.Text_FontSideDistance = 4,							//字体距离左侧的距离
+	.Text_FontTopDistance = 3,							//字体距离顶部的距离
+	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
+	.General_ContinueTime = 4.0,						//窗口持续时间
+
+	.Prob_Data_Int_16 = &Beeper0.Sound_Loud,				//显示的变量地址
+	.Prob_DataStep = 5,								//步长
+	.Prob_MinData = 5,									//最小值
+	.Prob_MaxData = 100, 								//最大值
+	.Prob_BottomDistance = 3,							//底部间距
+	.Prob_LineHeight = 8,								//进度条高度
+	.Prob_SideDistance = 4,								//边距
+};
+
+MenuWindow SetGyroscopeWindow = {
+	.General_Width = 128,								//窗口宽度
+	.General_Height = 64, 							//窗口高度 
+	.Text_String = "Gyroscope",					//窗口标题
+	.Text_FontSize = OLED_UI_FONT_12,				//字高
+	.Text_FontSideDistance = (128/2)-27,							//字体距离左侧的距离
+	.Text_FontTopDistance = 1,							//字体距离顶部的距离
+	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
+	.General_ContinueTime = 120.0,						//窗口持续时间
+
+	//.Prob_Data_Int_16 = &Beeper0.Sound_Loud,				//显示的变量地址
+	// .Prob_DataStep = 5,								//步长
+	// .Prob_MinData = 5,									//最小值
+	// .Prob_MaxData = 100, 								//最大值
+	// .Prob_BottomDistance = 3,							//底部间距
+	// .Prob_LineHeight = 8,								//进度条高度
+	// .Prob_SideDistance = 4,								//边距
+};
+
 /**
  * @brief 创建显示亮度窗口
  */
 void BrightnessWindow(void){
 	OLED_UI_CreateWindow(&SetBrightnessWindow);
+}
+/**
+ * @brief 创建蜂鸣器音量窗口
+ */
+void BuzzerVolumeWindow(void){
+	OLED_UI_CreateWindow(&SetBuzzerVolumeWindow);
+}
+/**
+ * @brief 创建陀螺仪显示窗口
+ */
+void GyroscopeWindow(void){
+	OLED_UI_CreateWindow(&SetGyroscopeWindow);
 }
 //关于窗口的结构体
 MenuWindow NullWindow = {
@@ -146,7 +196,7 @@ void SettingAuxFunc(void){
 	//将Welcome文字移动到屏幕底部看不见的地方
 	WelcomeTextMove.TargetPoint.X = 128;
 	WelcomeTextMove.TargetPoint.Y = 0;
-	ChangePoint(&LogoMove);
+	ChangePoint(&LogoMove); 
 	OLED_ShowImageArea(LogoMove.CurrentPoint.X,LogoMove.CurrentPoint.Y,32,64,0,0,128,128,OLED_UI_SettingsLogo);
 	ChangePoint(&LogoTextMove);
 	OLED_ShowImageArea(LogoTextMove.CurrentPoint.X,LogoTextMove.CurrentPoint.Y,26,64,0,0,128,128,OLED_UI_LOGOTEXT64);
@@ -208,7 +258,7 @@ void MainAuxFunc(void){
 MenuItem MainMenuItems[] = {
 
 	{.General_item_text = "Settings",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
-	{.General_item_text = "WeChat",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_wechat},
+	{.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
 	{.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
 	{.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
 	{.General_item_text = "Night",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
@@ -219,9 +269,12 @@ MenuItem MainMenuItems[] = {
 //设置菜单项内容数组
 MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "蜂鸣器音量 ",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "蜂鸣器开关 ",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
 	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps}, 
-	{.General_item_text = "蜂鸣器开关 ",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
+	
+	
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "感谢观看,一键三连! Thanks for watching, three clicks!",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},

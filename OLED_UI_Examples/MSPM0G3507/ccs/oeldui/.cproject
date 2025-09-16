@@ -57,6 +57,7 @@
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MARCH.1645275624" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MARCH" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MARCH.thumbv6m" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MFLOAT_ABI.888367356" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MFLOAT_ABI" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.MFLOAT_ABI.soft" valueType="enumerated"/>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB.147124327" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB" value="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.SELECT_PROCESSOR_MODE__ARM_THUMB.MTHUMB" valueType="enumerated"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.FFAST_MATH.435072644" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.FFAST_MATH" value="false" valueType="boolean"/>
                             </tool>
                             <tool id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.linkerDebug.1139386465" name="Arm Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.exe.linkerDebug">
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OUTPUT_FILE.1508863221" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
@@ -79,8 +80,8 @@
                                     <listOptionValue value="device.cmd.genlibs"/>
                                     <listOptionValue value="libc.a"/>
                                 </option>
-                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.STACK_SIZE.573448022" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.STACK_SIZE" value="0x400" valueType="string"/>
-                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.HEAP_SIZE.13086164" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.HEAP_SIZE" value="0x400" valueType="string"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.STACK_SIZE.573448022" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.STACK_SIZE" value="0x800" valueType="string"/>
+                                <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.HEAP_SIZE.13086164" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.linkerID.HEAP_SIZE" value="0x800" valueType="string"/>
                             </tool>
                             <tool id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.hex.1839042913" name="Arm Hex Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.hex"/>
                             <tool id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.objcopy.1118772071" name="Arm Objcopy Utility" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.objcopy"/>

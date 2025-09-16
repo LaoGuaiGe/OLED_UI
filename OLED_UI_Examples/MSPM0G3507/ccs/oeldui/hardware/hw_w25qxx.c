@@ -1,20 +1,20 @@
 #include "hw_w25qxx.h"
-
+#include "hw_delay.h"
 uint8_t spi_read_write_byte(uint8_t dat)
 {
         uint8_t data = 0;
 
-        // //发送数据
-        // DL_SPI_transmitData8(SPI_FLASH_INST,dat);
-        // //等待SPI总线空闲
-        // while(DL_SPI_isBusy(SPI_FLASH_INST));
-        DL_SPI_transmitDataBlocking8(SPI_FLASH_INST,dat); 
-        data = DL_SPI_receiveDataBlocking8(SPI_FLASH_INST);
+        //发送数据
+        DL_SPI_transmitData8(SPI_FLASH_INST,dat);
+        //等待SPI总线空闲
+        while(DL_SPI_isBusy(SPI_FLASH_INST));
+        // DL_SPI_transmitDataBlocking8(SPI_FLASH_INST,dat); 
+        // data = DL_SPI_receiveDataBlocking8(SPI_FLASH_INST);
         
-        // //接收数据
-        // data = DL_SPI_receiveData8(SPI_FLASH_INST);
-        // //等待SPI总线空闲
-        // while(DL_SPI_isBusy(SPI_FLASH_INST));
+        //接收数据
+        data = DL_SPI_receiveData8(SPI_FLASH_INST);
+        //等待SPI总线空闲
+        while(DL_SPI_isBusy(SPI_FLASH_INST));
 
         return data;
 }
@@ -29,7 +29,7 @@ uint8_t spi_read_write_byte(uint8_t dat)
 //读取设备ID
 uint16_t W25Q128_readID(void)
 {
-    uint16_t  temp = 0;
+    volatile uint16_t temp = 0;
     //将CS端拉低为低电平
     SPI_CS(0);
     //发送指令90h
@@ -63,7 +63,7 @@ void W25Q128_write_enable(void)
 
 void W25Q128_wait_busy(void)
 {
-	unsigned char byte = 0;
+	volatile unsigned char byte = 0;
 	do
 	 {
 			//拉低CS端为低电平
@@ -88,8 +88,9 @@ void W25Q128_wait_busy(void)
 **********************************************************/
 void W25Q128_erase_sector(uint32_t addr)
 {
+    volatile uint32_t addr_temp = 0;
 	//计算扇区号，一个扇区4KB=4096
-	addr *= 4096;
+	addr_temp = addr * 4096;
 	W25Q128_write_enable();  //写使能
 	W25Q128_wait_busy();     //判断忙，如果忙则一直等待
 	//拉低CS端为低电平
@@ -97,11 +98,11 @@ void W25Q128_erase_sector(uint32_t addr)
 	//发送指令20h
 	spi_read_write_byte(0x20);
 	//发送24位扇区地址的高8位
-	spi_read_write_byte((uint8_t)((addr)>>16));
+	spi_read_write_byte((uint8_t)((addr_temp)>>16));
 	//发送24位扇区地址的中8位
-	spi_read_write_byte((uint8_t)((addr)>>8));
+	spi_read_write_byte((uint8_t)((addr_temp)>>8));
 	//发送24位扇区地址的低8位
-	spi_read_write_byte((uint8_t)addr);
+	spi_read_write_byte((uint8_t)addr_temp);
 	//恢复CS端为高电平
 	SPI_CS(1);
 	//等待擦除完成
@@ -131,9 +132,9 @@ void W25Q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
     //发送指令02h
     spi_read_write_byte(0x02);
     //发送写入的24位地址中的高8位
-    spi_read_write_byte((uint8_t)((addr)>>16));
+    spi_read_write_byte((uint8_t)(addr>>16));
     //发送写入的24位地址中的中8位
-    spi_read_write_byte((uint8_t)((addr)>>8));
+    spi_read_write_byte((uint8_t)(addr>>8));
     //发送写入的24位地址中的低8位
     spi_read_write_byte((uint8_t)addr);
     //根据写入的字节长度连续写入数据buffer
@@ -175,4 +176,30 @@ void W25Q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length)
 	}
 	//恢复CS端为高电平
 	SPI_CS(1);
+}
+
+void W25Q128_test(void)
+{
+    unsigned char rec_buff[50]={0};
+    unsigned char uart_output_buff[50]={0};
+
+    delay_ms(10);
+	//读取W25Q128的ID
+    sprintf((char*)uart_output_buff,"FLASH ID = %X\r\n",W25Q128_readID());
+    debug_uart_send_string((char*)uart_output_buff);
+
+	//读取0地址的5个字节数据到buff
+    W25Q128_read((uint8_t*)rec_buff, 0, 5);
+    //串口输出读取的数据
+    sprintf((char*)uart_output_buff, "1 buff = %s\r\n",rec_buff); 
+    debug_uart_send_string((char*)uart_output_buff);
+
+    //往0地址写入5个字节长度的数据 lckfb
+    W25Q128_write("lckfb", 0, 5); 
+
+    //读取0地址的5个字节数据到buff
+    W25Q128_read((uint8_t*)rec_buff, 0, 5);
+    //串口输出读取的数据
+    sprintf((char*)uart_output_buff, "2 buff = %s\r\n", rec_buff);
+    debug_uart_send_string((char*)uart_output_buff);
 }

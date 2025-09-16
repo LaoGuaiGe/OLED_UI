@@ -96,8 +96,7 @@ GPIO4.$name                              = "FLASH";
 GPIO4.associatedPins[0].$name            = "CS";
 GPIO4.associatedPins[0].assignedPort     = "PORTB";
 GPIO4.associatedPins[0].assignedPin      = "6";
-GPIO4.associatedPins[0].internalResistor = "PULL_UP";
-GPIO4.associatedPins[0].initialValue     = "SET";
+GPIO4.associatedPins[0].internalResistor = "PULL_DOWN";
 
 PWM1.ccIndex                            = [1];
 PWM1.pwmMode                            = "EDGE_ALIGN_UP";
@@ -130,7 +129,7 @@ PWM2.peripheral.ccp0Pin.$assign         = "PB26";
 
 SPI1.frameFormat                        = "MOTO3";
 SPI1.$name                              = "SPI_FLASH";
-SPI1.targetBitRate                      = 10000000;
+SPI1.targetBitRate                      = 20000000;
 SPI1.sclkPinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric4";
 SPI1.sclkPinConfig.direction            = scripting.forceWrite("OUTPUT");
 SPI1.sclkPinConfig.onlyInternalResistor = scripting.forceWrite(false);

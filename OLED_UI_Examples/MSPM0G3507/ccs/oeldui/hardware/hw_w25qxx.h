@@ -11,4 +11,5 @@
 uint16_t W25Q128_readID(void);//读取W25Q128的ID
 void W25Q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte);      //W25Q128写数据
 void W25Q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length);//W25Q128读数据
+void W25Q128_test(void);
 #endif

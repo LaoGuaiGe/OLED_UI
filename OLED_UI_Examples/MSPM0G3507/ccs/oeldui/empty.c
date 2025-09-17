@@ -32,6 +32,7 @@ int main(void)
 	//串口初始化 9600
 	debug_uart_init();
 
+	Delay_ms(500);
 	//按键初始化
 	user_keyBSP_init();
 

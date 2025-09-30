@@ -21,15 +21,17 @@
 
 #include "hw_w25qxx.h"
 
+#include "app_game.h"
 
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
 extern BEEPER_Tag Beeper0;
 extern int16_t OLED_UI_Brightness;
 
+
 int main(void)
 {
-
+	int time_num = 0;
 	//图形化外设配置初始化
 	SYSCFG_DL_init();
 	
@@ -59,12 +61,15 @@ int main(void)
 	//蜂鸣器音乐  
 	Beeper_Perform(BEEP1);		 
 
-	//UI初始化
+	// //UI初始化
 	OLED_UI_Init(&MainMenuPage);   
 
+	game_init();
 	while (1) 
 	{
-		OLED_UI_MainLoop();
+		//OLED_UI_MainLoop();
+		
+		game_loop();
 	}
 }
 

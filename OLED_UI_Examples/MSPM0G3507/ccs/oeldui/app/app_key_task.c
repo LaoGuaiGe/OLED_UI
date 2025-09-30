@@ -78,6 +78,9 @@ void key0_long_press_start_Handler(void *btn)
 
 
 
+extern float y_speed;
+extern int y;
+
 
 void key1_press_up_Handler(void *btn)
 {
@@ -91,6 +94,11 @@ void key1_press_repeat_Handler(void *btn)
 //	printf("***> key1 press repeat! <***\r\n");
 	key_menu.enter = RELEASE;
     key_menu.down = PRESS;  
+    y_speed = -5;	
+    if( y <= 8 )
+    {
+        y_speed = 5;
+    }
     Beeper_Perform(BEEPER_KEYPRESS);
 }
 
@@ -99,6 +107,11 @@ void key1_single_click_Handler(void *btn)
 //	printf("***> key1 single click! <***\r\n");
 	key_menu.enter = RELEASE;
     key_menu.down = PRESS;  
+    y_speed = -5;	
+    if( y <= 8 )
+    {
+        y_speed = +5;
+    }
     Beeper_Perform(BEEPER_KEYPRESS);
 }
 

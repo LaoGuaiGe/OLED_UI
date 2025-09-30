@@ -36,6 +36,7 @@ void timer_init(void)
 	NVIC_EnableIRQ(TIMER_TICK_INST_INT_IRQN);
 }
 
+extern int barrier_x;
 //5ms定时器中断服务函数
 void TIMER_TICK_INST_IRQHandler(void)
 {
@@ -53,6 +54,7 @@ void TIMER_TICK_INST_IRQHandler(void)
 			oled_time_num = 0;
 			OLED_UI_InterruptHandler();
 			set_debug_led_toggle();
+			barrier_x -= 1;
 		}
 
 		// 蜂鸣器音调控制 2x5ms=10ms

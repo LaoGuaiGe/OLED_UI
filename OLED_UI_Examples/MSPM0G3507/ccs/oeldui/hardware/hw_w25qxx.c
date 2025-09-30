@@ -8,9 +8,6 @@ uint8_t spi_read_write_byte(uint8_t dat)
         DL_SPI_transmitData8(SPI_FLASH_INST,dat);
         //等待SPI总线空闲
         while(DL_SPI_isBusy(SPI_FLASH_INST));
-        // DL_SPI_transmitDataBlocking8(SPI_FLASH_INST,dat); 
-        // data = DL_SPI_receiveDataBlocking8(SPI_FLASH_INST);
-        
         //接收数据
         data = DL_SPI_receiveData8(SPI_FLASH_INST);
         //等待SPI总线空闲
@@ -61,6 +58,7 @@ void W25Q128_write_enable(void)
     SPI_CS(1);
 }
 
+//等待忙检测
 void W25Q128_wait_busy(void)
 {
 	volatile unsigned char byte = 0;
@@ -80,7 +78,7 @@ void W25Q128_wait_busy(void)
 
 /**********************************************************
  * 函 数 名 称：W25Q128_erase_sector
- * 函 数 功 能：擦除一个扇区
+ * 函 数 功 能：擦除一个扇区 4K内容
  * 传 入 参 数：addr=擦除的扇区号
  * 函 数 返 回：无
  * 作       者：LC
@@ -109,6 +107,19 @@ void W25Q128_erase_sector(uint32_t addr)
 	W25Q128_wait_busy();
 }
 
+//擦除整片芯片FLASH
+char W25Q128_erase_sector_all(void)
+{
+	W25Q128_write_enable();//写使能
+	SPI_CS(0);
+	spi_read_write_byte(0xC7);
+	SPI_CS(1);
+	
+    W25Q128_wait_busy();//如果擦除未完成，在忙
+	
+    //擦除成功	
+	return 0;	
+}
 /**********************************************************
  * 函 数 名 称：W25Q128_write
  * 函 数 功 能：写数据到W25Q128进行保存

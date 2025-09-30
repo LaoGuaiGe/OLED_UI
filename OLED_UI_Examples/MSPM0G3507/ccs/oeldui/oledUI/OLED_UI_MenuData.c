@@ -1,7 +1,7 @@
 #include "OLED_UI_MenuData.h"
 #include "OLED_UI.h"
-# include "mid_music.h"
-
+#include "mid_music.h"
+#include "stdio.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -61,14 +61,17 @@ MenuWindow SetGyroscopeWindow = {
 	.Text_FontTopDistance = 1,							//字体距离顶部的距离
 	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
 	.General_ContinueTime = 120.0,						//窗口持续时间
+};
 
-	//.Prob_Data_Int_16 = &Beeper0.Sound_Loud,				//显示的变量地址
-	// .Prob_DataStep = 5,								//步长
-	// .Prob_MinData = 5,									//最小值
-	// .Prob_MaxData = 100, 								//最大值
-	// .Prob_BottomDistance = 3,							//底部间距
-	// .Prob_LineHeight = 8,								//进度条高度
-	// .Prob_SideDistance = 4,								//边距
+MenuWindow SetSavedataWindow = {
+	.General_Width = 80,								//窗口宽度
+	.General_Height = 20, 							//窗口高度
+	.Text_String = "保存成功",					//窗口标题
+	.Text_FontSize = OLED_UI_FONT_12,				//字高
+	.Text_FontSideDistance = 80/2-24,							//字体距离左侧的距离
+	.Text_FontTopDistance = 3,							//字体距离顶部的距离
+	.General_WindowType = WINDOW_ROUNDRECTANGLE, 		//窗口类型
+	.General_ContinueTime = 1.0,						//窗口持续时间
 };
 
 /**
@@ -89,15 +92,29 @@ void BuzzerVolumeWindow(void){
 void GyroscopeWindow(void){
 	OLED_UI_CreateWindow(&SetGyroscopeWindow);
 }
+/**
+ * @brief 创建保存数据窗口
+ */
+void SavedataWindow(void){
+	uint8_t temp[5]={0};
+	uint8_t temp_r[5]={0};
+	temp[0]=OLED_UI_Brightness;
+	temp[1]=Beeper0.Sound_Loud;
+	temp[2]=Beeper0.Beeper_Enable;
+	temp[3]=ColorMode;
+	temp[4]=OLED_UI_ShowFps;
+	W25Q128_write(temp, 0, 5); //无保护性写入
+	OLED_UI_CreateWindow(&SetSavedataWindow);
+}
 //关于窗口的结构体
 MenuWindow NullWindow = {
-	.General_Width = 80,								//窗口宽度
+	.General_Width = 80,							//窗口宽度
 	.General_Height = 28, 							//窗口高度
 	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
-	.General_ContinueTime = 4.0,						//窗口持续时间
+	.General_ContinueTime = 4.0,					//窗口持续时间
 };
 /**
- * @brief 创建显示亮度窗口
+ * @brief 创建空白窗口
  */
 void EmptyWindow(void){
 	OLED_UI_CreateWindow(&NullWindow);
@@ -105,19 +122,19 @@ void EmptyWindow(void){
 //关于窗口的结构体
 MenuWindow TextWindow = {
 	.General_Width = 75,								//窗口宽度
-	.General_Height = 18, 							//窗口高度
-	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
+	.General_Height = 18, 								//窗口高度
+	.General_WindowType = WINDOW_ROUNDRECTANGLE, 		//窗口类型
 	.General_ContinueTime = 4.0,						//窗口持续时间
 
-	.Text_String = "文字text",					//窗口标题
-	.Text_FontSize = OLED_UI_FONT_12,				//字高
+	.Text_String = "文字text",							//窗口标题
+	.Text_FontSize = OLED_UI_FONT_12,					//字高
 	.Text_FontSideDistance = 8,							//字体距离左侧的距离
 	.Text_FontTopDistance = 2,							//字体距离顶部的距离
 	
 
 };
 /**
- * @brief 创建显示亮度窗口
+ * @brief 创建显示文本窗口
  */
 void ShowTextWindow(void){
 	OLED_UI_CreateWindow(&TextWindow);
@@ -125,17 +142,17 @@ void ShowTextWindow(void){
 //关于窗口的结构体
 MenuWindow FloatDataWindow = {
 	.General_Width = 80,								//窗口宽度
-	.General_Height = 28, 							//窗口高度
-	.Text_String = "浮点数据测试",					//窗口标题
-	.Text_FontSize = OLED_UI_FONT_12,				//字高
+	.General_Height = 28, 								//窗口高度
+	.Text_String = "浮点数据测试",						//窗口标题
+	.Text_FontSize = OLED_UI_FONT_12,					//字高
 	.Text_FontSideDistance = 4,							//字体距离左侧的距离
 	.Text_FontTopDistance = 3,							//字体距离顶部的距离
-	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
+	.General_WindowType = WINDOW_ROUNDRECTANGLE, 		//窗口类型
 	.General_ContinueTime = 4.0,						//窗口持续时间
 
-	.Prob_Data_Float = &testfloatnum,				//显示的变量地址
+	.Prob_Data_Float = &testfloatnum,					//显示的变量地址
 	.Prob_DataStep = 0.1,								//步长
-	.Prob_MinData = -100,									//最小值
+	.Prob_MinData = -100,								//最小值
 	.Prob_MaxData = 100, 								//最大值
 	.Prob_BottomDistance = 3,							//底部间距
 	.Prob_LineHeight = 8,								//进度条高度
@@ -273,8 +290,7 @@ MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "蜂鸣器开关 ",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
 	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps}, 
-	
-	
+	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL}, 
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "感谢观看,一键三连! Thanks for watching, three clicks!",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},

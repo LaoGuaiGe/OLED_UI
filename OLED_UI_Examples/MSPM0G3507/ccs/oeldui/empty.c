@@ -22,6 +22,10 @@
 #include "hw_w25qxx.h"
 
 
+extern bool ColorMode;
+extern bool OLED_UI_ShowFps;
+extern BEEPER_Tag Beeper0;
+extern int16_t OLED_UI_Brightness;
 
 int main(void)
 {
@@ -33,17 +37,29 @@ int main(void)
 	debug_uart_init();
 
 	Delay_ms(500);
+
+	//蜂鸣器初始化
+	Beeper_Init();	
+
+	//读取
+	uint8_t temp[5] = {0};
+	W25Q128_read(temp, 0, 5); 
+	OLED_UI_Brightness 		= (uint16_t)temp[0];
+	Beeper0.Sound_Loud 		= temp[1];
+	Beeper0.Beeper_Enable 	= temp[2];
+	ColorMode 				= (bool)temp[3];
+	OLED_UI_ShowFps 		= (bool)temp[4];
+
 	//按键初始化
 	user_keyBSP_init();
 
 	//5ms定时器中断
 	timer_init();
 	
-	//蜂鸣器初始化
-	Beeper_Init();						
 	//蜂鸣器音乐  
 	Beeper_Perform(BEEP1);		 
 
+	//UI初始化
 	OLED_UI_Init(&MainMenuPage);   
 
 	while (1) 

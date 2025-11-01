@@ -21,7 +21,8 @@
 
 #include "hw_w25qxx.h"
 
-#include "app_game.h"
+#include "app_bird_game.h"
+#include "app_dino_game.h"
 
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
@@ -61,15 +62,15 @@ int main(void)
 	//蜂鸣器音乐  
 	Beeper_Perform(BEEP1);		 
 
+	PWM_WS2812B_Init();
+	PWM_WS2812B_Red(2);
+
 	// //UI初始化
 	OLED_UI_Init(&MainMenuPage);   
 
-	game_init();
 	while (1) 
 	{
-		//OLED_UI_MainLoop();
-		
-		game_loop();
+		OLED_UI_MainLoop();
 	}
 }
 

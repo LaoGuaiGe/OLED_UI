@@ -13,6 +13,7 @@ volatile bool gChannel0InterruptTaken           = false;
 void PWM_WS2812B_Init(void)
 {
 	// DMA_Cmd(DMA1_Stream4, DISABLE); // 失能DMA1的6通道，因为一旦使能就开始传输
+	DL_SYSCTL_disableSleepOnExit();
     NVIC_EnableIRQ(DMA_INT_IRQn);
     
     DL_Timer_stopCounter(WS2812_INST);
@@ -21,7 +22,8 @@ void PWM_WS2812B_Init(void)
     DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
     //设置DMA搬运的目的地址
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX]);
-   
+   	//设置搬运内存大小
+	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
     //停止DMA
     DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
 }
@@ -101,7 +103,7 @@ void set_ws2812_breathing(uint8_t index)
 	case 0: /* red */
 		for (i = 0; i < 254; i += 2)
 		{
-			WS2812B_Write_24Bits(64, (uint32_t)(0x00 << 16 | i << 8 | 0x00));
+			WS2812B_Write_24Bits(64, (uint32_t)(0x00 << 16 | i << 8 | 0x00)); 
 			WS2812B_Show();
 			delay_ms(10);
 		}

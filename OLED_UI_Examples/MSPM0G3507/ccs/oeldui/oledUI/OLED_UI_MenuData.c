@@ -2,6 +2,9 @@
 #include "OLED_UI.h"
 #include "mid_music.h"
 #include "stdio.h"
+#include "app_dino_game.h"
+#include "app_bird_game.h"
+#include "app_plane_game.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -105,6 +108,30 @@ void SavedataWindow(void){
 	temp[4]=OLED_UI_ShowFps;
 	W25Q128_write(temp, 0, 5); //无保护性写入
 	OLED_UI_CreateWindow(&SetSavedataWindow);
+}
+
+/**
+ * @brief 启动小恐龙游戏
+ */
+void DinoGameStart(void){
+	// 启动小恐龙游戏
+	dino_game_loop();
+}
+
+/**
+ * @brief 启动水管鸟游戏
+ */
+void FlappyBirdStart(void){
+	// 启动水管鸟游戏
+	game_loop();
+}
+
+/**
+ * @brief 启动飞机大战游戏
+ */
+void PlaneGameStart(void){
+	// 启动飞机大战游戏
+	plane_game_loop();
 }
 //关于窗口的结构体
 MenuWindow NullWindow = {
@@ -278,6 +305,9 @@ MenuItem MainMenuItems[] = {
 	{.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
 	{.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
 	{.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
+	{.General_item_text = "Dino Game",.General_callback = DinoGameStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
+	{.General_item_text = "Flappy Bird",.General_callback = FlappyBirdStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
+	{.General_item_text = "Plane Game",.General_callback = PlaneGameStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
 	{.General_item_text = "Night",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "More",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/

@@ -14,6 +14,17 @@ extern MenuPage MainMenuPage,SettingsMenuPage,AboutThisDeviceMenuPage,
 AboutOLED_UIMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
 ,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage;
 
+// 窗口函数声明
+void BrightnessWindow(void);
+void BuzzerVolumeWindow(void);
+void GyroscopeWindow(void);
+void SavedataWindow(void);
+void EmptyWindow(void);
+void ShowTextWindow(void);
+void ShowFloatDataWindow(void);
+void ShowIntDataWindow(void);
+void DinoGameStart(void);
+void FlappyBirdStart(void);
 
 #ifdef __cplusplus
 }  // extern "C"

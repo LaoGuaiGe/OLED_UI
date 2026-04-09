@@ -210,6 +210,14 @@ static void W25Q128_write_raw(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
 }
 
 /**
+ * @brief 页写入（不擦除），最大 256 字节，供外部调用
+ */
+void W25Q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
+{
+    W25Q128_write_raw(buffer, addr, numbyte);
+}
+
+/**
  * @brief 保存系统参数到Flash（wear leveling）
  * @param data 5字节参数数组
  * @note  使用最后一个扇区（0xFFF000）存储，每条记录6字节（1字节标记+5字节数据），
@@ -284,15 +292,47 @@ void W25Q128_test(void)
 	//读取0地址的5个字节数据到buff
     W25Q128_read((uint8_t*)rec_buff, 0, 5);
     //串口输出读取的数据
-    sprintf((char*)uart_output_buff, "1 buff = %s\r\n",rec_buff); 
+    sprintf((char*)uart_output_buff, "1 buff = %s\r\n",rec_buff);
     debug_uart_send_string((char*)uart_output_buff);
 
     //往0地址写入5个字节长度的数据 lckfb
-    W25Q128_write("lckfb", 0, 5); 
+    W25Q128_write("lckfb", 0, 5);
 
     //读取0地址的5个字节数据到buff
     W25Q128_read((uint8_t*)rec_buff, 0, 5);
     //串口输出读取的数据
     sprintf((char*)uart_output_buff, "2 buff = %s\r\n", rec_buff);
     debug_uart_send_string((char*)uart_output_buff);
+}
+
+/**
+ * @brief 写入单个字节到 Flash（不擦除，需提前擦除扇区）
+ * @param addr 字节地址
+ * @param data 要写入的字节
+ */
+void W25Q128_write_byte(uint32_t addr, uint8_t data)
+{
+    W25Q128_write_enable();
+    W25Q128_wait_busy();
+    SPI_CS(0);
+    spi_read_write_byte(0x02);
+    spi_read_write_byte((uint8_t)(addr >> 16));
+    spi_read_write_byte((uint8_t)(addr >> 8));
+    spi_read_write_byte((uint8_t)addr);
+    spi_read_write_byte(data);
+    SPI_CS(1);
+    W25Q128_wait_busy();
+}
+
+/**
+ * @brief 擦除字库存储区域（0x000000 ~ 0x03FFFF，共 64 个扇区）
+ * @note  擦除后所有字节为 0xFF，耗时约数秒
+ */
+void W25Q128_erase_font_area(void)
+{
+    uint32_t sector;
+    uint32_t total_sectors = FONT_AREA_END_ADDR / 4096;  // 64 个扇区
+    for (sector = 0; sector < total_sectors; sector++) {
+        W25Q128_erase_sector(sector);
+    }
 }

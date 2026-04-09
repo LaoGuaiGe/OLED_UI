@@ -168,9 +168,9 @@ TIMER1.interruptPriority = "3";
 TIMER1.$name             = "TIMER_TICK";
 TIMER1.timerPeriod       = "5 ms";
 
-UART1.enabledInterrupts                = ["RX"];
 UART1.interruptPriority                = "3";
 UART1.$name                            = "UART_DEBUG";
+UART1.enabledInterrupts                = ["RX"];
 UART1.peripheral.rxPin.$assign         = "PA11";
 UART1.peripheral.txPin.$assign         = "PA10";
 UART1.txPinConfig.direction            = scripting.forceWrite("OUTPUT");

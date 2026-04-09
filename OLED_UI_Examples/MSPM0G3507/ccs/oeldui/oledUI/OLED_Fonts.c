@@ -406,6 +406,7 @@ const uint8_t OLED_F6x8[][6] =
 /*相同的汉字只需要定义一次，汉字不分先后顺序*/
 /*必须全部为汉字或者全角字符，不要加入任何半角字符*/
 
+#if 0  // 12/16/20 中文字模已移至外部 Flash，不再需要内部字模数据
 /*宽16像素，高16像素*/
 const ChineseCell20x20_t OLED_CF20x20[] = {
     {{"长"},
@@ -977,6 +978,8 @@ const ChineseCell12x12_t OLED_CF12x12[] = {
     {0xFF,0x01,0x19,0x1D,0x05,0xC3,0xC3,0x45,0x3D,0x19,0x01,0xFF,0x0F,0x08,0x08,0x08,
     0x08,0x0E,0x0E,0x08,0x08,0x08,0x08,0x0F}}
 };
+#endif  // 12/16/20 中文字模已移至外部 Flash
+
 const ChineseCell8x8_t OLED_CF8x8[] = {
 
 {{"长"},

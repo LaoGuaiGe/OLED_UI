@@ -3,6 +3,7 @@
  * 在此文件当中，部分是b站up江协科技的函数，在此诚挚感谢。
 */
 #include "OLED.h"
+#include "oled_ext_font.h"
 /**
   * 声明OLED显存数组，此数组已经在OLED_Driver.c中定义
   * 所有的显示函数，都只是对此显存数组进行读写
@@ -554,76 +555,33 @@ void OLED_ShowString(int16_t X, int16_t Y, char *String, uint8_t FontSize)
   */
 void OLED_ShowChinese(int16_t X, int16_t Y, char *Chinese, uint8_t FontSize)
 {
-    uint8_t pChinese = 0;
-    uint8_t pIndex;
-    uint8_t i;
-    char SingleChinese[OLED_CHN_CHAR_WIDTH + 1] = {0};
-    
-    for (i = 0; Chinese[i] != '\0'; i ++)    // 遍历汉字串
+    // 8x8 无外部字库，保留内部字模查找
+    if (FontSize == OLED_8X8_FULL)
     {
-        SingleChinese[pChinese] = Chinese[i];    // 提取汉字串数据到单个汉字数组
-        pChinese ++;                            // 计次自增
-        
-        if (pChinese >= OLED_CHN_CHAR_WIDTH)    // 提取到了一个完整的汉字
+        uint8_t pChinese = 0;
+        uint8_t pIndex;
+        uint8_t i;
+        char SingleChinese[OLED_CHN_CHAR_WIDTH + 1] = {0};
+        for (i = 0; Chinese[i] != '\0'; i++)
         {
-            pChinese = 0;    // 计次归零
-            
-			const void* fontArray;
-			if (FontSize == OLED_8X8_FULL) {
-					fontArray = (const void*) OLED_CF8x8;
-			}else
-			if (FontSize == OLED_12X12_FULL) {
-					fontArray = (const void*) OLED_CF12x12;
-			}else
-			if (FontSize == OLED_16X16_FULL) {
-					fontArray = (const void*) OLED_CF16x16;
-			}else
-			if (FontSize == OLED_20X20_FULL) {
-				fontArray = (const void*) OLED_CF20x20;
-			}
- 	
-			if(FontSize==OLED_8X8_FULL){
-				for (pIndex = 0; strcmp(((const ChineseCell8x8_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-				{
-					if (strcmp(((const ChineseCell8x8_t*)fontArray)[pIndex].Index, SingleChinese) == 0)
-					{
-						break;
-					}
-				}
-				OLED_ShowImage(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_8X8_FULL, Y, OLED_8X8_FULL, OLED_8X8_FULL, ((const ChineseCell8x8_t*)fontArray)[pIndex].Data);
-			}else
-			if(FontSize==OLED_12X12_FULL){
-				for (pIndex = 0; strcmp(((const ChineseCell12x12_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-				{
-					if (strcmp(((const ChineseCell12x12_t*)fontArray)[pIndex].Index, SingleChinese) == 0)
-					{
-						break;
-					}
-				}
-				OLED_ShowImage(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_12X12_FULL, Y, OLED_12X12_FULL, OLED_12X12_FULL, ((const ChineseCell12x12_t*)fontArray)[pIndex].Data);
-			}else
-			if(FontSize==OLED_16X16_FULL){
-				for (pIndex = 0; strcmp(((const ChineseCell16x16_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-				{
-					if (strcmp(((const ChineseCell16x16_t*)fontArray)[pIndex].Index, SingleChinese) == 0)
-					{
-						break;
-					}
-				}
-				OLED_ShowImage(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_16X16_FULL, Y, OLED_16X16_FULL, OLED_16X16_FULL, ((const ChineseCell16x16_t*)fontArray)[pIndex].Data);
-			}else
-			if(FontSize==OLED_20X20_FULL){
-				for (pIndex = 0; strcmp(((const ChineseCell20x20_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-				{
-					if (strcmp(((const ChineseCell20x20_t*)fontArray)[pIndex].Index, SingleChinese) == 0)
-					{
-						break;
-					}
-				}
-				OLED_ShowImage(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_20X20_FULL, Y, OLED_20X20_FULL, OLED_20X20_FULL, ((const ChineseCell20x20_t*)fontArray)[pIndex].Data);
-			}
+            SingleChinese[pChinese] = Chinese[i];
+            pChinese++;
+            if (pChinese >= OLED_CHN_CHAR_WIDTH)
+            {
+                pChinese = 0;
+                const ChineseCell8x8_t* fontArray = OLED_CF8x8;
+                for (pIndex = 0; strcmp(fontArray[pIndex].Index, "") != 0; pIndex++)
+                {
+                    if (strcmp(fontArray[pIndex].Index, SingleChinese) == 0) break;
+                }
+                OLED_ShowImage(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_8X8_FULL, Y,
+                               OLED_8X8_FULL, OLED_8X8_FULL, fontArray[pIndex].Data);
+            }
         }
+        return;
     }
+    // 12/16/20 走外部 Flash 字库
+    OLED_ShowChineseExt(X, Y, Chinese, FontSize);
 }
 
 /**
@@ -663,25 +621,31 @@ void OLED_Printf(int16_t X, int16_t Y, uint8_t FontSize, char *format, ...)
   * @param ASCIIFontSize  指定ASCII文字大小,OLED_6X8_HALF,OLED_7X12_HALF,OLED_8X16_HALF,OLED_10X20_HALF
   * @return 无
   */
-void OLED_ShowMixString(int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize, uint8_t ASCIIFontSize) 
+void OLED_ShowMixString(int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize, uint8_t ASCIIFontSize)
 {
-    while (*String != '\0') {
-        if (*String & 0x80) { // 判断是否是中文字符 (最高位为1表示中文字符)
-			char Chinese[OLED_CHN_CHAR_WIDTH+1];
-			for (uint8_t i=0;i<OLED_CHN_CHAR_WIDTH;i++){
-				Chinese[i] = *(String+i);
-			}
-			Chinese[OLED_CHN_CHAR_WIDTH] = '\0';
-			OLED_ShowChinese(X, Y, Chinese, ChineseFontSize);
-			X += ChineseFontSize;  // 中文字符宽度
-			String += OLED_CHN_CHAR_WIDTH;  // 跳过当前的两个字节的中文字符
-        } else {
-            // 如果是ASCII字符
-            OLED_ShowChar(X, Y, *String, ASCIIFontSize);
-            X += ASCIIFontSize; // ASCII字符宽度
-            String++; // 指向下一个字符
+    // 8x8 保留内部字模
+    if (ChineseFontSize == OLED_8X8_FULL)
+    {
+        while (*String != '\0') {
+            if (*String & 0x80) {
+                char Chinese[OLED_CHN_CHAR_WIDTH+1];
+                for (uint8_t i=0;i<OLED_CHN_CHAR_WIDTH;i++){
+                    Chinese[i] = *(String+i);
+                }
+                Chinese[OLED_CHN_CHAR_WIDTH] = '\0';
+                OLED_ShowChinese(X, Y, Chinese, ChineseFontSize);
+                X += ChineseFontSize;
+                String += OLED_CHN_CHAR_WIDTH;
+            } else {
+                OLED_ShowChar(X, Y, *String, ASCIIFontSize);
+                X += ASCIIFontSize;
+                String++;
+            }
         }
+        return;
     }
+    // 12/16/20 走外部 Flash 字库
+    OLED_ShowMixStringExt(X, Y, String, ChineseFontSize, ASCIIFontSize);
 }
 
 /**
@@ -830,62 +794,34 @@ void OLED_ShowStringArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_
 
 void OLED_ShowChineseArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t RangeHeight, int16_t X, int16_t Y, char *Chinese, uint8_t FontSize)
 {
-    uint8_t pChinese = 0;
-    uint8_t pIndex;
-    uint8_t i;
-    char SingleChinese[OLED_CHN_CHAR_WIDTH + 1] = {0};
-    for (i = 0; Chinese[i] != '\0'; i ++)    // 遍历汉字串
+    // 8x8 保留内部字模
+    if (FontSize == OLED_8X8_FULL)
     {
-        SingleChinese[pChinese] = Chinese[i];    // 提取汉字串数据到单个汉字数组
-        pChinese ++;                            // 计次自增
-        
-        if (pChinese >= OLED_CHN_CHAR_WIDTH)    // 提取到了一个完整的汉字
+        uint8_t pChinese = 0;
+        uint8_t pIndex;
+        uint8_t i;
+        char SingleChinese[OLED_CHN_CHAR_WIDTH + 1] = {0};
+        for (i = 0; Chinese[i] != '\0'; i++)
         {
-            pChinese = 0;    // 计次归零
-            const void* fontArray;
-				if (FontSize == OLED_8X8_FULL) {
-					fontArray = (const void*) OLED_CF8x8;
-				}
-				else if (FontSize == OLED_12X12_FULL) {
-					fontArray = (const void*) OLED_CF12x12;
-				}
-				else if (FontSize == OLED_16X16_FULL) {
-					fontArray = (const void*) OLED_CF16x16;
-				}
-				else if (FontSize == OLED_20X20_FULL) {
-					fontArray = (const void*) OLED_CF20x20;
-				}
-
-				if(FontSize==OLED_8X8_FULL){
-					for (pIndex = 0; strcmp(((const ChineseCell8x8_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-					{
-						if (strcmp(((const ChineseCell8x8_t*)fontArray)[pIndex].Index, SingleChinese) == 0){break;}
-					}
-					OLED_ShowImageArea(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_8X8_FULL, Y, OLED_8X8_FULL, OLED_8X8_FULL, RangeX, RangeY, RangeWidth, RangeHeight, ((const ChineseCell8x8_t*)fontArray)[pIndex].Data);
-				}else
-				if(FontSize==OLED_12X12_FULL){
-					for (pIndex = 0; strcmp(((const ChineseCell12x12_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-					{
-						if (strcmp(((const ChineseCell12x12_t*)fontArray)[pIndex].Index, SingleChinese) == 0){break;}
-					}
-					OLED_ShowImageArea(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_12X12_FULL, Y, OLED_12X12_FULL, OLED_12X12_FULL, RangeX, RangeY, RangeWidth, RangeHeight, ((const ChineseCell12x12_t*)fontArray)[pIndex].Data);
-				}else
-				if(FontSize==OLED_16X16_FULL){
-					for (pIndex = 0; strcmp(((const ChineseCell16x16_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-					{
-						if (strcmp(((const ChineseCell16x16_t*)fontArray)[pIndex].Index, SingleChinese) == 0){break;}
-					}
-					OLED_ShowImageArea(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_16X16_FULL, Y, OLED_16X16_FULL, OLED_16X16_FULL, RangeX, RangeY, RangeWidth, RangeHeight,((const ChineseCell16x16_t*)fontArray)[pIndex].Data);
-				}else
-				if(FontSize==OLED_20X20_FULL){
-					for (pIndex = 0; strcmp(((const ChineseCell20x20_t*)fontArray)[pIndex].Index, "") != 0; pIndex ++)
-					{
-						if (strcmp(((const ChineseCell20x20_t*)fontArray)[pIndex].Index, SingleChinese) == 0){break;}
-					}
-					OLED_ShowImageArea(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_20X20_FULL, Y, OLED_20X20_FULL, OLED_20X20_FULL, RangeX, RangeY, RangeWidth, RangeHeight,((const ChineseCell20x20_t*)fontArray)[pIndex].Data);
-				}
-			}
-		}
+            SingleChinese[pChinese] = Chinese[i];
+            pChinese++;
+            if (pChinese >= OLED_CHN_CHAR_WIDTH)
+            {
+                pChinese = 0;
+                const ChineseCell8x8_t* fontArray = OLED_CF8x8;
+                for (pIndex = 0; strcmp(fontArray[pIndex].Index, "") != 0; pIndex++)
+                {
+                    if (strcmp(fontArray[pIndex].Index, SingleChinese) == 0) break;
+                }
+                OLED_ShowImageArea(X + ((i + 1) / OLED_CHN_CHAR_WIDTH - 1) * OLED_8X8_FULL, Y,
+                                   OLED_8X8_FULL, OLED_8X8_FULL,
+                                   RangeX, RangeY, RangeWidth, RangeHeight, fontArray[pIndex].Data);
+            }
+        }
+        return;
+    }
+    // 12/16/20 走外部 Flash 字库
+    OLED_ShowChineseAreaExt(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, Chinese, FontSize);
 }
 
 
@@ -941,22 +877,29 @@ void OLED_PrintfArea(int16_t RangeX,int16_t RangeY,int16_t RangeWidth,int16_t Ra
 
 void OLED_ShowMixStringArea(int16_t RangeX, int16_t RangeY, int16_t RangeWidth, int16_t RangeHeight, int16_t X, int16_t Y, char *String, uint8_t ChineseFontSize, uint8_t ASCIIFontSize)
 {
-  	while (*String != '\0') {
-		  if (*String & 0x80) { // 判断中文字符（最高位为1）
-			char Chinese[OLED_CHN_CHAR_WIDTH + 1]; // 根据编码长度动态调整数组
-			for (uint8_t i = 0; i < OLED_CHN_CHAR_WIDTH; i++) {
-			  	Chinese[i] = *(String + i); // 连续拷贝字符编码
-			}
-			Chinese[OLED_CHN_CHAR_WIDTH] = '\0'; // 添加字符串结束符
-			OLED_ShowChineseArea(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, Chinese, ChineseFontSize);
-			X += ChineseFontSize; // 更新X坐标
-			String += OLED_CHN_CHAR_WIDTH; // 跳过已处理的中文字符
-		} else { // ASCII字符处理
-			OLED_ShowCharArea(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, *String, ASCIIFontSize);
-			X += ASCIIFontSize; // 更新X坐标
-			String++; // 处理下一个字符
-		}
-	}
+    // 8x8 保留内部字模
+    if (ChineseFontSize == OLED_8X8_FULL)
+    {
+        while (*String != '\0') {
+            if (*String & 0x80) {
+                char Chinese[OLED_CHN_CHAR_WIDTH + 1];
+                for (uint8_t i = 0; i < OLED_CHN_CHAR_WIDTH; i++) {
+                    Chinese[i] = *(String + i);
+                }
+                Chinese[OLED_CHN_CHAR_WIDTH] = '\0';
+                OLED_ShowChineseArea(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, Chinese, ChineseFontSize);
+                X += ChineseFontSize;
+                String += OLED_CHN_CHAR_WIDTH;
+            } else {
+                OLED_ShowCharArea(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, *String, ASCIIFontSize);
+                X += ASCIIFontSize;
+                String++;
+            }
+        }
+        return;
+    }
+    // 12/16/20 走外部 Flash 字库
+    OLED_ShowMixStringAreaExt(RangeX, RangeY, RangeWidth, RangeHeight, X, Y, String, ChineseFontSize, ASCIIFontSize);
 }
 
 

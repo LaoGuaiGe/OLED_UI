@@ -6,6 +6,7 @@
 #include "app_dino_game.h"
 #include "app_bird_game.h"
 #include "app_plane_game.h"
+#include "app_gyroscope.h"
 
 /*user_add_handle*/
 static Button key0;
@@ -84,6 +85,8 @@ void key0_long_press_start_Handler(void *btn)
     dino_game_request_exit();
     //请求退出飞机大战游戏
     plane_game_request_exit();
+    //请求退出陀螺仪显示
+    gyroscope_request_exit();
 //    printf("***> key0 long press <***\r\n");
 }
 

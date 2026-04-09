@@ -5,6 +5,7 @@
 #include "app_dino_game.h"
 #include "app_bird_game.h"
 #include "app_plane_game.h"
+#include "app_gyroscope.h"
 #include "hw_w25qxx.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
@@ -91,10 +92,10 @@ void BuzzerVolumeWindow(void){
 	OLED_UI_CreateWindow(&SetBuzzerVolumeWindow);
 }
 /**
- * @brief 创建陀螺仪显示窗口
+ * @brief 启动陀螺仪3D显示
  */
 void GyroscopeWindow(void){
-	OLED_UI_CreateWindow(&SetGyroscopeWindow);
+	gyroscope_loop();
 }
 /**
  * @brief 创建保存数据窗口

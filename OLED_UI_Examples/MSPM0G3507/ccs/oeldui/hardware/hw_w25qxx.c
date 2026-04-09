@@ -189,6 +189,88 @@ void W25Q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length)
 	SPI_CS(1);
 }
 
+/**
+ * @brief 写数据到W25Q128，不擦除扇区（要求目标区域已是0xFF）
+ */
+static void W25Q128_write_raw(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
+{
+    unsigned int i = 0;
+    W25Q128_write_enable();
+    W25Q128_wait_busy();
+    SPI_CS(0);
+    spi_read_write_byte(0x02);
+    spi_read_write_byte((uint8_t)(addr >> 16));
+    spi_read_write_byte((uint8_t)(addr >> 8));
+    spi_read_write_byte((uint8_t)addr);
+    for (i = 0; i < numbyte; i++) {
+        spi_read_write_byte(buffer[i]);
+    }
+    SPI_CS(1);
+    W25Q128_wait_busy();
+}
+
+/**
+ * @brief 保存系统参数到Flash（wear leveling）
+ * @param data 5字节参数数组
+ * @note  使用最后一个扇区（0xFFF000）存储，每条记录6字节（1字节标记+5字节数据），
+ *        写满682条后自动擦除重写，寿命约为直接写入的682倍
+ */
+void settings_save(uint8_t* data)
+{
+    uint8_t magic;
+    uint32_t slot;
+    uint32_t max_slots = 4096 / SETTINGS_RECORD_SIZE;
+
+    // 找下一个空槽（0xFF表示未写入）
+    for (slot = 0; slot < max_slots; slot++) {
+        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
+        if (magic == 0xFF) break;
+    }
+
+    // 扇区已满，擦除后从头写
+    if (slot >= max_slots) {
+        W25Q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
+        slot = 0;
+    }
+
+    // 写入：标记 + 数据
+    uint8_t record[SETTINGS_RECORD_SIZE];
+    uint8_t i;
+    record[0] = SETTINGS_MAGIC;
+    for (i = 0; i < SETTINGS_DATA_SIZE; i++) {
+        record[i + 1] = data[i];
+    }
+    W25Q128_write_raw(record, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, SETTINGS_RECORD_SIZE);
+}
+
+/**
+ * @brief 从Flash读取最新的系统参数（wear leveling）
+ * @param data 5字节参数数组，若无有效记录则不修改
+ */
+void settings_load(uint8_t* data)
+{
+    uint8_t magic;
+    int32_t last_slot = -1;
+    uint32_t slot;
+    uint32_t max_slots = 4096 / SETTINGS_RECORD_SIZE;
+
+    // 扫描找最后一条有效记录
+    for (slot = 0; slot < max_slots; slot++) {
+        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
+        if (magic == SETTINGS_MAGIC) {
+            last_slot = (int32_t)slot;
+        } else if (magic == 0xFF) {
+            break; // 到达空白区域
+        }
+    }
+
+    if (last_slot >= 0) {
+        // 跳过标记字节，读取5字节数据
+        W25Q128_read(data, SETTINGS_SECTOR_ADDR + (uint32_t)last_slot * SETTINGS_RECORD_SIZE + 1, SETTINGS_DATA_SIZE);
+    }
+    // 若无有效记录，data保持不变（调用方应已设置默认值）
+}
+
 void W25Q128_test(void)
 {
     unsigned char rec_buff[50]={0};

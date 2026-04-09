@@ -5,6 +5,7 @@
 #include "app_dino_game.h"
 #include "app_bird_game.h"
 #include "app_plane_game.h"
+#include "hw_w25qxx.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -99,14 +100,13 @@ void GyroscopeWindow(void){
  * @brief 创建保存数据窗口
  */
 void SavedataWindow(void){
-	uint8_t temp[5]={0};
-	uint8_t temp_r[5]={0};
-	temp[0]=OLED_UI_Brightness;
-	temp[1]=Beeper0.Sound_Loud;
-	temp[2]=Beeper0.Beeper_Enable;
-	temp[3]=ColorMode;
-	temp[4]=OLED_UI_ShowFps;
-	W25Q128_write(temp, 0, 5); //无保护性写入
+	uint8_t temp[5];
+	temp[0] = (uint8_t)OLED_UI_Brightness;
+	temp[1] = Beeper0.Sound_Loud;
+	temp[2] = Beeper0.Beeper_Enable;
+	temp[3] = (uint8_t)ColorMode;
+	temp[4] = (uint8_t)OLED_UI_ShowFps;
+	settings_save(temp);
 	OLED_UI_CreateWindow(&SetSavedataWindow);
 }
 

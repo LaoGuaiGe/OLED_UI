@@ -44,9 +44,10 @@ int main(void)
 	//蜂鸣器初始化
 	Beeper_Init();	
 
-	//读取
-	uint8_t temp[5] = {0};
-	W25Q128_read(temp, 0, 5); 
+	//读取系统参数（默认值在前，settings_load 若无有效记录则保持默认）
+	// 亮度100、音量50、蜂鸣器开启、颜色模式白色、显示FPS
+	uint8_t temp[5] = {100, 50, 1, 0, 1};
+	settings_load(temp);
 	OLED_UI_Brightness 		= (uint16_t)temp[0];
 	Beeper0.Sound_Loud 		= temp[1];
 	Beeper0.Beeper_Enable 	= temp[2];

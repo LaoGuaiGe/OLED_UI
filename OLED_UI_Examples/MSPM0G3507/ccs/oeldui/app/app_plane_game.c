@@ -37,99 +37,79 @@ static void draw_player(void);
 static void draw_enemy(plane_game_object_t *enemy);
 static void draw_bullet(plane_game_object_t *bullet);
 static void draw_score(void);
-static int transform_x(int x, int y);
-static int transform_y(int x, int y);
-
-// 坐标转换函数，将游戏坐标转换为屏幕显示坐标
-// 我们不需要额外的坐标转换，直接使用原始坐标系统
-static int transform_x(int x, int y) {
-    return x; // 直接使用x坐标（0-127）
-}
-
-static int transform_y(int x, int y) {
-    return y; // 直接使用y坐标（0-63）
-}
 
 static void draw_player(void) {
     if (!player.active) return;
-    
-    // 确保在有效显示范围内
-    if (player.x < 0 || player.y < 0 || 
-        player.x + player.width > SCREEN_WIDTH || 
-        player.y + player.height > SCREEN_HEIGHT) {
-        return;
-    }
-    
-    int display_x = transform_x(player.x, player.y);
-    int display_y = transform_y(player.x, player.y);
-    
-    // 像素风格飞机绘制（12x10像素）- 前端向右，与子弹发射方向一致
-    
-    // 绘制飞机的三角形前端（向右）
-    OLED_DrawLine(display_x + 11, display_y + 4, display_x + 6, display_y);  // 右上斜线
-    OLED_DrawLine(display_x + 11, display_y + 4, display_x + 6, display_y + 9);  // 右下斜线
-    OLED_DrawLine(display_x + 6, display_y, display_x + 6, display_y + 9);  // 垂直中线
-    
-    // 绘制飞机的主体
-    for (int i = 0; i < 5; i++) {  // 5行主体区域
-        OLED_DrawLine(display_x + 3, display_y + 2 + i, display_x + 6, display_y + 2 + i);
-    }
-    
-    // 绘制飞机的机翼
-    OLED_DrawLine(display_x + 4, display_y + 1, display_x + 0, display_y - 1);  // 左上机翼
-    OLED_DrawLine(display_x + 0, display_y - 1, display_x + 0, display_y + 0);  // 左上机翼末端
-    
-    OLED_DrawLine(display_x + 4, display_y + 8, display_x + 0, display_y + 10);  // 右下机翼
-    OLED_DrawLine(display_x + 0, display_y + 9, display_x + 0, display_y + 10);  // 右下机翼末端
-    
-    // 绘制飞机的尾部细节（在左侧）
-    OLED_DrawLine(display_x + 3, display_y + 4, display_x + 2, display_y + 3);  // 尾部装饰1
-    OLED_DrawLine(display_x + 3, display_y + 5, display_x + 2, display_y + 6);  // 尾部装饰2
-    
-    // 绘制飞机的驾驶舱（一个小点，位于飞机中部偏右）
-    if (display_x + 7 >= 0 && display_y + 4 >= 0) {
-        OLED_DrawPoint(display_x + 7, display_y + 4);
-    }
+
+    int x = player.x;
+    int y = player.y;
+
+    // 机身主体
+    OLED_DrawRectangle(x + 3, y + 3, 7, 4, OLED_FILLED);
+    // 机头尖端
+    OLED_DrawTriangle(x + 10, y + 3, x + 10, y + 6, x + 13, y + 5, OLED_FILLED);
+    // 上机翼
+    OLED_DrawTriangle(x + 4, y + 3, x + 7, y + 3, x + 4, y, OLED_FILLED);
+    OLED_DrawLine(x + 4, y, x + 7, y + 2);
+    // 下机翼
+    OLED_DrawTriangle(x + 4, y + 6, x + 7, y + 6, x + 4, y + 9, OLED_FILLED);
+    OLED_DrawLine(x + 4, y + 9, x + 7, y + 7);
+    // 尾翼
+    OLED_DrawLine(x + 2, y + 1, x + 3, y + 3);
+    OLED_DrawLine(x + 2, y + 8, x + 3, y + 6);
+    OLED_DrawPoint(x + 2, y + 1);
+    OLED_DrawPoint(x + 2, y + 8);
+    // 驾驶舱
+    OLED_ClearArea(x + 8, y + 4, 2, 2);
+    OLED_DrawPoint(x + 9, y + 4);
 }
 
 /**
- * 绘制敌机
+ * 绘制敌机 - 面朝左的小飞机轮廓
  */
 static void draw_enemy(plane_game_object_t *enemy) {
-    if (enemy->active) {
-        // 使用坐标转换绘制竖屏模式下的敌机主体（三角形）
-        int x1 = transform_x(enemy->x + enemy->width/2, enemy->y);
-        int y1 = transform_y(enemy->x + enemy->width/2, enemy->y);
-        int x2 = transform_x(enemy->x, enemy->y + enemy->height);
-        int y2 = transform_y(enemy->x, enemy->y + enemy->height);
-        int x3 = transform_x(enemy->x + enemy->width, enemy->y + enemy->height);
-        int y3 = transform_y(enemy->x + enemy->width, enemy->y + enemy->height);
-        
-        OLED_DrawLine(x1, y1, x2, y2);
-        OLED_DrawLine(x1, y1, x3, y3);
-        OLED_DrawLine(x2, y2, x3, y3);
-    }
+    if (!enemy->active) return;
+
+    int x = enemy->x;
+    int y = enemy->y;
+
+    // 机身
+    OLED_DrawRectangle(x + 2, y + 2, 6, 4, OLED_FILLED);
+    // 机头（朝左的三角）
+    OLED_DrawTriangle(x + 2, y + 2, x + 2, y + 5, x, y + 4, OLED_FILLED);
+    // 上翼
+    OLED_DrawLine(x + 5, y + 2, x + 7, y);
+    OLED_DrawLine(x + 7, y, x + 8, y);
+    OLED_DrawLine(x + 8, y, x + 6, y + 2);
+    // 下翼
+    OLED_DrawLine(x + 5, y + 5, x + 7, y + 7);
+    OLED_DrawLine(x + 7, y + 7, x + 8, y + 7);
+    OLED_DrawLine(x + 8, y + 7, x + 6, y + 5);
+    // 尾翼
+    OLED_DrawPoint(x + 8, y + 3);
+    OLED_DrawPoint(x + 8, y + 4);
 }
 
 /**
- * 绘制子弹
+ * 绘制子弹 - 小菱形弹头
  */
 static void draw_bullet(plane_game_object_t *bullet) {
-    if (bullet->active) {
-        // 使用坐标转换绘制竖屏模式下的子弹（小矩形）
-        int display_x = transform_x(bullet->x, bullet->y);
-        int display_y = transform_y(bullet->x, bullet->y);
-        OLED_DrawRectangle(display_x, display_y, bullet->height, bullet->width, OLED_FILLED);
-    }
+    if (!bullet->active) return;
+
+    int x = bullet->x;
+    int y = bullet->y;
+
+    // 菱形子弹：中间一条横线 + 上下各一个点
+    OLED_DrawLine(x, y + 1, x + 3, y + 1);
+    OLED_DrawPoint(x + 1, y);
+    OLED_DrawPoint(x + 1, y + 2);
 }
 
 /**
  * 绘制分数
  */
 static void draw_score(void) {
-    // 显示当前分数在右上角
-    OLED_ShowString(10, 5, "Score", OLED_6X8_HALF);
-    OLED_ShowNum(40, 5, score, 3, OLED_6X8_HALF);
+    OLED_ShowNum(98, 2, score, 4, OLED_6X8_HALF);
 }
 
 // =============================================================================
@@ -206,12 +186,13 @@ void plane_game_init(void) {
         bullets[i].active = false;
     }
     
-    // 清除屏幕并显示游戏标题 - 标准128x64 OLED
+    // 清除屏幕并显示游戏标题
     OLED_Clear();
-    OLED_ShowString(45, 20, "PLANE", OLED_6X8_HALF);
-    OLED_ShowString(40, 30, "GAME", OLED_6X8_HALF);
-    OLED_ShowString(30, 40, "Click to start", OLED_6X8_HALF);
-    OLED_ShowString(25, 50, "UD to move", OLED_6X8_HALF);
+    // 画一架静止的玩家飞机
+    draw_player();
+    OLED_ShowString(40, 15, "PLANE WAR", OLED_7X12_HALF);
+    OLED_ShowString(35, 35, "Press to start", OLED_6X8_HALF);
+    OLED_ShowString(35, 48, "UD to move", OLED_6X8_HALF);
     OLED_Update();
     plane_game_clear_controls();
 }
@@ -268,10 +249,10 @@ void plane_game_update(void) {
         fire_cooldown = FIRE_INTERVAL;
     }
     
-    // 生成敌机（从右侧生成）
-    // if (rand() % 2 == 0) {  // 增加敌机生成频率
+    // 生成敌机（从右侧生成）- 降低生成频率
+    if (rand() % 3 == 0) {
         plane_game_generate_enemy();
-    // }
+    }
     
     // 更新敌机位置 - 标准128x64屏幕：敌机从右向左移动（x从127向0移动）
     for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -358,15 +339,14 @@ void plane_game_render(void) {
         // 清空屏幕
         OLED_Clear();
 
-        // 游戏结束画面 - 标准128x64 OLED
-        OLED_DrawRectangle(20, 10, 88, 44, OLED_UNFILLED);
-        OLED_ShowString(35, 20, "GAME", OLED_6X8_HALF);
-        OLED_ShowString(35, 30, "OVER", OLED_6X8_HALF);
-        OLED_ShowString(30, 40, "Click to retry", OLED_6X8_HALF);
-        
+        // 游戏结束画面
+        OLED_ClearArea(18, 12, 92, 40);
+        OLED_DrawRoundedRectangle(18, 12, 92, 40, 3, OLED_UNFILLED);
+        OLED_ShowString(32, 16, "GAME  OVER", OLED_7X12_HALF);
         // 显示最终分数
-        OLED_ShowString(40, 50, "Score:", OLED_6X8_HALF);
-        OLED_ShowNum(65, 50, score, 3, OLED_6X8_HALF);
+        OLED_ShowString(36, 32, "Score:", OLED_6X8_HALF);
+        OLED_ShowNum(72, 32, score, 4, OLED_6X8_HALF);
+        OLED_ShowString(30, 44, "Press to retry", OLED_6X8_HALF);
     }
     
     // 更新OLED显示

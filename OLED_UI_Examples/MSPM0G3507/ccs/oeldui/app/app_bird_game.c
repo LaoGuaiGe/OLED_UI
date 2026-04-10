@@ -191,19 +191,30 @@ bool game_should_exit(void)
 static void draw_bird(unsigned int x, unsigned int y, unsigned int frame)
 {
     // 清除之前的小鸟位置，确保没有残影
-    OLED_ClearArea(x - BIRD_WIDTH/2 - 1, y - BIRD_HEIGHT/2 - 1, 
-                  BIRD_WIDTH + 2, BIRD_HEIGHT + 2);
-    
-    // 绘制小鸟身体和头部
-    OLED_DrawRectangle(x-4, y-3, 8, 6, OLED_FILLED); // 绘制小鸟身体
-    OLED_DrawRectangle(x-2, y-6, 4, 3, OLED_FILLED); // 绘制小鸟头部
-    OLED_DrawCircle(x, y-5, 1, OLED_FILLED);         // 绘制小鸟眼睛
-    
-    // 根据动画帧绘制翅膀位置，实现扇动效果
-    if (frame % 10 < 5) {
-        OLED_DrawRectangle(x+2, y-2, 4, 3, OLED_FILLED); // 右翼上抬位置
+    OLED_ClearArea(x - BIRD_WIDTH/2 - 2, y - BIRD_HEIGHT/2 - 2,
+                  BIRD_WIDTH + 4, BIRD_HEIGHT + 4);
+
+    // 身体：圆润的椭圆
+    OLED_DrawEllipse(x, y, 4, 3, OLED_UNFILLED);
+
+    // 眼睛：在身体右上方留一个空白像素点
+    OLED_ClearArea(x + 2, y - 2, 2, 2);
+    OLED_DrawPoint(x + 2, y - 2);
+
+    // 嘴巴：向右的小三角
+    OLED_DrawTriangle(x + 4, y - 1, x + 4, y + 1, x + 7, y, OLED_UNFILLED);
+
+    // 尾巴：向左的两条短线
+    OLED_DrawLine(x - 4, y - 1, x - 6, y - 3);
+    OLED_DrawLine(x - 4, y,     x - 6, y - 1);
+
+    // 翅膀：根据动画帧上下扇动
+    if (frame % 8 < 4) {
+        // 翅膀上扬
+        OLED_DrawTriangle(x - 2, y - 1, x + 1, y - 1, x - 1, y - 5, OLED_UNFILLED);
     } else {
-        OLED_DrawRectangle(x+2, y, 4, 3, OLED_FILLED);    // 右翼下垂位置
+        // 翅膀下垂
+        OLED_DrawTriangle(x - 2, y + 1, x + 1, y + 1, x - 1, y + 4, OLED_UNFILLED);
     }
 }
 
@@ -249,18 +260,34 @@ static void draw_pipe(bird_game_object_t *pipe)
  */
 static void draw_background(void)
 {
-    // 清除整个屏幕，为新帧绘制做准备
+    // 清除整个屏幕
     OLED_Clear();
-    
-    // 绘制地面分隔线
+
+    // 绘制地面双线
+    OLED_DrawLine(0, SCREEN_HEIGHT - 5, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 5);
     OLED_DrawLine(0, SCREEN_HEIGHT - 4, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 4);
-    
-    // 绘制一些简单的地面纹理，增强视觉效果
-    for (unsigned int i = background_offset; i < SCREEN_WIDTH; i += 16) {
-        OLED_DrawLine(i, SCREEN_HEIGHT - 2, i + 8, SCREEN_HEIGHT - 2);
+
+    // 绘制地面斜线纹理，模拟草地效果
+    for (int i = -8 + (int)(background_offset % 8); i < (int)SCREEN_WIDTH; i += 8) {
+        OLED_DrawLine(i, SCREEN_HEIGHT - 3, i + 3, SCREEN_HEIGHT - 1);
     }
-    
-    // 更新背景偏移，使地面看起来在向后移动
+
+    // 绘制远景云朵（随背景缓慢移动）
+    int cloud_offset = (int)(background_offset / 3) % SCREEN_WIDTH;
+
+    // 云朵1
+    int cx1 = (40 - cloud_offset + SCREEN_WIDTH) % SCREEN_WIDTH;
+    OLED_DrawEllipse(cx1, 8, 8, 3, OLED_FILLED);
+    OLED_DrawEllipse(cx1 - 6, 9, 4, 2, OLED_FILLED);
+    OLED_DrawEllipse(cx1 + 6, 9, 5, 2, OLED_FILLED);
+
+    // 云朵2
+    int cx2 = (110 - cloud_offset + SCREEN_WIDTH) % SCREEN_WIDTH;
+    OLED_DrawEllipse(cx2, 14, 6, 2, OLED_FILLED);
+    OLED_DrawEllipse(cx2 - 5, 15, 3, 2, OLED_FILLED);
+    OLED_DrawEllipse(cx2 + 5, 15, 4, 2, OLED_FILLED);
+
+    // 更新背景偏移
     background_offset = (background_offset + 1) % BACKGROUND_WIDTH;
 }
 

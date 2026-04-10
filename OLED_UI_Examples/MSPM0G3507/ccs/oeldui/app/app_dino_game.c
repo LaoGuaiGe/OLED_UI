@@ -17,10 +17,10 @@
 #define GROUND_Y        50     // 地面Y坐标位置
 
 // 恐龙参数设置
-#define DINO_WIDTH      8      // 恐龙宽度（像素）
-#define DINO_HEIGHT     10     // 恐龙高度（像素）
+#define DINO_WIDTH      14     // 恐龙宽度（像素）
+#define DINO_HEIGHT     14     // 恐龙高度（像素）
 #define DINO_JUMP_SPEED 4      // 恐龙跳跃初始速度
-#define DINO_X          20     // 恐龙初始X坐标位置
+#define DINO_X          15     // 恐龙初始X坐标位置
 
 // 障碍物参数设置
 #define OBSTACLE_WIDTH   6     // 障碍物宽度（像素）
@@ -64,89 +64,170 @@ game_input_t game_input = {0};
 // 绘制函数
 // =============================================================================
 
-// 绘制恐龙
+// 绘制恐龙 - 仿Chrome T-Rex风格
 void draw_dino(int x, int y, dino_state_t state) {
     // 清除之前的恐龙图像区域
-    OLED_ClearArea(x-1, y-1, DINO_WIDTH+2, DINO_HEIGHT+2);
-    
+    OLED_ClearArea(x - 2, y - 2, DINO_WIDTH + 4, DINO_HEIGHT + 6);
+
     if (state == DINO_DEAD) {
-        // 死亡状态的恐龙
-        OLED_DrawRectangle(x, y+8, 2, 8, OLED_FILLED);   // 腿部
-        OLED_DrawRectangle(x+2, y+6, 2, 10, OLED_FILLED); // 腿部
-        OLED_DrawRectangle(x+4, y, 8, 10, OLED_FILLED);   // 身体
-        OLED_DrawRectangle(x+10, y-4, 4, 6, OLED_FILLED); // 头部
+        // 死亡状态 - 眼睛变X
+        // 头部
+        OLED_DrawRectangle(x + 6, y, 8, 6, OLED_FILLED);
+        // 眼睛X形
+        OLED_ClearArea(x + 10, y + 1, 3, 3);
+        OLED_DrawLine(x + 10, y + 1, x + 12, y + 3);
+        OLED_DrawLine(x + 12, y + 1, x + 10, y + 3);
+        // 嘴巴
+        OLED_DrawRectangle(x + 10, y + 5, 4, 1, OLED_FILLED);
+        // 身体
+        OLED_DrawRectangle(x + 4, y + 5, 6, 7, OLED_FILLED);
+        // 小手臂
+        OLED_DrawRectangle(x + 9, y + 7, 2, 3, OLED_FILLED);
+        // 尾巴
+        OLED_DrawRectangle(x, y + 4, 2, 2, OLED_FILLED);
+        OLED_DrawRectangle(x + 2, y + 5, 2, 2, OLED_FILLED);
+        // 腿 - 站立
+        OLED_DrawRectangle(x + 5, y + 12, 2, 3, OLED_FILLED);
+        OLED_DrawRectangle(x + 8, y + 12, 2, 3, OLED_FILLED);
     } else if (state == DINO_DUCKING) {
-        // 下蹲状态的恐龙
-        OLED_DrawRectangle(x, y+4, 12, 10, OLED_FILLED);  // 身体
-        OLED_DrawRectangle(x+10, y, 4, 6, OLED_FILLED);   // 头部
-    } else {
-        // 跑步或跳跃状态的恐龙
-        // 根据动画帧切换腿部姿势，实现跑步动画
-        if (animation_frame % 10 < 5) {
-            // 跑步帧1
-            OLED_DrawRectangle(x, y+8, 2, 8, OLED_FILLED);   // 左腿
-            OLED_DrawRectangle(x+4, y+12, 2, 4, OLED_FILLED); // 右腿
+        // 下蹲状态 - 身体压扁拉长
+        int dy = 6; // 下蹲时整体下移
+        // 头部
+        OLED_DrawRectangle(x + 10, y + dy, 6, 4, OLED_FILLED);
+        // 眼睛
+        OLED_ClearArea(x + 13, y + dy + 1, 2, 2);
+        OLED_DrawPoint(x + 14, y + dy + 1);
+        // 身体（扁平）
+        OLED_DrawRectangle(x, y + dy + 3, 12, 4, OLED_FILLED);
+        // 小手臂
+        OLED_DrawRectangle(x + 11, y + dy + 4, 2, 2, OLED_FILLED);
+        // 腿 - 交替跑步
+        if (animation_frame % 8 < 4) {
+            OLED_DrawRectangle(x + 3, y + dy + 7, 2, 3, OLED_FILLED);
+            OLED_DrawPoint(x + 7, y + dy + 7);
         } else {
-            // 跑步帧2
-            OLED_DrawRectangle(x, y+12, 2, 4, OLED_FILLED);   // 左腿
-            OLED_DrawRectangle(x+4, y+8, 2, 8, OLED_FILLED);  // 右腿
+            OLED_DrawPoint(x + 3, y + dy + 7);
+            OLED_DrawRectangle(x + 7, y + dy + 7, 2, 3, OLED_FILLED);
         }
-        OLED_DrawRectangle(x+4, y, 8, 10, OLED_FILLED);   // 身体
-        OLED_DrawRectangle(x+10, y-4, 4, 6, OLED_FILLED); // 头部
+    } else {
+        // 跑步/跳跃状态 - T-Rex侧面轮廓
+        // 头部（较大的方块）
+        OLED_DrawRectangle(x + 6, y, 8, 6, OLED_FILLED);
+        // 眼睛（在头部右上方挖空）
+        OLED_ClearArea(x + 10, y + 1, 2, 2);
+        OLED_DrawPoint(x + 11, y + 1);
+        // 嘴巴（头部下方凸出）
+        OLED_DrawRectangle(x + 10, y + 5, 4, 1, OLED_FILLED);
+        // 身体（连接头和尾）
+        OLED_DrawRectangle(x + 4, y + 5, 6, 7, OLED_FILLED);
+        // 小手臂
+        OLED_DrawRectangle(x + 9, y + 7, 2, 3, OLED_FILLED);
+        // 尾巴（向左上方延伸）
+        OLED_DrawRectangle(x, y + 4, 2, 2, OLED_FILLED);
+        OLED_DrawRectangle(x + 2, y + 5, 2, 2, OLED_FILLED);
+
+        // 腿部动画
+        if (state == DINO_JUMPING) {
+            // 跳跃时双腿并拢伸直
+            OLED_DrawRectangle(x + 5, y + 12, 2, 3, OLED_FILLED);
+            OLED_DrawRectangle(x + 8, y + 12, 2, 3, OLED_FILLED);
+        } else {
+            // 跑步时腿部交替
+            if (animation_frame % 8 < 4) {
+                // 帧1：左腿前伸，右腿后蹬
+                OLED_DrawRectangle(x + 5, y + 12, 2, 3, OLED_FILLED);
+                OLED_DrawPoint(x + 5, y + 14);
+                OLED_DrawRectangle(x + 8, y + 12, 2, 2, OLED_FILLED);
+            } else {
+                // 帧2：右腿前伸，左腿后蹬
+                OLED_DrawRectangle(x + 5, y + 12, 2, 2, OLED_FILLED);
+                OLED_DrawRectangle(x + 8, y + 12, 2, 3, OLED_FILLED);
+                OLED_DrawPoint(x + 8, y + 14);
+            }
+        }
     }
 }
 
-// 绘制障碍物（仙人掌）
+// 绘制障碍物（仙人掌）- 仿Chrome风格
 void draw_obstacle(dino_game_object_t *obs) {
     if (obs->width == 0 || obs->height == 0) return;
-    
+
     // 清除之前的障碍物图像
-    OLED_ClearArea(obs->x-1, obs->y-1, obs->width+2, obs->height+2);
-    
-    // 绘制仙人掌主体
-    OLED_DrawRectangle(obs->x, obs->y, obs->width, obs->height, OLED_FILLED);
-    
-    // 根据障碍物高度添加仙人掌的刺
+    OLED_ClearArea(obs->x - 3, obs->y - 1, obs->width + 6, obs->height + 2);
+
     if (obs->height == OBSTACLE_HEIGHT1) {
-        // 小仙人掌刺
-        OLED_DrawRectangle(obs->x-2, obs->y+4, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x+obs->width, obs->y+4, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x-2, obs->y+10, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x+obs->width, obs->y+10, 2, 2, OLED_FILLED);
+        // 小仙人掌 - 单株
+        int bx = obs->x;
+        int by = obs->y;
+        // 主干
+        OLED_DrawRectangle(bx + 2, by, 2, 12, OLED_FILLED);
+        // 左臂（从中间向左上伸出）
+        OLED_DrawRectangle(bx, by + 3, 2, 4, OLED_FILLED);
+        OLED_DrawPoint(bx, by + 3);
+        // 右臂（从中间向右上伸出）
+        OLED_DrawRectangle(bx + 4, by + 5, 2, 3, OLED_FILLED);
+        OLED_DrawPoint(bx + 5, by + 5);
+        // 顶部尖刺
+        OLED_DrawPoint(bx + 2, by - 1);
+        OLED_DrawPoint(bx + 3, by - 1);
     } else {
-        // 大仙人掌刺
-        OLED_DrawRectangle(obs->x-2, obs->y+4, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x+obs->width, obs->y+4, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x-2, obs->y+12, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x+obs->width, obs->y+12, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x-2, obs->y+20, 2, 2, OLED_FILLED);
-        OLED_DrawRectangle(obs->x+obs->width, obs->y+20, 2, 2, OLED_FILLED);
+        // 大仙人掌 - 双株组合
+        int bx = obs->x;
+        int by = obs->y;
+        // 左株主干
+        OLED_DrawRectangle(bx, by + 2, 2, 16, OLED_FILLED);
+        // 左株左臂
+        OLED_DrawRectangle(bx - 2, by + 6, 2, 4, OLED_FILLED);
+        // 左株右臂
+        OLED_DrawRectangle(bx + 2, by + 9, 1, 3, OLED_FILLED);
+        // 左株顶部
+        OLED_DrawPoint(bx, by + 1);
+        OLED_DrawPoint(bx + 1, by + 1);
+
+        // 右株主干（稍矮）
+        OLED_DrawRectangle(bx + 4, by + 5, 2, 13, OLED_FILLED);
+        // 右株右臂
+        OLED_DrawRectangle(bx + 6, by + 8, 2, 4, OLED_FILLED);
+        // 右株顶部
+        OLED_DrawPoint(bx + 4, by + 4);
+        OLED_DrawPoint(bx + 5, by + 4);
     }
 }
 
-// 绘制地面
+// 绘制地面 - 仿Chrome风格不规则地面
 void draw_ground() {
-    // 绘制地面主线
-    OLED_DrawLine(0, GROUND_Y, SCREEN_WIDTH-1, GROUND_Y);
-    
-    // 绘制地面花纹
-    for (int x = -ground_offset % 4; x < SCREEN_WIDTH; x += 4) {
-        if (x >= 0) {
-            OLED_DrawLine(x, GROUND_Y + 1, x + 1, GROUND_Y + 1); 
+    // 地面主线
+    OLED_DrawLine(0, GROUND_Y, SCREEN_WIDTH - 1, GROUND_Y);
+
+    // 地面碎石纹理 - 不规则的点和短线，随地面滚动
+    int off = ground_offset % 128;
+    // 第一层纹理：较密的小碎石
+    for (int i = -off; i < SCREEN_WIDTH; i += 6) {
+        int px = i + ((i * 7 + 13) % 5); // 伪随机偏移
+        if (px >= 0 && px < SCREEN_WIDTH) {
+            OLED_DrawPoint(px, GROUND_Y + 2);
+        }
+    }
+    // 第二层纹理：稀疏的大碎石
+    for (int i = -off; i < SCREEN_WIDTH; i += 11) {
+        int px = i + ((i * 3 + 7) % 4);
+        if (px >= 0 && px < SCREEN_WIDTH - 1) {
+            OLED_DrawLine(px, GROUND_Y + 3, px + 1, GROUND_Y + 3);
+        }
+    }
+    // 第三层纹理：零星小点
+    for (int i = -off; i < SCREEN_WIDTH; i += 17) {
+        int px = i + ((i * 11 + 3) % 7);
+        if (px >= 0 && px < SCREEN_WIDTH) {
+            OLED_DrawPoint(px, GROUND_Y + 5);
         }
     }
 }
 
-// 绘制分数
+// 绘制分数 - Chrome风格 HI 00000 格式
 void draw_score() {
-    // 显示当前分数在右上角
-    // 计算适合右上角的位置，确保文本不会超出屏幕
-    // unsigned int score_str_width = 30; // "Score:"字符串宽度 (6像素宽字体 * 5个字符)
-    // unsigned int num_width = 18;       // 数字宽度 (6像素宽字体 * 3位数)
-    // unsigned int total_width = 50; // 加2个像素的间距
-    // unsigned int start_x = SCREEN_WIDTH - total_width; // 从右边缘计算起始位置
-    OLED_ShowString(78, 5, "Score", OLED_6X8_HALF);
-    OLED_ShowNum(110, 5, score, 3, OLED_6X8_HALF);
+    // 右上角显示分数，前面补零，5位数
+    OLED_ShowNum(93, 2, score, 5, OLED_6X8_HALF);
 }
 
 // =============================================================================
@@ -184,11 +265,15 @@ void dino_game_init() {
     ground_offset = 0;
     exit_requested = false;  // 重置退出请求标志
     
-    // 清空屏幕并显示游戏标题
+    // 清空屏幕并显示游戏标题 - Chrome风格
     OLED_Clear();
-    OLED_ShowString(35, 20, "DINO GAME", OLED_7X12_HALF);
-    OLED_ShowString(25, 40, "Press UP to jump", OLED_6X8_HALF);
-    OLED_ShowString(10, 55, "Try to jump over cacti", OLED_6X8_HALF);
+    // 绘制地面线
+    OLED_DrawLine(0, GROUND_Y, SCREEN_WIDTH - 1, GROUND_Y);
+    // 在地面上画一只静止的恐龙
+    draw_dino(DINO_X, GROUND_Y - DINO_HEIGHT, DINO_RUNNING);
+    // 提示文字
+    OLED_ShowString(40, 18, "DINO GAME", OLED_7X12_HALF);
+    OLED_ShowString(35, 38, "Press to start", OLED_6X8_HALF);
     OLED_Update();
 }
 
@@ -366,11 +451,13 @@ void dino_game_render(void) {
     // 绘制分数
     draw_score();
     
-    // 如果游戏结束，显示结束信息
+    // 如果游戏结束，显示结束信息 - Chrome风格
     if (game_status == GAME_OVER) {
-        OLED_DrawRectangle(20, 20, 88, 24, OLED_UNFILLED);
-        OLED_ShowString(40, 24, "GAME OVER", OLED_6X8_HALF);
-        OLED_ShowString(15, 38, "Press UP to retry", OLED_6X8_HALF);
+        // 半透明遮罩效果：在中间区域画一个带边框的面板
+        OLED_ClearArea(18, 14, 92, 28);
+        OLED_DrawRoundedRectangle(18, 14, 92, 28, 3, OLED_UNFILLED);
+        OLED_ShowString(32, 18, "GAME  OVER", OLED_7X12_HALF);
+        OLED_ShowString(30, 34, "Press to retry", OLED_6X8_HALF);
     }
     
     // 更新OLED显示

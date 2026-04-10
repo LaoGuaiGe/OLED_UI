@@ -26,18 +26,18 @@
 #define PLAYER_INIT_Y   60     // 玩家飞机初始Y坐标（居中）
 
 // 敌机参数
-#define ENEMY_WIDTH     10     // 敌机宽度（竖屏模式调整）
-#define ENEMY_HEIGHT    8      // 敌机高度（竖屏模式调整）
-#define ENEMY_SPEED_MIN 2      // 敌机最小速度（竖屏模式调整）
-#define ENEMY_SPEED_MAX 4      // 敌机最大速度（竖屏模式调整）
-#define MAX_ENEMIES     5      // 最大敌机数量
+#define ENEMY_WIDTH     10     // 敌机宽度
+#define ENEMY_HEIGHT    8      // 敌机高度
+#define ENEMY_SPEED_MIN 1      // 敌机最小速度
+#define ENEMY_SPEED_MAX 3      // 敌机最大速度
+#define MAX_ENEMIES     3      // 最大敌机数量
 
 // 子弹参数
-#define BULLET_WIDTH    8      // 子弹宽度（竖屏模式调整，改为横向发射）
-#define BULLET_HEIGHT   4      // 子弹高度（竖屏模式调整，改为横向发射）
-#define BULLET_SPEED    5      // 子弹速度（竖屏模式调整，横向发射）
-#define MAX_BULLETS     6      // 最大子弹数量
-#define FIRE_INTERVAL   12     // 发射间隔（帧）（竖屏模式调整）
+#define BULLET_WIDTH    4      // 子弹宽度
+#define BULLET_HEIGHT   2      // 子弹高度
+#define BULLET_SPEED    5      // 子弹速度
+#define MAX_BULLETS     4      // 最大子弹数量
+#define FIRE_INTERVAL   15     // 发射间隔（帧）
 
 // 游戏状态定义
 #define PLANE_GAME_READY     0  // 游戏准备状态

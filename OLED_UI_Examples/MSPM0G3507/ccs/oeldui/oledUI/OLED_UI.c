@@ -526,7 +526,7 @@ void OLED_UI_Init(MenuPage* Page){
 		//清屏
 		OLED_Clear();
 		//显示标题
-		OLED_ShowString(screen_width/2 - (5*7)/2, screen_height/4, "LCKFB", OLED_7X12_HALF);
+		OLED_ShowString(screen_width/2 - (9*7)/2, screen_height/4, "laoguaige", OLED_7X12_HALF);
 		//空白圆角矩形
 		OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, 120, 12 + 3 + 3, 4, OLED_UNFILLED);   
 		//8*12+(2*7)
@@ -584,9 +584,9 @@ int16_t CalcStringWidth(int16_t ChineseFont, int16_t ASCIIFont, const char *form
 
     char *ptr = String;
     while (*ptr != '\0') {
-        if ((unsigned char)*ptr & 0x80) { // 处理中文字符
+        if ((unsigned char)*ptr & 0x80) { // 处理中文字符（UTF-8编码）
             StringLength += ChineseFont;
-            ptr += 2;
+            ptr += OLED_CHN_CHAR_WIDTH;  // UTF-8中文占3字节
         } else {
             StringLength += ASCIIFont;
             ptr++;
@@ -915,7 +915,7 @@ void SetTargetCursor(void){
 		int8_t RadioCompensationWidth = 0;
 		//如果需要绘制单选框(即BoolRadioBox不为空)
 		if(CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].List_BoolRadioBox != NULL){
-			RadioCompensationWidth = (GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE) + 2);
+			RadioCompensationWidth = (CurrentMenuPage->General_FontSize - 4 + 2);  //单选框实际尺寸+间距
 		}else{
 			RadioCompensationWidth = 0;
 		}
@@ -1117,31 +1117,9 @@ void PrintMenuElements(void){
 			//根据情况绘制行前缀
 			DrawLinePermix(page,i,&CursorPoint,ChineseFont,ASCIIFont);
 
-			//如果需要绘制单选框(即BoolRadioBox不为空)
+			//如果需要绘制单选框(即BoolRadioBox不为空)，先计算补偿宽度
 			if(page->General_MenuItems[i].List_BoolRadioBox != NULL){
-				RadioCompensationWidth = (ChineseFont + 2);
-				char* RadioBoxSymb = "";
-				if(*page->General_MenuItems[i].List_BoolRadioBox == true){
-					RadioBoxSymb = "■";
-				}else{
-					RadioBoxSymb = "□";
-				}
-
-
-				OLED_PrintfMixArea(//在限制的区域内打印文字
-							   //光标的起始x坐标加入行前缀宽度，这样可以自动留出打印行前缀的空间
-						       TempTargetArea.CurrentArea.X ,
-							   TempTargetArea.CurrentArea.Y,
-							   TempTargetArea.CurrentArea.Width - 6,
-							   TempTargetArea.CurrentArea.Height,
-
-							   //打印文字的坐标
-							   CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth -9 ,
-							   CursorPoint.Y,
-							   //打印文字的大小
-							   ChineseFont,ASCIIFont,
-							   //打印文字的内容
-							   RadioBoxSymb);
+				RadioCompensationWidth = (page->General_FontSize - 4 + 2);  //单选框实际尺寸+间距
 			}else{
 				RadioCompensationWidth = 0;
 			}
@@ -1177,6 +1155,21 @@ void PrintMenuElements(void){
 							   	CursorPoint.X + LinePerfixWidth + page->General_MenuItems[i]._LineSlip,
 							   	CursorPoint.Y,
 							   	ChineseFont,ASCIIFont,page->General_MenuItems[i].General_item_text);
+
+			//在文字渲染之后绘制单选框，避免被文字渲染覆盖
+			if(page->General_MenuItems[i].List_BoolRadioBox != NULL){
+				int16_t radioBoxSize = page->General_FontSize - 4;  //单选框边长，基于行高
+				int16_t radioBoxX = CursorPoint.X + TempTargetArea.CurrentArea.Width - RadioCompensationWidth - 9;
+				int16_t radioBoxY = CursorPoint.Y + (page->General_FontSize - radioBoxSize) / 2;  //垂直居中
+
+				if(*page->General_MenuItems[i].List_BoolRadioBox == true){
+					//选中状态：绘制实心方块 + 外框
+					OLED_DrawRectangle(radioBoxX, radioBoxY, radioBoxSize, radioBoxSize, OLED_FILLED);
+				}else{
+					//未选中状态：绘制空心方块
+					OLED_DrawRectangle(radioBoxX, radioBoxY, radioBoxSize, radioBoxSize, OLED_UNFILLED);
+				}
+			}
 
 			// 打印光标下移
 			CursorPoint.Y += (page->General_FontSize + OLED_UI_LineStep.CurrentDistance);

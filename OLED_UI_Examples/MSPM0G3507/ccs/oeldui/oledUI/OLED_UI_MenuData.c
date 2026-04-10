@@ -316,8 +316,8 @@ MenuItem MainMenuItems[] = {
 //设置菜单项内容数组
 MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "蜂鸣器音量 ",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "蜂鸣器开关 ",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
+	{.General_item_text = "音量",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
 	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps}, 
 	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL}, 

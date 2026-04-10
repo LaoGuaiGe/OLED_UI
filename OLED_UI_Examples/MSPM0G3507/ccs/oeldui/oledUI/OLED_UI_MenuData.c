@@ -7,6 +7,7 @@
 #include "app_plane_game.h"
 #include "app_gyroscope.h"
 #include "hw_w25qxx.h"
+#include "app_key_task.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -115,24 +116,24 @@ void SavedataWindow(void){
  * @brief 启动小恐龙游戏
  */
 void DinoGameStart(void){
-	// 启动小恐龙游戏
 	dino_game_loop();
+	key_menu.back = RELEASE;
 }
 
 /**
  * @brief 启动水管鸟游戏
  */
 void FlappyBirdStart(void){
-	// 启动水管鸟游戏
 	game_loop();
+	key_menu.back = RELEASE;
 }
 
 /**
  * @brief 启动飞机大战游戏
  */
 void PlaneGameStart(void){
-	// 启动飞机大战游戏
 	plane_game_loop();
+	key_menu.back = RELEASE;
 }
 //关于窗口的结构体
 MenuWindow NullWindow = {
@@ -304,11 +305,9 @@ MenuItem MainMenuItems[] = {
 
 	{.General_item_text = "Settings",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
 	{.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
-	{.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
-	{.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
-	{.General_item_text = "Dino Game",.General_callback = DinoGameStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
-	{.General_item_text = "Flappy Bird",.General_callback = FlappyBirdStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
-	{.General_item_text = "Plane Game",.General_callback = PlaneGameStart,.General_SubMenuPage = NULL,.Tiles_Icon = NULL},
+	// {.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
+	// {.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
+	{.General_item_text = "Games",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "Night",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "More",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
@@ -325,6 +324,16 @@ MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "感谢观看,一键三连! Thanks for watching, three clicks!",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+
+	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
+};
+
+//游戏菜单项内容数组
+MenuItem GamesMenuItems[] = {
+	{.General_item_text = "小恐龙 ",.General_callback = DinoGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "水管鸟 ",.General_callback = FlappyBirdStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "飞机大战",.General_callback = PlaneGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
@@ -654,6 +663,26 @@ MenuPage SettingsMenuPage = {
 
 	//特殊属性，根据.General_MenuType的类型选择
 	.List_MenuArea = {32, 0, 95, 64},			 //列表显示区域
+	.List_IfDrawFrame = false,					 //是否显示边框
+	.List_IfDrawLinePerfix = true,				 //是否显示行前缀
+	.List_StartPointX = 4,                        //列表起始点X坐标
+	.List_StartPointY = 2,                        //列表起始点Y坐标
+};
+
+MenuPage GamesMenuPage = {
+	//通用属性，必填
+	.General_MenuType = MENU_TYPE_LIST,  		 //菜单类型为列表类型
+	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,	 //光标类型
+	.General_FontSize = OLED_UI_FONT_12,			//字高
+	.General_ParentMenuPage = &MainMenuPage,		 //父菜单为主菜单
+	.General_LineSpace = 4,						//行间距 单位：像素
+	.General_MoveStyle = UNLINEAR,				//移动方式为非线性曲线动画
+	.General_MovingSpeed = SPEED,					//动画移动速度(此值根据实际效果调整)
+	.General_ShowAuxiliaryFunction = NULL,		 //显示辅助函数
+	.General_MenuItems = GamesMenuItems,		 //菜单项内容数组
+
+	//特殊属性，根据.General_MenuType的类型选择
+	.List_MenuArea = {1, 1, 128, 64},			 //列表显示区域
 	.List_IfDrawFrame = false,					 //是否显示边框
 	.List_IfDrawLinePerfix = true,				 //是否显示行前缀
 	.List_StartPointX = 4,                        //列表起始点X坐标

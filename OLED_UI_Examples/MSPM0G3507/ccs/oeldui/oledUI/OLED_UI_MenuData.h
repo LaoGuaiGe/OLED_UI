@@ -7,10 +7,10 @@ extern "C" {
 #include "OLED_UI.h"
 
 //进行前置声明
-extern MenuItem MainMenuItems[],SettingsMenuItems[],AboutThisDeviceMenuItems[],
+extern MenuItem MainMenuItems[],SettingsMenuItems[],GamesMenuItems[],AboutThisDeviceMenuItems[],
 AboutOLED_UIMenuItems[],MoreMenuItems[],Font8MenuItems[] ,Font12MenuItems[] ,
 Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[];
-extern MenuPage MainMenuPage,SettingsMenuPage,AboutThisDeviceMenuPage,
+extern MenuPage MainMenuPage,SettingsMenuPage,GamesMenuPage,AboutThisDeviceMenuPage,
 AboutOLED_UIMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
 ,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage;
 
@@ -25,6 +25,7 @@ void ShowFloatDataWindow(void);
 void ShowIntDataWindow(void);
 void DinoGameStart(void);
 void FlappyBirdStart(void);
+void PlaneGameStart(void);
 
 #ifdef __cplusplus
 }  // extern "C"

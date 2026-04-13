@@ -303,13 +303,19 @@ void MainAuxFunc(void){
 //主菜单的菜单项
 MenuItem MainMenuItems[] = {
 
-	{.General_item_text = "Settings",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
-	{.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
-	// {.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
-	// {.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
-	{.General_item_text = "Games",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
-	{.General_item_text = "Night",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
-	{.General_item_text = "More",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
+	// {.General_item_text = "Settings",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
+	// {.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
+	// // {.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
+	// // {.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
+	// {.General_item_text = "Games",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
+	// {.General_item_text = "Night",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
+	// {.General_item_text = "More",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
+	// {.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
+	{.General_item_text = "设置",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
+	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
+	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
+	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
+	{.General_item_text = "更多",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
 
 };
@@ -631,11 +637,11 @@ MenuItem SmallAreaMenuItems[] = {
 
 MenuPage MainMenuPage = {
 	//通用属性，必填
-	.General_MenuType = MENU_TYPE_TILES,  		 //菜单类型为磁贴类型
+	.General_MenuType = MENU_TYPE_TILES_DEPTH,  		 //菜单类型为深度磁贴类型（带景深偏移效果）
 	.General_CursorStyle = NOT_SHOW,			 //光标类型
-	.General_FontSize = OLED_UI_FONT_16,			//字高
+	.General_FontSize = OLED_UI_FONT_12,			//字高
 	.General_ParentMenuPage = NULL,				//由于这是根菜单，所以父菜单为NULL
-	.General_LineSpace = 5,						//磁贴间距 单位：像素（对于磁贴类型菜单，此值表示每个磁贴之间的间距，对于列表类型菜单，此值表示行间距）
+	.General_LineSpace = 8,						//磁贴间距 单位：像素（对于磁贴类型菜单，此值表示每个磁贴之间的间距，对于列表类型菜单，此值表示行间距）
 	.General_MoveStyle = PID_CURVE,				//移动方式 
 	.General_MovingSpeed = SPEED,					//动画移动速度(此值根据实际效果调整)
 	.General_ShowAuxiliaryFunction = MainAuxFunc,		 //显示辅助函数

@@ -637,9 +637,9 @@ MenuItem SmallAreaMenuItems[] = {
 
 MenuPage MainMenuPage = {
 	//通用属性，必填
-	.General_MenuType = MENU_TYPE_TILES_DEPTH,  		 //菜单类型为深度磁贴类型（带景深偏移效果）
+	.General_MenuType = MENU_TYPE_TILES_HOPE,  		 //菜单类型为HOPE风格磁贴类型（XOR选择框+底部揭示条）	
 	.General_CursorStyle = NOT_SHOW,			 //光标类型
-	.General_FontSize = OLED_UI_FONT_12,			//字高
+	.General_FontSize = OLED_UI_FONT_16,			//字高
 	.General_ParentMenuPage = NULL,				//由于这是根菜单，所以父菜单为NULL
 	.General_LineSpace = 8,						//磁贴间距 单位：像素（对于磁贴类型菜单，此值表示每个磁贴之间的间距，对于列表类型菜单，此值表示行间距）
 	.General_MoveStyle = PID_CURVE,				//移动方式 

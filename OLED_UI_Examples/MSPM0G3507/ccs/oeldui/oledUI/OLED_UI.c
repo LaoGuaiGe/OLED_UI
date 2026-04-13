@@ -298,7 +298,12 @@ MenuID GetMenuItemNum(MenuItem * items){
  * @return 无
  */
 void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float *LastErrorNum, float * IntegralNum, float *DerivativeNum)  {
-	if(CurrentMenuPage->General_MoveStyle ==  UNLINEAR){
+	//HOPE风格强制使用UNLINEAR，避免PID抖动
+	uint8_t moveStyle = CurrentMenuPage->General_MoveStyle;
+	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+		moveStyle = UNLINEAR;
+	}
+	if(moveStyle ==  UNLINEAR){
 		if(*CurrentNum == *TargetNum){
 			return;
 		}
@@ -325,7 +330,7 @@ void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float 
 		}
 	}
 	//如果当前的动画方式是PID_CURVE方式
-	if(CurrentMenuPage->General_MoveStyle ==  PID_CURVE){
+	if(moveStyle ==  PID_CURVE){
 		/*这是一种奇特的方法，因为当当前值等于目标值的时候，其他项置零了，但是积分项并没有被置零。根据实际现象，这样的效果是最好的。 */
 		//如果用户将速度设置为0，那么当前值直接等于目标值，其他所有中间值置零
 		if(CurrentMenuPage->General_MovingSpeed <= 0){
@@ -431,13 +436,15 @@ void CurrentMenuPageInit(void){
 		CurrentMenuPage->_Slot = 0;
 	}else
 	//如果当前的菜单类型为TILES
-	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH)
+	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE)
 	{
 		//设置全局页面目标起始点为屏幕中央向左偏移半个磁贴宽度，使得当前菜单项居中
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->Tiles_ScreenWidth/2-CurrentMenuPage->Tiles_TileWidth/2;
-		//设置全局页面目标起始点Y：深度磁贴下移为顶部显示留空间
+		//设置全局页面目标起始点Y
 		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
 			OLED_UI_PageStartPoint.TargetPoint.Y = 6;
+		}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+			OLED_UI_PageStartPoint.TargetPoint.Y = 0;
 		}else{
 			OLED_UI_PageStartPoint.TargetPoint.Y = TILES_STARTPOINT_Y;
 		}
@@ -476,7 +483,7 @@ void CurrentMenuPageBackUp(void){
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
 	}else
 	//如果当前的菜单类型为TILES
-	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH)
+	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE)
 	{
 		//设置全局页面当前起始点为菜单结构体的开始点+2
 		OLED_UI_PageStartPoint.CurrentPoint.X = CurrentMenuPage->_StartPoint.X + CurrentMenuPage->Tiles_TileWidth;
@@ -931,7 +938,7 @@ void SetTargetCursor(void){
 			OLED_UI_MenuFrame.CurrentArea.Width + OLED_UI_MenuFrame.CurrentArea.X - OLED_UI_PageStartPoint.CurrentPoint.X - 6 - LinePerfixWidth + LinePerfixWidth - RadioCompensationWidth) ;
 	}
 	//如果当前页面的类型为Tiles类
-	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
+	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
 		//磁贴类不需要光标的显示，所以设置为0.
 		// SetCursorZero();
 		OLED_UI_Cursor.TargetArea.X = CurrentMenuPage->Tiles_ScreenWidth/2 - CalcStringWidth(GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE),GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII),CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_item_text)/2 - 1;
@@ -973,7 +980,7 @@ void SetLineSplitZero(void){
 void SetTargetScrollBarHeight(void){
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
 		OLED_UI_ScrollBarHeight.TargetDistance = (float)CurrentMenuPage->List_MenuArea.Height*(CurrentMenuPage->_ActiveMenuID + 1)/GetMenuItemNum(CurrentMenuPage->General_MenuItems);
-	}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
+	}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
 		OLED_UI_ScrollBarHeight.TargetDistance = (float)(CurrentMenuPage->Tiles_ScreenWidth *(CurrentMenuPage->_ActiveMenuID + 1)/GetMenuItemNum(CurrentMenuPage->General_MenuItems));
 	}
 }
@@ -1357,6 +1364,86 @@ void PrintMenuElements(void){
 		}
 
 	}
+	//如果当前的页面为HOPE风格磁贴类型
+	if(page->General_MenuType == MENU_TYPE_TILES_HOPE){
+		//HOPE风格：图标水平滚动 + XOR选择框 + 底部揭示条 + 标题
+
+		//静态变量：选择框抖动、揭示条动效和文字弹跳
+		static float hopeRectW = 0.0f;       //底部揭示条宽度
+		static MenuID hopeLastID = -1;
+		static float hopeTextBounceY = 0;
+		static float hopeFrameShake = 0;     //选择框抖动偏移
+
+		//选择框基准位置 = 屏幕中心 - 半个图标宽度
+		float hopeFrameBase = (float)(page->Tiles_ScreenWidth / 2 - page->Tiles_TileWidth / 2);
+
+		//切换图标时触发动效
+		if(page->_ActiveMenuID != hopeLastID){
+			hopeRectW = -4.0f;  //揭示条复位，重新展开
+			hopeTextBounceY = 8.0f;  //文字从下方8像素处弹上来
+			//选择框向切换方向滑出
+			if(page->_ActiveMenuID > hopeLastID){
+				//往右切换：背景块从左往右滑出
+				hopeFrameShake = -10.0f;
+			}else{
+				//往左切换：背景块从右往左滑出
+				hopeFrameShake = 10.0f;
+			}
+			hopeLastID = page->_ActiveMenuID;
+		}
+
+		//缓动动画
+		float hopeRectW_trg = 13.0f;
+		hopeRectW += (hopeRectW_trg - hopeRectW) * 0.1f;
+		if(fabs(hopeRectW - hopeRectW_trg) < 0.5f) hopeRectW = hopeRectW_trg;
+		//文字弹跳衰减
+		if(hopeTextBounceY > 0.3f){
+			hopeTextBounceY *= 0.75f;
+		}else{
+			hopeTextBounceY = 0;
+		}
+		//选择框抖动衰减回中心
+		//控制衰减速度。值越大回弹越慢（比如改成 0.85f 或 0.9f），值越小回弹越快
+		hopeFrameShake *= 0.92f;
+		if(fabs(hopeFrameShake) < 0.5f) hopeFrameShake = 0;
+
+		float hopeFrameX = hopeFrameBase + hopeFrameShake;
+
+		//绘制图标
+		for(MenuID i = 0; i < num; i++){
+			if(CursorPoint.X + page->Tiles_TileWidth < 0 || CursorPoint.X > OLED_WIDTH){
+				CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
+				continue;
+			}
+			int16_t drawX = (int16_t)ceil(CursorPoint.X);
+			OLED_ShowImageArea(drawX, CursorPoint.Y, page->Tiles_TileWidth, page->Tiles_TileHeight, 0, 0, page->Tiles_ScreenWidth, page->Tiles_ScreenHeight, page->General_MenuItems[i].Tiles_Icon == NULL ? UnKnown : page->General_MenuItems[i].Tiles_Icon);
+			//反色所有图标，使背景与主题一致（深色模式下变为黑底白图标）
+			OLED_ReverseArea(drawX, CursorPoint.Y, page->Tiles_TileWidth, page->Tiles_TileHeight);
+			CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
+		}
+
+		//选择框：再次反色选中图标，使其突出（深色模式=白底，浅色模式=黑底）
+		int16_t frameX = (int16_t)hopeFrameX;
+		int16_t frameY = CursorPoint.Y;
+		OLED_ReverseArea(frameX, frameY, page->Tiles_TileWidth, page->Tiles_TileHeight);
+
+		//底部揭示条（从左侧展开的填充矩形）
+		int16_t barY = page->Tiles_ScreenHeight / 2 + 4;
+		int16_t barH = 24;
+		if((int16_t)hopeRectW > 0){
+			OLED_ReverseArea(0, barY, (int16_t)hopeRectW, barH);
+		}
+
+		//标题文字居中显示在揭示条区域（带弹跳效果）
+		int16_t StringLength = CalcStringWidth(ChineseFont, ASCIIFont, page->General_MenuItems[page->_ActiveMenuID].General_item_text);
+		int16_t titleX = (page->Tiles_ScreenWidth - StringLength) / 2;
+		int16_t titleY = barY + (barH - page->General_FontSize) / 2 + (int16_t)hopeTextBounceY;
+		OLED_PrintfMixArea(0, 0, page->Tiles_ScreenWidth, page->Tiles_ScreenHeight,
+				titleX, titleY,
+				ChineseFont, ASCIIFont,
+				page->General_MenuItems[page->_ActiveMenuID].General_item_text);
+
+	}
 	if(page->General_ShowAuxiliaryFunction != NULL){
 		//绘制辅助功能
 		page->General_ShowAuxiliaryFunction();
@@ -1689,7 +1776,7 @@ void RunFadeOut(void){
 			SetCursorZero();
 
 		}else //如果当前菜单类型是磁贴类
-		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
+		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
 			//清除全部区域
 			OLED_UI_FadeoutAllArea();
 			//当前菜单项的页面类型是磁贴类的情况下，按下了确认操作
@@ -1921,7 +2008,7 @@ void OLED_UI_InterruptHandler(void){
 					CurrentMenuPage->_ActiveMenuID--;
 				}
 				//如果当前菜单类型是列表类
-				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
+				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
 					CurrentMenuPage->_ActiveMenuID--;
 					MenuItemsMoveRight();
 				}
@@ -1943,7 +2030,7 @@ void OLED_UI_InterruptHandler(void){
 					CurrentMenuPage->_ActiveMenuID++;
 				}
 				//如果当前菜单类型是列表类
-				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
+				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
 					CurrentMenuPage->_ActiveMenuID++;
 					MenuItemsMoveLeft();
 				}

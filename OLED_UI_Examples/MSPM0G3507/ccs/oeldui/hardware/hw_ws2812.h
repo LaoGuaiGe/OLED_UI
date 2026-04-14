@@ -11,6 +11,13 @@
 #define WS2812B_NUM 4
 #define DATA_SIZE 24 // WS2812B传输一个数据的大小是3个字节（24bit）
 
+/* RGB控制参数（供菜单UI绑定） */
+extern bool     ws2812_enable;   // RGB灯总开关
+extern int16_t  ws2812_r;        // 红色分量 0-255
+extern int16_t  ws2812_g;        // 绿色分量 0-255
+extern int16_t  ws2812_b;        // 蓝色分量 0-255
+extern int16_t  ws2812_led_num;  // 亮灯个数 1-4
+
 void PWM_WS2812B_Init(void);
 void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data);
 void WS2812B_Show(void);
@@ -20,5 +27,6 @@ void PWM_WS2812B_Blue(uint16_t num);
 
 void WS2812B_Write_24Bits_independence(uint16_t num, uint32_t *GRB_Data); // 独立写像素的颜色
 void set_ws2812_breathing(uint8_t index);                                 // 呼吸灯
+void ws2812_update(void);                                                 // 根据当前参数刷新LED
 
 #endif

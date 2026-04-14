@@ -47,16 +47,6 @@ int main(void)
 	// 蜂鸣器初始化
 	Beeper_Init();
 
-	// 读取系统参数（默认值在前，settings_load 若无有效记录则保持默认）
-	// 亮度100、音量50、蜂鸣器开启、颜色模式白色、显示FPS
-	uint8_t temp[5] = {100, 50, 1, 0, 1};
-	settings_load(temp);
-	OLED_UI_Brightness  = (uint16_t)temp[0];
-	Beeper0.Sound_Loud  = temp[1];
-	Beeper0.Beeper_Enable = temp[2];
-	ColorMode           = (bool)temp[3];
-	OLED_UI_ShowFps     = (bool)temp[4];
-
 	// 按键初始化
 	user_keyBSP_init();
 
@@ -67,7 +57,7 @@ int main(void)
 	Beeper_Perform(BEEP1);
 
 	PWM_WS2812B_Init();
-	PWM_WS2812B_Red(2);
+	ws2812_update();
 
 	/*=== 外部字库显示测试（三种字号）===*/
 	// {
@@ -80,11 +70,29 @@ int main(void)
 	// 	while(1);
 	// }
 
+	// 读取系统参数（默认值在前，settings_load 若无有效记录则保持默认）
+	// 亮度100、音量50、蜂鸣器开启、颜色模式白色、显示FPS、RGB开/R0/G0/B0/4灯
+	uint8_t temp[11] = {100, 50, 0, 0, 1, 1, 0, 0, 0, 4, 0};
+	settings_load(temp);
+	OLED_UI_Brightness  = (uint16_t)temp[0];
+	Beeper0.Sound_Loud  = temp[1];
+	Beeper0.Beeper_Enable = temp[2];
+	ColorMode           = (bool)temp[3];
+	OLED_UI_ShowFps     = (bool)temp[4];
+	ws2812_enable       = (bool)temp[5];
+	ws2812_r            = (int16_t)temp[6];
+	ws2812_g            = (int16_t)temp[7];
+	ws2812_b            = (int16_t)temp[8];
+	ws2812_led_num      = (int16_t)temp[9];
+	
 	// UI初始化
 	OLED_UI_Init(&MainMenuPage);
 
+
+	
 	while (1)
 	{
 		OLED_UI_MainLoop();
+		ws2812_update();
 	}
 }

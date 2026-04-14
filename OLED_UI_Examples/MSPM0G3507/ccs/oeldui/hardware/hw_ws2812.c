@@ -2,8 +2,15 @@
 #include "hw_delay.h"
 
 /*单个灯珠的需要传输的数据对应的比较值数组*/
-uint32_t Single_WS2812B_Buffer[DATA_SIZE * WS2812B_NUM + 50] = {0}; // 24bit*灯珠数量 + Reset_Data(1.25us*50>50us)
+uint32_t Single_WS2812B_Buffer[DATA_SIZE * WS2812B_NUM + 50] = {0};
 volatile bool gChannel0InterruptTaken           = false;
+
+/* RGB控制参数 */
+bool     ws2812_enable  = true;
+int16_t  ws2812_r       = 0;
+int16_t  ws2812_g       = 0;
+int16_t  ws2812_b       = 0;
+int16_t  ws2812_led_num = 4;
 
 /**
  * @brief TIM5_PWM_CH2&DMA1&PA1初始化
@@ -12,20 +19,27 @@ volatile bool gChannel0InterruptTaken           = false;
  */
 void PWM_WS2812B_Init(void)
 {
-	// DMA_Cmd(DMA1_Stream4, DISABLE); // 失能DMA1的6通道，因为一旦使能就开始传输
+	int i;
 	DL_SYSCTL_disableSleepOnExit();
     NVIC_EnableIRQ(DMA_INT_IRQn);
-    
-    DL_Timer_stopCounter(WS2812_INST);
 
-    //设置DMA搬运的起始地址
-    DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
+    /* 事件织网：TIMA1 零事件 → 事件通道1 → DMA订阅者0 */
+    DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
+    DL_Timer_setPublisherChanID(WS2812_INST, DL_TIMER_PUBLISHER_INDEX_0, 1);
+    DL_DMA_setSubscriberChanID(DMA, DL_DMA_SUBSCRIBER_INDEX_0, 1);
+
     //设置DMA搬运的目的地址
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX]);
-   	//设置搬运内存大小
-	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
-    //停止DMA
     DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+
+    /* 整个buffer填充T0H，确保所有PWM周期都是有效的WS2812 "0" bit */
+    for (i = 0; i < DATA_SIZE * WS2812B_NUM + 50; i++) {
+        Single_WS2812B_Buffer[i] = T0H;
+    }
+
+    /* CC=1空跑，输出仅12.5ns HIGH（低于WS2812识别阈值220ns），等效于持续LOW */
+    WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX] = 1;
+    DL_Timer_startCounter(WS2812_INST);
 }
 
 void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data)
@@ -35,7 +49,6 @@ void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data)
 	{
 		for (i = 0; i < DATA_SIZE; i++)
 		{
-			/*因为数据发送的顺序是GRB，高位先发，所以从高位开始判断，判断后比较值先放入缓存数组*/
 			Single_WS2812B_Buffer[i + j * DATA_SIZE] = ((GRB_Data << i) & 0x800000) ? T1H : T0H;
 		}
 	}
@@ -48,31 +61,34 @@ void WS2812B_Write_24Bits_independence(uint16_t num, uint32_t *GRB_Data)
 	{
 		for (i = 0; i < DATA_SIZE; i++)
 		{
-			/*因为数据发送的顺序是GRB，高位先发，所以从高位开始判断，判断后比较值先放入缓存数组*/
 			Single_WS2812B_Buffer[i + j * DATA_SIZE] = ((GRB_Data[j] << i) & 0x800000) ? T1H : T0H;
 		}
 	}
 }
 
-void WS2812B_Show(void)
+static void WS2812B_Send(void)
 {
-	/* 移植时此处对应的通道和中断标志都需要更改 */
-
+	DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
 	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
 
-	/*开启DMA和TIM5开始传输*/
+	gChannel0InterruptTaken = false;
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
-	DL_Timer_startCounter(WS2812_INST);
-    
-    gChannel0InterruptTaken = false;
-    DL_DMA_startTransfer(DMA, DMA_CH0_CHAN_ID);
 
 	while (gChannel0InterruptTaken == false) {
-        __WFE();
-    }
+		__WFE();
+	}
+	/* DMA已在ISR中禁用 */
+	WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX] = 1;
+}
 
-	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
-	DL_Timer_stopCounter(WS2812_INST);
+void WS2812B_Show(void)
+{
+	/* 等待>50us确保WS2812复位 */
+	delay_us(60);
+	/* 发送两次：第一次可能因启动时序偏差被污染，第二次数据干净 */
+	WS2812B_Send();
+	delay_us(60);
+	WS2812B_Send();
 }
 
 // N个灯珠发红光
@@ -145,11 +161,51 @@ void set_ws2812_breathing(uint8_t index)
 	}
 }
 
+/*根据当前参数刷新LED（仅参数变化时才实际发送）*/
+void ws2812_update(void)
+{
+	static bool     prev_enable  = 0xFF;  /* 初始值故意不同，确保首次一定刷新 */
+	static int16_t  prev_r       = -1;
+	static int16_t  prev_g       = -1;
+	static int16_t  prev_b       = -1;
+	static int16_t  prev_num     = -1;
+
+	/* 参数没变就跳过 */
+	if (ws2812_enable == prev_enable &&
+	    ws2812_r == prev_r && ws2812_g == prev_g && ws2812_b == prev_b &&
+	    ws2812_led_num == prev_num) {
+		return;
+	}
+
+	prev_enable = ws2812_enable;
+	prev_r = ws2812_r;
+	prev_g = ws2812_g;
+	prev_b = ws2812_b;
+	prev_num = ws2812_led_num;
+
+	if (!ws2812_enable) {
+		WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
+		WS2812B_Show();
+		return;
+	}
+
+	uint32_t grb = ((uint32_t)(ws2812_g & 0xFF) << 16)
+	             | ((uint32_t)(ws2812_r & 0xFF) << 8)
+	             | ((uint32_t)(ws2812_b & 0xFF));
+	uint16_t num = (uint16_t)ws2812_led_num;
+	if (num > WS2812B_NUM) num = WS2812B_NUM;
+
+	WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
+	WS2812B_Write_24Bits(num, grb);
+	WS2812B_Show();
+}
+
 void DMA_IRQHandler(void)
 {
-    /* Example interrupt code -- just used to break the WFI in this example */
     switch (DL_DMA_getPendingInterrupt(DMA)) {
         case DL_DMA_EVENT_IIDX_DMACH0:
+            /* 立刻禁用DMA，防止定时器零事件再次触发多余搬运 */
+            DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
             gChannel0InterruptTaken = true;
             break;
         default:

@@ -53,13 +53,14 @@ pinFunction4.HFXTStartup  = 10;
 pinFunction4.HFCLKMonitor = true;
 
 DMA.burstSize                                = "8";
+DMA.subscriberIndex                          = ["0"];
 DMA.associatedChannels.create(1);
 DMA.associatedChannels[0].$name              = "DMA_CH0";
 DMA.associatedChannels[0].transferSize       = 24;
 DMA.associatedChannels[0].enableInterrupt    = true;
 DMA.associatedChannels[0].addressMode        = "b2b";
 DMA.associatedChannels[0].dstIncDec          = "UNCHANGED";
-DMA.associatedChannels[0].transferMode       = "SINGLE_BLOCK";
+DMA.associatedChannels[0].triggerSelect      = "FSUB_0";
 DMA.associatedChannels[0].peripheral.$assign = "DMA_CH0";
 
 const Board = scripting.addModule("/ti/driverlib/Board", {}, false);

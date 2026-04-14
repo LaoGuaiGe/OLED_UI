@@ -9,10 +9,12 @@ extern "C" {
 //进行前置声明
 extern MenuItem MainMenuItems[],SettingsMenuItems[],GamesMenuItems[],AboutThisDeviceMenuItems[],
 AboutOLED_UIMenuItems[],MoreMenuItems[],Font8MenuItems[] ,Font12MenuItems[] ,
-Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[];
+Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[],
+RGBMenuItems[];
 extern MenuPage MainMenuPage,SettingsMenuPage,GamesMenuPage,AboutThisDeviceMenuPage,
 AboutOLED_UIMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
-,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage;
+,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage,
+RGBMenuPage;
 
 // 窗口函数声明
 void BrightnessWindow(void);
@@ -26,6 +28,10 @@ void ShowIntDataWindow(void);
 void DinoGameStart(void);
 void FlappyBirdStart(void);
 void PlaneGameStart(void);
+void RGBRedWindow(void);
+void RGBGreenWindow(void);
+void RGBBlueWindow(void);
+void RGBLedNumWindow(void);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -8,6 +8,7 @@
 #include "app_gyroscope.h"
 #include "hw_w25qxx.h"
 #include "app_key_task.h"
+#include "hw_ws2812.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -102,15 +103,71 @@ void GyroscopeWindow(void){
  * @brief 创建保存数据窗口
  */
 void SavedataWindow(void){
-	uint8_t temp[5];
+	uint8_t temp[10];
 	temp[0] = (uint8_t)OLED_UI_Brightness;
 	temp[1] = Beeper0.Sound_Loud;
 	temp[2] = Beeper0.Beeper_Enable;
 	temp[3] = (uint8_t)ColorMode;
 	temp[4] = (uint8_t)OLED_UI_ShowFps;
+	temp[5] = (uint8_t)ws2812_enable;
+	temp[6] = (uint8_t)ws2812_r;
+	temp[7] = (uint8_t)ws2812_g;
+	temp[8] = (uint8_t)ws2812_b;
+	temp[9] = (uint8_t)ws2812_led_num;
 	settings_save(temp);
 	OLED_UI_CreateWindow(&SetSavedataWindow);
 }
+
+/* ========== RGB灯设置窗口 ========== */
+MenuWindow SetRGBRedWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "红色 R",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_r,
+	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+MenuWindow SetRGBGreenWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "绿色 G",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_g,
+	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+MenuWindow SetRGBBlueWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "蓝色 B",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_b,
+	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+MenuWindow SetRGBLedNumWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "灯珠数量",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_led_num,
+	.Prob_DataStep = 1, .Prob_MinData = 1, .Prob_MaxData = 4,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+
+void RGBRedWindow(void)   { OLED_UI_CreateWindow(&SetRGBRedWindow); }
+void RGBGreenWindow(void) { OLED_UI_CreateWindow(&SetRGBGreenWindow); }
+void RGBBlueWindow(void)  { OLED_UI_CreateWindow(&SetRGBBlueWindow); }
+void RGBLedNumWindow(void){ OLED_UI_CreateWindow(&SetRGBLedNumWindow); }
 
 /**
  * @brief 启动小恐龙游戏
@@ -324,9 +381,10 @@ MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "音量",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
+	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
-	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps}, 
-	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL}, 
+	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps},
+	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "感谢观看,一键三连! Thanks for watching, three clicks!",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
@@ -635,6 +693,17 @@ MenuItem SmallAreaMenuItems[] = {
 
 
 
+//RGB灯菜单项内容数组
+MenuItem RGBMenuItems[] = {
+	{.General_item_text = "RGB开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ws2812_enable},
+	{.General_item_text = "红色 R",.General_callback = RGBRedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "绿色 G",.General_callback = RGBGreenWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "蓝色 B",.General_callback = RGBBlueWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "灯珠数量",.General_callback = RGBLedNumWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = NULL},
+};
+
 MenuPage MainMenuPage = {
 	//通用属性，必填
 	.General_MenuType = MENU_TYPE_TILES_HOPE,  		 //菜单类型为HOPE风格磁贴类型（XOR选择框+底部揭示条）	
@@ -673,6 +742,24 @@ MenuPage SettingsMenuPage = {
 	.List_IfDrawLinePerfix = true,				 //是否显示行前缀
 	.List_StartPointX = 4,                        //列表起始点X坐标
 	.List_StartPointY = 2,                        //列表起始点Y坐标
+};
+
+MenuPage RGBMenuPage = {
+	.General_MenuType = MENU_TYPE_LIST,
+	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,
+	.General_FontSize = OLED_UI_FONT_12,
+	.General_ParentMenuPage = &SettingsMenuPage,
+	.General_LineSpace = 4,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = RGBMenuItems,
+
+	.List_MenuArea = {1, 1, 128, 64},
+	.List_IfDrawFrame = false,
+	.List_IfDrawLinePerfix = true,
+	.List_StartPointX = 4,
+	.List_StartPointY = 2,
 };
 
 MenuPage GamesMenuPage = {

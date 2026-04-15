@@ -1,5 +1,6 @@
 #include "hw_ws2812.h"
 #include "hw_delay.h"
+#include "hw_ws2812_effects.h"
 
 /*单个灯珠的需要传输的数据对应的比较值数组*/
 uint32_t Single_WS2812B_Buffer[DATA_SIZE * WS2812B_NUM + 50] = {0};
@@ -27,6 +28,12 @@ void PWM_WS2812B_Init(void)
     DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
     DL_Timer_setPublisherChanID(WS2812_INST, DL_TIMER_PUBLISHER_INDEX_0, 1);
     DL_DMA_setSubscriberChanID(DMA, DL_DMA_SUBSCRIBER_INDEX_0, 1);
+
+    /* 关键修复：CC更新模式改为TIMER_LOAD，确保DMA写入的新CC值
+     * 在下一个PWM周期零点才生效，防止mid-cycle写入导致bit错误 */
+    DL_TimerA_setCaptCompUpdateMethod(WS2812_INST,
+        DL_TIMER_CC_UPDATE_METHOD_ZERO_EVT,
+        DL_TIMERA_CAPTURE_COMPARE_0_INDEX);
 
     //设置DMA搬运的目的地址
     DL_DMA_setDestAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t) &WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX]);
@@ -71,6 +78,11 @@ static void WS2812B_Send(void)
 	DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
 	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
 
+	/* 关键修复：断开再重连事件通道，清除DMA空闲期间积压的定时器零事件
+	 * 否则DMA启用后被旧事件立刻触发多次，导致bit流错位 */
+	DL_Timer_disableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
+	DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
+
 	gChannel0InterruptTaken = false;
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
 
@@ -83,12 +95,16 @@ static void WS2812B_Send(void)
 
 void WS2812B_Show(void)
 {
+	/* 禁用5ms定时器中断，防止中断处理延迟DMA事件 */
+	NVIC_DisableIRQ(TIMER_TICK_INST_INT_IRQN);
+
 	/* 等待>50us确保WS2812复位 */
-	delay_us(60);
-	/* 发送两次：第一次可能因启动时序偏差被污染，第二次数据干净 */
+	delay_us(80);
+	/* 发送数据 */
 	WS2812B_Send();
-	delay_us(60);
-	WS2812B_Send();
+
+	/* 恢复定时器中断 */
+	NVIC_EnableIRQ(TIMER_TICK_INST_INT_IRQN);
 }
 
 // N个灯珠发红光
@@ -183,7 +199,7 @@ void ws2812_update(void)
 	prev_b = ws2812_b;
 	prev_num = ws2812_led_num;
 
-	if (!ws2812_enable) {
+	if (!ws2812_enable || ws2812_led_num == 0) {
 		WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
 		WS2812B_Show();
 		return;

@@ -4,6 +4,7 @@
 #include "OLED_UI.h"
 #include "OLED_UI_MenuData.h"
 #include "mid_music.h"
+#include "hw_ws2812_effects.h"
 
 // 定义枚举类型
 typedef enum {
@@ -46,7 +47,10 @@ void TIMER_TICK_INST_IRQHandler(void)
 
 		//按键扫描
 		button_ticks();
-		
+
+		// RGB流水灯计时
+		ws2812_effect_tick();
+
 		// 屏幕刷新 4x5ms=20ms
 		if( (oled_time_num++) >= 4 )
 		{

@@ -124,6 +124,7 @@ PWM2.timerCount                         = 100;
 PWM2.timerStartTimer                    = true;
 PWM2.PWM_CHANNEL_0.$name                = "ti_driverlib_pwm_PWMTimerCC1";
 PWM2.PWM_CHANNEL_0.initVal              = "HIGH";
+PWM2.PWM_CHANNEL_0.shadowUpdateMode     = "ZERO_EVT";
 PWM2.ccp0PinConfig.$name                = "ti_driverlib_gpio_GPIOPinGeneric2";
 PWM2.ccp0PinConfig.direction            = scripting.forceWrite("OUTPUT");
 PWM2.ccp0PinConfig.hideOutputInversion  = scripting.forceWrite(false);

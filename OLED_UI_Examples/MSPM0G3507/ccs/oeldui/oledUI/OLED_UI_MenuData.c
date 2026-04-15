@@ -9,6 +9,7 @@
 #include "hw_w25qxx.h"
 #include "app_key_task.h"
 #include "hw_ws2812.h"
+#include "hw_ws2812_effects.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
@@ -17,6 +18,8 @@ extern bool OLED_UI_ShowFps;
 extern BEEPER_Tag Beeper0;
 // OLED_UI_Brightness 是一个在OLED_UI当中定义的int16_t类型变量，用于控制OLED显示的亮度。这里将其引出是为了创建调整亮度的滑动条窗口，范围0-255。
 extern int16_t OLED_UI_Brightness;
+extern WS2812_Effect_Param effect_param;
+extern int16_t ws2812_light_mode;
 float testfloatnum = 0.5;
 int32_t testintnum = 1;
 #define SPEED 10
@@ -103,7 +106,7 @@ void GyroscopeWindow(void){
  * @brief 创建保存数据窗口
  */
 void SavedataWindow(void){
-	uint8_t temp[10];
+	uint8_t temp[12];
 	temp[0] = (uint8_t)OLED_UI_Brightness;
 	temp[1] = Beeper0.Sound_Loud;
 	temp[2] = Beeper0.Beeper_Enable;
@@ -114,6 +117,8 @@ void SavedataWindow(void){
 	temp[7] = (uint8_t)ws2812_g;
 	temp[8] = (uint8_t)ws2812_b;
 	temp[9] = (uint8_t)ws2812_led_num;
+	temp[10] = (uint8_t)ws2812_light_mode;
+	temp[11] = (uint8_t)effect_param.speed;
 	settings_save(temp);
 	OLED_UI_CreateWindow(&SetSavedataWindow);
 }
@@ -160,7 +165,7 @@ MenuWindow SetRGBLedNumWindow = {
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
 	.Prob_Data_Int_16 = &ws2812_led_num,
-	.Prob_DataStep = 1, .Prob_MinData = 1, .Prob_MaxData = 4,
+	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 4,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
 
@@ -168,6 +173,36 @@ void RGBRedWindow(void)   { OLED_UI_CreateWindow(&SetRGBRedWindow); }
 void RGBGreenWindow(void) { OLED_UI_CreateWindow(&SetRGBGreenWindow); }
 void RGBBlueWindow(void)  { OLED_UI_CreateWindow(&SetRGBBlueWindow); }
 void RGBLedNumWindow(void){ OLED_UI_CreateWindow(&SetRGBLedNumWindow); }
+
+/* RGB效果速度窗口 */
+MenuWindow SetRGBSpeedWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "渐变速度",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = (int16_t*)&effect_param.speed,
+	.Prob_DataStep = 5, .Prob_MinData = 1, .Prob_MaxData = 100,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+
+void RGBSpeedWindow(void) { OLED_UI_CreateWindow(&SetRGBSpeedWindow); }
+
+/* 灯光模式窗口：0=关, 1=流水灯, 2=跑马灯 */
+MenuWindow SetLightModeWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "灯光模式",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_light_mode,
+	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 2,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+
+void LightModeWindow(void) { OLED_UI_CreateWindow(&SetLightModeWindow); }
 
 /**
  * @brief 启动小恐龙游戏
@@ -361,7 +396,7 @@ void MainAuxFunc(void){
 MenuItem MainMenuItems[] = {
 
 	// {.General_item_text = "Settings",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
-	// {.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
+	// {.General_item_text = "Gyroscope",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},
 	// // {.General_item_text = "Alipay",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_alipay},
 	// // {.General_item_text = "计算器 Calc 长文本测试 LongText",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_calc},
 	// {.General_item_text = "Games",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
@@ -369,7 +404,8 @@ MenuItem MainMenuItems[] = {
 	// {.General_item_text = "More",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
 	// {.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
 	{.General_item_text = "设置",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
-	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},//Image_wechat},   
+	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBEffectMenuPage,.Tiles_Icon = gImage_rgb_icon},
+	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},
 	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "更多",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
@@ -381,7 +417,6 @@ MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "音量",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
-	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
 	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps},
 	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
@@ -693,8 +728,10 @@ MenuItem SmallAreaMenuItems[] = {
 
 
 
-//RGB灯菜单项内容数组
-MenuItem RGBMenuItems[] = {
+//RGB效果菜单项内容数组
+MenuItem RGBEffectMenuItems[] = {
+	{.General_item_text = "灯光模式",.General_callback = LightModeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "渐变速度",.General_callback = RGBSpeedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "RGB开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ws2812_enable},
 	{.General_item_text = "红色 R",.General_callback = RGBRedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "绿色 G",.General_callback = RGBGreenWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
@@ -744,16 +781,16 @@ MenuPage SettingsMenuPage = {
 	.List_StartPointY = 2,                        //列表起始点Y坐标
 };
 
-MenuPage RGBMenuPage = {
+MenuPage RGBEffectMenuPage = {
 	.General_MenuType = MENU_TYPE_LIST,
 	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,
 	.General_FontSize = OLED_UI_FONT_12,
-	.General_ParentMenuPage = &SettingsMenuPage,
+	.General_ParentMenuPage = &MainMenuPage,
 	.General_LineSpace = 4,
 	.General_MoveStyle = UNLINEAR,
 	.General_MovingSpeed = SPEED,
 	.General_ShowAuxiliaryFunction = NULL,
-	.General_MenuItems = RGBMenuItems,
+	.General_MenuItems = RGBEffectMenuItems,
 
 	.List_MenuArea = {1, 1, 128, 64},
 	.List_IfDrawFrame = false,

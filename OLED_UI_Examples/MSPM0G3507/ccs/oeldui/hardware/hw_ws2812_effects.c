@@ -87,6 +87,7 @@ static void do_flowing_effect(uint16_t speed)
     need_update = false;
 
     uint32_t grb = wheel_color(flowing_step);
+    WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
     WS2812B_Write_24Bits(ws2812_led_num, grb);
     WS2812B_Show();
 
@@ -101,15 +102,20 @@ static void do_running_effect(uint16_t speed)
     if (!need_update) return;
     need_update = false;
 
+    /* 安全检查：led_num减少时running_led可能越界 */
+    if (running_led >= (uint8_t)ws2812_led_num) {
+        running_led = 0;
+    }
+
     uint16_t next_color = running_color + 256;
     if (next_color >= TOTAL_STEPS) next_color -= TOTAL_STEPS;
 
     uint32_t from = wheel_color(running_color);
     uint32_t to   = wheel_color(next_color);
 
-    /* 当前灯珠从 from 渐变到 to */
     running_buf[running_led] = color_lerp(from, to, (uint8_t)(running_step > 255 ? 255 : running_step));
 
+    WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
     WS2812B_Write_24Bits_independence(ws2812_led_num, running_buf);
     WS2812B_Show();
 

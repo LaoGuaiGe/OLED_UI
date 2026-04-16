@@ -4,12 +4,15 @@
 #include <math.h>
 #include "myiic.h"
 #include "hw_delay.h"
+#include "mid_timer.h"
+#include "FusionAhrs.h"
+#include "FusionOffset.h"
 
 
 Angle angle_new;
 
-//积分时间20ms
-const static float dt = 0.02f;
+// 上次调用时间戳（ms）
+static uint32_t last_tick_ms = 0;
 
 static void delay_syms(long X)     
 {
@@ -451,32 +454,16 @@ void lsm6ds3_get_gyroscope(uint8_t fsg, float *gry_float)
 	}
 }
 
-// 传感器校准函数,减小零点漂移
-static float gyro_zero_z = 0.0f;
-static void lsm6ds3_soft_calibrate_z0(void) 
-{
-    uint16_t calibration_samples = 500;//校准采样数
-    float gz_sum = 0.0f;
-    int16_t GyroZ;
-    uint8_t buf[2]={0};
-    uint16_t i;
-    uint8_t status = 0;
-
-    for (i = 0; i < calibration_samples; i++) 
-    {
-        ///////////根据Z轴的变换规律进行修正/////////
-        status = lsm6ds3_get_status();
-        if( status & LSM6DS3TRC_STATUS_GYROSCOPE )
-        {
-            // 读取Z轴数据
-            lsm6ds3_read_command(LSM6DS3TRC_OUTZ_L_G, buf, 2);
-            GyroZ = buf[1] << 8 | buf[0];
-            gz_sum += (float)GyroZ;
-        }
-        delay_syms(20);//要和dt同步
-    }
-    gyro_zero_z = gz_sum / calibration_samples;
-}
+/*******************************************************************************
+ * Fusion AHRS 姿态融合相关变量
+ * 参考：https://github.com/xioTechnologies/Fusion
+ * - FusionOffset: 运行时陀螺仪零偏校正
+ * - FusionAhrs:   AHRS姿态解算（6轴，无磁力计）
+ *******************************************************************************/
+static FusionOffset fusionOffset;
+static FusionAhrs   fusionAhrs;
+static uint8_t      yaw_zeroed = 0;        // Yaw归零标志
+static unsigned int post_init_count = 0;    // 初始化结束后的帧计数
 
 //字符顺序调转
 static void reverse(char *str, int len) {
@@ -550,138 +537,147 @@ void float_to_string(float num, char *str) {
     str[str_index] = '\0'; // 终止符
 }
 
-float acc[3] = {0,0,0};
-float gyr[3] = {0,0,0};
+static float acc[3] = {0, 0, 0};
+static float gyr[3] = {0, 0, 0};
 
-#define Kp 130.0f
-#define Ki 0.005f
-
-float halfT=0.001f;
-float q0=1, q1 = 0, q2 = 0, q3 = 0;
-float exInt = 0, eyInt = 0, ezInt = 0;
-
-float z_offset = 0.0922f;//手动偏移 2000
-//float z_offset = 0.0825f;//手动偏移 
-
-//参考自：https://www.bilibili.com/video/BV1MP411i7gy?spm_id_from=333.788.player.switch&bvid=BV1MP411i7gy&vd_source=f31bbb273c619a995d0a639f7f6cbc90
-//pitch和roll效果很好，但是还是存在万向锁+yaw轴严重偏移
-//YAW漂移问题参考这个解决:
-//https://www.bilibili.com/video/BV1z2VzzhEUR/?spm_id_from=333.1007.top_right_bar_window_default_collection.content.click&vd_source=f31bbb273c619a995d0a639f7f6cbc90
-
-//angle->z += kalman_filter_update(&kalmanZ, gyr[2]*3.0f+z_offset); //2000的量程
-//angle->z += kalman_filter_update(&kalmanZ, gyr[2]/3.0f+z_offset); //245的量程
-
-void lsm6ds3_get_angle(Angle* angle)
+/*******************************************************************************
+ * 函数名：lsm6ds3_get_angle
+ * 描述  ：读取IMU数据并通过Fusion AHRS解算姿态角
+ * 输入  ：Angle* angle 输出的欧拉角（度）
+ * 输出  ：void
+ * 备注  ：X/Y由加速度计+陀螺仪互补滤波，Z(Yaw)无磁力计仅靠陀螺仪积分
+ *******************************************************************************/
+void lsm6ds3_get_angle(Angle *angle)
 {
-    int i = 0;
-    uint8_t status = 0;
-    float norm;
-    float vx,vy,vz;
-    float ex,ey,ez;
+    int i;
+    uint8_t status;
+    float deltaTime;
+    uint32_t now_ms;
+    FusionVector gyroscope;
+    FusionVector accelerometer;
+    FusionEuler euler;
 
     status = lsm6ds3_get_status();
+    if (!((status & LSM6DS3TRC_STATUS_ACCELEROMETER) &&
+          (status & LSM6DS3TRC_STATUS_GYROSCOPE))) {
+        return;
+    }
 
-    if( (status&LSM6DS3TRC_STATUS_ACCELEROMETER) && (status&LSM6DS3TRC_STATUS_GYROSCOPE) )
-    {
-        lsm6ds3_get_acceleration(LSM6DS3TRC_ACC_FSXL_2G, acc);		     
-        for( i = 0; i < 3; i++ )
-        {
-                acc[i] = acc[i] / 1000.0f;
+    // 计算真实deltaTime（秒）
+    now_ms = get_sys_tick_ms();
+    deltaTime = (float)(now_ms - last_tick_ms) / 1000.0f;
+    if (deltaTime <= 0.0f || deltaTime > 0.5f) deltaTime = 0.02f;
+    last_tick_ms = now_ms;
+
+    // 读取加速度（mg -> g）
+    lsm6ds3_get_acceleration(LSM6DS3TRC_ACC_FSXL_2G, acc);
+    for (i = 0; i < 3; i++) acc[i] /= 1000.0f;
+
+    // 读取陀螺仪（mdps -> dps）
+    lsm6ds3_get_gyroscope(LSM6DS3TRC_GYR_FSG_2000, gyr);
+    for (i = 0; i < 3; i++) gyr[i] /= 1000.0f;
+
+    // Fusion零偏校正（运行时自动检测静止并修正）
+    gyroscope.axis.x = gyr[0];
+    gyroscope.axis.y = gyr[1];
+    gyroscope.axis.z = gyr[2];
+    gyroscope = FusionOffsetUpdate(&fusionOffset, gyroscope);
+
+    // 加速度计赋值
+    accelerometer.axis.x = acc[0];
+    accelerometer.axis.y = acc[1];
+    accelerometer.axis.z = acc[2];
+
+    // Fusion AHRS更新（6轴，无磁力计）
+    FusionAhrsUpdateNoMagnetometer(&fusionAhrs, gyroscope, accelerometer, deltaTime);
+
+    // 提取欧拉角（度）
+    euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&fusionAhrs));
+    angle->x = euler.angle.roll;
+    angle->y = -euler.angle.pitch;
+    angle->z = -euler.angle.yaw;
+
+    // 等AHRS初始化结束后再计数70帧（~4秒），让offset收敛后归零Yaw
+    if (!fusionAhrs.initialising && !yaw_zeroed) {
+        post_init_count++;
+        if (post_init_count >= 70) {
+            yaw_zeroed = 1;
+            FusionAhrsSetHeading(&fusionAhrs, 0.0f);
         }
-        lsm6ds3_get_gyroscope(LSM6DS3TRC_GYR_FSG_2000, gyr);		
-        for( i = 0; i < 3; i++ )
-        {   
-            if( i == 2 ) 
-            {
-                gyr[i] = gyr[i] - (int16_t)gyro_zero_z;
-            }
-            gyr[i] = gyr[i] /1000.0f;      
-        }
-        //测量正常化，三维向量变为单位向量
-        norm = sqrt(acc[0]*acc[0] + acc[1]*acc[1] + acc[2]*acc[2]);
-        acc[0] = acc[0] / norm;//单位化
-        acc[1] = acc[1] / norm;
-        acc[2] = acc[2] / norm;
-        //估计方向的重力
-        vx = 2* (q1*q3 - q0*q2);
-        vy = 2* (q0*q1 + q2*q3);
-        vz = q0*q0 - q1*q1 - q2*q2 + q3*q3;
-
-        ex = (acc[1]*vz - acc[2]*vy);
-        ey = (acc[2]*vx - acc[0]*vz);
-        ez = (acc[0]*vy - acc[1]*vx);
-
-        //积分误差比例积分增益
-        exInt = exInt + ex*Ki;
-        eyInt = eyInt + ey*Ki;
-        ezInt = ezInt + ez*Ki;
-        //调整后的陀螺仪测量
-        gyr[0] = gyr[0] + Kp*ex + exInt;
-        gyr[1] = gyr[1] + Kp*ey + eyInt;
-        gyr[2] = gyr[2] + Kp*ez + ezInt;        
-        //整合四元数率和正常化
-        q0 = q0 + (-q1*gyr[0] - q2*gyr[1]- q3*gyr[2])*halfT;
-        q1 = q1 + (q0*gyr[0] + q2*gyr[2] - q3*gyr[1])*halfT;
-        q2 = q2 + (q0*gyr[1] - q1*gyr[2] + q3*gyr[0])*halfT;
-        q3 = q3 + (q0*gyr[2] + q1*gyr[1] - q2*gyr[0])*halfT;
-        //正常化四元数
-        norm= sqrt(q0*q0+ q1*q1+ q2*q2+ q3*q3);
-        q0 = q0 / norm;//w
-        q1 = q1 / norm;//x
-        q2 = q2 / norm;//y
-        q3 = q3 / norm;//z
-
-        angle->x = asin(2 * q2 * q3 + 2 * q0 * q1 ) * 57.3;
-        angle->y =atan2(-2 * q1 * q3 + 2 * q0 * q2, q0*q0-q1*q1-q2*q2+q3*q3)*57.3;
-        // angle->x = asin(2 * q2 * q3 + 2 * q0 * q1 ) * 57.3;
-        // angle->y = atan2(-2 * q1 * q3 + 2 * q0 * q2, q0*q0-q1*q1-q2*q2+q3*q3)*57.3;
-        // angle->z = atan2(2*(q1*q2 - q0*q3), q0*q0-q1*q1+q2*q2-q3*q3) * 57.3;
-
-        gyr[2] = gyr[2] * dt;
-        angle->z +=  gyr[2] * 3.0f + z_offset;
     }
 }
-//角度归零
+
+/*******************************************************************************
+ * 函数名：lsm6ds3_angle_return_zero
+ * 描述  ：角度归零，重置AHRS状态
+ * 输入  ：void
+ * 输出  ：void
+ *******************************************************************************/
 void lsm6ds3_angle_return_zero(void)
 {
     angle_new.x = 0;
     angle_new.y = 0;
     angle_new.z = 0;
+    FusionAhrsReset(&fusionAhrs);
+    yaw_zeroed = 0;
+    post_init_count = 0;
     lsm6ds3_reset();
 }
 
+/*******************************************************************************
+ * 函数名：lsm6ds3_init
+ * 描述  ：初始化LSM6DS3传感器及Fusion AHRS算法
+ * 输入  ：void
+ * 输出  ：0成功，1失败
+ *******************************************************************************/
 unsigned char lsm6ds3_init(void)
 {
-	// 初始化IIC总线
-	//IIC_Init();
-	
-    //检测设备是否存在
-    if( lsm6ds3_check_ok() == 0 ) return 1;
+    // 检测设备是否存在
+    if (lsm6ds3_check_ok() == 0) return 1;
 
-    //设备重启
+    // 设备重启
     lsm6ds3_reset();
 
-    //在读取MSB和LSB之前不更新输出寄存器
+    // 在读取MSB和LSB之前不更新输出寄存器
     lsm6ds3_set_BDU(1);
 
-    //设置加速度计的数据采样率 1/52=19.2ms
+    // 设置加速度计数据采样率 52Hz
     lsm6ds3_set_accelerometer_rate(LSM6DS3TRC_ACC_RATE_52HZ);
 
-    //设置陀螺仪的数据采样率 1/52=19.2ms
+    // 设置陀螺仪数据采样率 52Hz
     lsm6ds3_set_gyroscope_rate(LSM6DS3TRC_GYR_RATE_52HZ);
 
-    //设置加速度计满量程选择
+    // 设置加速度计满量程 2G
     lsm6ds3_set_accelerometer_fullscale(LSM6DS3TRC_ACC_FSXL_2G);
 
-    //设置陀螺仪全量程选择
+    // 设置陀螺仪满量程 2000dps
     lsm6ds3_set_gyroscope_fullscale(LSM6DS3TRC_GYR_FSG_2000);
 
-    //设置加速度计模拟链带宽
+    // 设置加速度计模拟链带宽
     lsm6ds3_set_accelerometer_bandwidth(LSM6DS3TRC_ACC_BW0XL_400HZ, LSM6DS3TRC_ACC_LOW_PASS_ODR_100);
-    
+
     delay_syms(100);
 
-//    //软件校准,减少yaw的零点漂移
-//    lsm6ds3_soft_calibrate_z0();
+    // 初始化Fusion零偏校正（实际循环约16Hz）
+    FusionOffsetInitialise(&fusionOffset, 16);
+
+    // 初始化Fusion AHRS
+    FusionAhrsInitialise(&fusionAhrs);
+    yaw_zeroed = 0;
+    post_init_count = 0;
+    {
+        const FusionAhrsSettings settings = {
+            .convention = FusionConventionNwu,
+            .gain = 0.5f,
+            .gyroscopeRange = 2000.0f,          // 匹配LSM6DS3 2000dps量程
+            .accelerationRejection = 10.0f,     // 加速度拒绝阈值（度）
+            .magneticRejection = 0.0f,          // 无磁力计
+            .recoveryTriggerPeriod = 5 * 16,    // 恢复触发周期（5秒 x 16Hz）
+        };
+        FusionAhrsSetSettings(&fusionAhrs, &settings);
+    }
+
+    // 初始化时间戳
+    last_tick_ms = get_sys_tick_ms();
     return 0;
 }

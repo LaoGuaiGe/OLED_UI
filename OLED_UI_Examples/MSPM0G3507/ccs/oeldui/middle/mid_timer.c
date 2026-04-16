@@ -14,6 +14,14 @@ typedef enum {
 
 static volatile Task_state tack_enable_flag = TASK_ENABLE;
 
+// 全局毫秒计数器，5ms中断累加
+static volatile uint32_t sys_tick_ms = 0;
+
+uint32_t get_sys_tick_ms(void)
+{
+    return sys_tick_ms;
+}
+
 //使能任务调度
 void enable_task_interrupt(void)
 {
@@ -44,6 +52,8 @@ void TIMER_TICK_INST_IRQHandler(void)
 	//5ms归零中断触发
 	if( DL_TimerA_getPendingInterrupt(TIMER_TICK_INST) == DL_TIMER_IIDX_ZERO )
 	{
+		// 全局计时 +5ms
+		sys_tick_ms += 5;
 
 		//按键扫描
 		button_ticks();

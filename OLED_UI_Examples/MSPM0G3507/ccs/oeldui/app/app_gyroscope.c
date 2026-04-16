@@ -8,6 +8,7 @@
 #include "OLED_UI.h"
 #include "hw_lsm6ds3.h"
 #include "hw_delay.h"
+#include "mid_timer.h"
 #include <math.h>
 
 #define SCREEN_W 128
@@ -97,7 +98,7 @@ bool gyroscope_should_exit(void)
 static void render_frame(Angle *angle, char *buf)
 {
     OLED_Clear();
-    draw_cube(angle->x, angle->y, 0);
+    draw_cube(angle->x, angle->y, angle->z);
 
     float_to_string(angle->x, buf);
     OLED_ShowString(0, 4, "X:", OLED_6X8_HALF);
@@ -136,8 +137,13 @@ void gyroscope_loop(void)
     }
 
     while (1) {
-        // read IMU
-        lsm6ds3_get_angle(&angle_new);
+        // 在渲染间隙多次采样 IMU，提高姿态积分精度
+        {
+            uint32_t frame_start = get_sys_tick_ms();
+            while ((get_sys_tick_ms() - frame_start) < 20) {
+                lsm6ds3_get_angle(&angle_new);
+            }
+        }
         angle = angle_new;
 
         render_frame(&angle, buf);
@@ -157,7 +163,5 @@ void gyroscope_loop(void)
             OLED_Update();
             break;
         }
-
-        delay_ms(20);
     }
 }

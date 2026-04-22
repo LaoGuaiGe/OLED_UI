@@ -43,10 +43,10 @@ void clear_debug_uart_receive_data(void)
 	}
 }
 	
-// 限制接收长度
+// 限制接收长度，满了从头覆写（保持持续接收能力）
 static int debug_uart_receive_limit_length(void)
 {
-	if( debug_uart.receive_data_length >= REVEIVE_BUFFER_MAX )
+	if( debug_uart.receive_data_length >= REVEIVE_BUFFER_MAX - 1 )
 	{
 		debug_uart.receive_data_length = 0;
 		return 0;

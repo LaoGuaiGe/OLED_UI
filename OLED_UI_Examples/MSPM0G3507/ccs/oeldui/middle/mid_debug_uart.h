@@ -3,7 +3,7 @@
 
 #include "ti_msp_dl_config.h"
 
-#define REVEIVE_BUFFER_MAX 	127
+#define REVEIVE_BUFFER_MAX 	512
 
 typedef struct {
 	char receive_buffer[ REVEIVE_BUFFER_MAX ];

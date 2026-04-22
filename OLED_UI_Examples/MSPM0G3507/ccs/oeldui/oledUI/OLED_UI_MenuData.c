@@ -6,6 +6,7 @@
 #include "app_bird_game.h"
 #include "app_plane_game.h"
 #include "app_gyroscope.h"
+#include "app_uart_monitor.h"
 #include "hw_w25qxx.h"
 #include "app_key_task.h"
 #include "hw_ws2812.h"
@@ -101,6 +102,9 @@ void BuzzerVolumeWindow(void){
  */
 void GyroscopeWindow(void){
 	gyroscope_loop();
+}
+void UartMonitorStart(void){
+	uart_monitor_loop();
 }
 /**
  * @brief 创建保存数据窗口
@@ -406,6 +410,7 @@ MenuItem MainMenuItems[] = {
 	{.General_item_text = "设置",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
 	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBEffectMenuPage,.Tiles_Icon = gImage_rgb_icon},
 	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},
+	{.General_item_text = "串口",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "更多",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
@@ -466,6 +471,7 @@ MenuItem AboutOLED_UIMenuItems[] = {
 
 MenuItem MoreMenuItems[] = {
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "串口监视器",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度8demo",.General_callback = NULL,.General_SubMenuPage = &Font8MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度12demo",.General_callback = NULL,.General_SubMenuPage = &Font12MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度16demo",.General_callback = NULL,.General_SubMenuPage = &Font16MenuPage,.List_BoolRadioBox = NULL},

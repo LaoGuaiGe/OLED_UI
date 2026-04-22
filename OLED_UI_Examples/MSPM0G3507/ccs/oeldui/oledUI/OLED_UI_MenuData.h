@@ -20,6 +20,7 @@ RGBEffectMenuPage;
 void BrightnessWindow(void);
 void BuzzerVolumeWindow(void);
 void GyroscopeWindow(void);
+void UartMonitorStart(void);
 void SavedataWindow(void);
 void EmptyWindow(void);
 void ShowTextWindow(void);

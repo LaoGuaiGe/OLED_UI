@@ -7,6 +7,7 @@
 #include "app_bird_game.h"
 #include "app_plane_game.h"
 #include "app_gyroscope.h"
+#include "app_uart_monitor.h"
 
 /*user_add_handle*/
 static Button key0;
@@ -85,8 +86,10 @@ void key0_long_press_start_Handler(void *btn)
     dino_game_request_exit();
     //请求退出飞机大战游戏
     plane_game_request_exit();
-    //请求退出陀螺仪显示
+    // 请求退出陀螺仪显示
     gyroscope_request_exit();
+    // 请求退出串口监视器
+    uart_monitor_request_exit();
 //    printf("***> key0 long press <***\r\n");
 }
 
@@ -130,6 +133,7 @@ void key1_long_press_start_Handler(void *btn)
     key_menu.enter = PRESS;
     key_menu.down = RELEASE;
     plane_game_set_click();//飞机大战游戏单击事件（实际是长按开始游戏）
+    uart_monitor_request_clear(); // 串口监视器长按清空
     Beeper_Perform(BEEPER_TRITONE);
     
 //	printf("***> key1 long press <***\r\n");

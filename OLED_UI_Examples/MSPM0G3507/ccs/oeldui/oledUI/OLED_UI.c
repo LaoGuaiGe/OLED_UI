@@ -1619,15 +1619,18 @@ MenuID_Type OLED_KeyAndEncoderRecord(void){
 	}
 	
 	IncreaseID.Unsafe = ActiveMenuID - LastActiveID;
-	//如果当前菜单项ID号越界，则将其限制在0~MaxID-1之间
-	if(ActiveMenuID >= MaxID-1){
-		ActiveMenuID = MaxID-1;
-	}
-	if(ActiveMenuID <= 0){
+	//如果当前菜单项ID号越界，则循环跳转
+	if(ActiveMenuID > MaxID-1){
 		ActiveMenuID = 0;
+	}
+	if(ActiveMenuID < 0){
+		ActiveMenuID = MaxID-1;
 	}
 
 	IncreaseID.Safe = ActiveMenuID - LastActiveID;
+	// wrap-around: preserve original direction
+	if(IncreaseID.Safe > 1) IncreaseID.Safe = (IncreaseID.Unsafe > 0) ? 1 : -1;
+	if(IncreaseID.Safe < -1) IncreaseID.Safe = (IncreaseID.Unsafe < 0) ? -1 : 1;
 	return IncreaseID;
 }
 /**
@@ -2080,43 +2083,83 @@ void OLED_UI_InterruptHandler(void){
 				//如果当前菜单类型是列表类
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
 					/*********************按下【上】按键进行的操作*************************/
-					//如果当前菜单页面的光标已经到达最顶部的槽位,并且当前菜单项不是第一个菜单项，那么就向下移动菜单项的目标位置
-           			if(CurrentMenuPage->_Slot == 0 && CurrentMenuPage->_ActiveMenuID !=0){
-						MenuItemsMoveDown();
-
+					// wrap-around: 第一个跳到最后一个
+					if(CurrentMenuPage->_ActiveMenuID == 0){
+						MenuID lastID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
+						CurrentMenuPage->_ActiveMenuID = lastID;
+						int16_t maxSlot = GetCurrentMenuPageMaxSlotNum() - 1;
+						if(lastID <= maxSlot){
+							CurrentMenuPage->_Slot = lastID;
+						} else {
+							CurrentMenuPage->_Slot = maxSlot;
+							for(MenuID m = 0; m < lastID - maxSlot; m++){
+								MenuItemsMoveUp();
+							}
+						}
+					} else {
+						//如果当前菜单页面的光标已经到达最顶部的槽位,并且当前菜单项不是第一个菜单项，那么就向下移动菜单项的目标位置
+						if(CurrentMenuPage->_Slot == 0 && CurrentMenuPage->_ActiveMenuID !=0){
+							MenuItemsMoveDown();
+						}
+						//如果光标还没有到达最顶部的槽位，那么就向上移动槽位
+						if(CurrentMenuPage->_Slot > 0){
+							CurrentMenuPage->_Slot--;
+						}
+						CurrentMenuPage->_ActiveMenuID--;
 					}
-					//如果光标还没有到达最顶部的槽位，那么就向上移动槽位
-					if(CurrentMenuPage->_Slot > 0){
-						CurrentMenuPage->_Slot--;
-					}
-					CurrentMenuPage->_ActiveMenuID--;
 				}
-				//如果当前菜单类型是列表类
+				//如果当前菜单类型是磁贴类
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
-					CurrentMenuPage->_ActiveMenuID--;
-					MenuItemsMoveRight();
+					if(CurrentMenuPage->_ActiveMenuID == 0){
+						MenuID lastID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
+						CurrentMenuPage->_ActiveMenuID = lastID;
+						for(MenuID m = 0; m < lastID; m++){
+							MenuItemsMoveLeft();
+						}
+					} else {
+						CurrentMenuPage->_ActiveMenuID--;
+						MenuItemsMoveRight();
+					}
 				}
 			}
 		}
 		if(IncreaseID.Safe > 0){
 			for(int i = 0; i < IncreaseID.Safe; i++){
 				/*********************按下【下】按键进行的操作*************************/
-					if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
-					//如果当前菜单页面的光标已经到达最底部的槽位,并且当前菜单项不是最后一个菜单项，那么就向上移动菜单项的目标位置
-					if(CurrentMenuPage->_Slot == GetCurrentMenuPageMaxSlotNum()-1 && CurrentMenuPage->_ActiveMenuID != GetMenuItemNum(CurrentMenuPage->General_MenuItems)){
-						MenuItemsMoveUp();
-
+				if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
+					// wrap-around: 最后一个跳到第一个
+					MenuID maxID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
+					if(CurrentMenuPage->_ActiveMenuID >= maxID){
+						MenuID scrollOffset = CurrentMenuPage->_ActiveMenuID - CurrentMenuPage->_Slot;
+						CurrentMenuPage->_ActiveMenuID = 0;
+						CurrentMenuPage->_Slot = 0;
+						for(MenuID m = 0; m < scrollOffset; m++){
+							MenuItemsMoveDown();
+						}
+					} else {
+						//如果当前菜单页面的光标已经到达最底部的槽位,并且当前菜单项不是最后一个菜单项，那么就向上移动菜单项的目标位置
+						if(CurrentMenuPage->_Slot == GetCurrentMenuPageMaxSlotNum()-1 && CurrentMenuPage->_ActiveMenuID != GetMenuItemNum(CurrentMenuPage->General_MenuItems)){
+							MenuItemsMoveUp();
+						}
+						//如果光标还没有到达最底部的槽位，那么就向下移动槽位
+						if(CurrentMenuPage->_Slot < GetCurrentMenuPageMaxSlotNum()-1){
+							CurrentMenuPage->_Slot++;
+						}
+						CurrentMenuPage->_ActiveMenuID++;
 					}
-					//如果光标还没有到达最底部的槽位，那么就向下移动槽位
-					if(CurrentMenuPage->_Slot < GetCurrentMenuPageMaxSlotNum()-1){
-						CurrentMenuPage->_Slot++;
-					}
-					CurrentMenuPage->_ActiveMenuID++;
 				}
-				//如果当前菜单类型是列表类
+				//如果当前菜单类型是磁贴类
 				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
-					CurrentMenuPage->_ActiveMenuID++;
-					MenuItemsMoveLeft();
+					MenuID maxID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
+					if(CurrentMenuPage->_ActiveMenuID >= maxID){
+						CurrentMenuPage->_ActiveMenuID = 0;
+						for(MenuID m = 0; m < maxID; m++){
+							MenuItemsMoveRight();
+						}
+					} else {
+						CurrentMenuPage->_ActiveMenuID++;
+						MenuItemsMoveLeft();
+					}
 				}
 
 			}

@@ -75,21 +75,27 @@ void WS2812B_Write_24Bits_independence(uint16_t num, uint32_t *GRB_Data)
 
 static void WS2812B_Send(void)
 {
+	/* 确保DMA通道处于干净状态 */
+	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+
 	DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
 	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
 
-	/* 关键修复：断开再重连事件通道，清除DMA空闲期间积压的定时器零事件
-	 * 否则DMA启用后被旧事件立刻触发多次，导致bit流错位 */
+	/* 断开再重连事件通道，清除积压的定时器零事件 */
 	DL_Timer_disableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 	DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 
 	gChannel0InterruptTaken = false;
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
 
-	while (gChannel0InterruptTaken == false) {
+	/* 带超时的等待，防止死锁 */
+	volatile uint32_t timeout = 100000;
+	while (gChannel0InterruptTaken == false && --timeout > 0) {
 		__WFE();
 	}
-	/* DMA已在ISR中禁用 */
+
+	/* 无论是否超时，都确保DMA被禁用并恢复CC */
+	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
 	WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX] = 1;
 }
 

@@ -137,7 +137,7 @@ static void do_running_effect(uint16_t speed)
 /* ===== tick（5ms中断调用）===== */
 void ws2812_effect_tick(void)
 {
-    if (ws2812_light_mode == 0) return;
+    if (ws2812_light_mode == 0 || !ws2812_enable || ws2812_led_num == 0) return;
     need_update = true;
 }
 
@@ -170,18 +170,23 @@ void ws2812_effect_update(void)
 {
     static bool prev_off = false;
 
-    /* 关灯条件：总开关关或灯珠数为0 */
     bool off = (!ws2812_enable || ws2812_led_num == 0);
 
     if (off) {
         if (!prev_off) {
+            need_update = false;
             WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
             WS2812B_Show();
             prev_off = true;
         }
         return;
     }
-    prev_off = false;
+
+    /* 从关到开：清除残留状态，防止DMA异常 */
+    if (prev_off) {
+        prev_off = false;
+        need_update = false;
+    }
 
     switch (ws2812_light_mode) {
         case 1: do_flowing_effect(effect_param.speed); break;

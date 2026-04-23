@@ -508,46 +508,115 @@ void CurrentMenuPageBackUp(void){
  * @return 无
  */
 void OLED_UI_Init(MenuPage* Page){
-	int screen_height = 64;
-	int screen_width = 128;
-	int disp_x = 5;
 
-	//初始化OLED显示屏
 	OLED_Init();
 	Timer_Init();
 	Key_Init();
 	Encoder_Init();
 
-
-	//设置当前页面的结构体指针
-	CurrentMenuPage = Page;	//设置当前页面的结构体指针
-	//初始化菜单页面参数
+	CurrentMenuPage = Page;
 	CurrentMenuPageInit();
-	
-	while(1)
-	{
-		if( disp_x < 120 )
-		{
-			disp_x = disp_x + 2;
-		}
-		else
-		{
-			OLED_Clear();
-			break;
-		}
-		//清屏
-		OLED_Clear();
-		//显示标题
-		OLED_ShowString(screen_width/2 - (9*7)/2, screen_height/4, "laoguaige", OLED_7X12_HALF);
-		//空白圆角矩形
-		OLED_DrawRoundedRectangle(5, (screen_height/2) - 3, 120, 12 + 3 + 3, 4, OLED_UNFILLED);   
-		//8*12+(2*7)
-		OLED_ShowMixString(screen_width/2 - 110/2,  screen_height/2, " 请等待初始化完成 ",OLED_12X12_FULL, OLED_7X12_HALF); 
-		//圆角矩形颜色取反填充
-		OLED_ReverseArea(5, (screen_height/2) - 4, disp_x, 12 + 4 + 4);
-		//刷屏
+
+	int16_t i, x, y;
+
+	// === Phase 1: scan lines sweep ===
+	for (i = 0; i < 64; i += 2) {
+		OLED_DrawLine(0, i, 127, i);
 		OLED_Update();
 	}
+	Delay_ms(100);
+
+	// === Phase 2: grid pattern flash ===
+	OLED_Clear();
+	for (y = 0; y < 64; y += 8) {
+		for (x = 0; x < 128; x += 8) {
+			OLED_DrawRectangle(x, y, 6, 6, OLED_UNFILLED);
+		}
+	}
+	OLED_Update();
+	Delay_ms(150);
+
+	// === Phase 3: frame collapses to center ===
+	for (i = 0; i < 8; i++) {
+		OLED_Clear();
+		int16_t shrink = i * 8;
+		int16_t lx = shrink;
+		int16_t ly = shrink / 2;
+		int16_t w = 128 - shrink * 2;
+		int16_t h = 64 - shrink;
+		if (w > 4 && h > 4) {
+			OLED_DrawRoundedRectangle(lx, ly, w, h, 2, OLED_UNFILLED);
+			int16_t cb = 6;
+			OLED_DrawLine(lx, ly, lx + cb, ly);
+			OLED_DrawLine(lx, ly, lx, ly + cb);
+			OLED_DrawLine(lx + w - 1, ly, lx + w - 1 - cb, ly);
+			OLED_DrawLine(lx + w - 1, ly, lx + w - 1, ly + cb);
+			OLED_DrawLine(lx, ly + h - 1, lx + cb, ly + h - 1);
+			OLED_DrawLine(lx, ly + h - 1, lx, ly + h - 1 - cb);
+			OLED_DrawLine(lx + w - 1, ly + h - 1, lx + w - 1 - cb, ly + h - 1);
+			OLED_DrawLine(lx + w - 1, ly + h - 1, lx + w - 1, ly + h - 1 - cb);
+		}
+		OLED_Update();
+		Delay_ms(50);
+	}
+
+	// === Phase 4: HUD frame + name slide in + progress bar ===
+	// "MSPM0G3507" is 10 chars * 7 = 70px, center = (128-70)/2 = 29
+	// "V1.0.0" is 6 chars * 6 = 36px, center = (128-36)/2 = 46
+	int16_t name_target = 29;
+	int16_t ver_target = 46;
+	int16_t name_x = -80;
+	int16_t ver_x = 200;
+
+	for (i = 0; i <= 50; i++) {
+		OLED_Clear();
+
+		// HUD frame
+		OLED_DrawRoundedRectangle(2, 2, 124, 60, 3, OLED_UNFILLED);
+		int16_t cl = 10;
+		OLED_DrawLine(4, 4, 4 + cl, 4);
+		OLED_DrawLine(4, 4, 4, 4 + cl);
+		OLED_DrawLine(123, 4, 123 - cl, 4);
+		OLED_DrawLine(123, 4, 123, 4 + cl);
+		OLED_DrawLine(4, 59, 4 + cl, 59);
+		OLED_DrawLine(4, 59, 4, 59 - cl);
+		OLED_DrawLine(123, 59, 123 - cl, 59);
+		OLED_DrawLine(123, 59, 123, 59 - cl);
+
+		// smooth slide: ease-out (move fast at start, slow near target)
+		name_x = name_x + (name_target - name_x + 3) / 4;
+		ver_x = ver_x + (ver_target - ver_x - 3) / 4;
+
+		OLED_ShowString(name_x, 14, "MSPM0G3507", OLED_7X12_HALF);
+
+		if (i > 10) {
+			OLED_ShowString(ver_x, 30, "V1.0.0", OLED_6X8_HALF);
+		}
+
+		// progress bar (frames 20-50)
+		OLED_DrawRoundedRectangle(14, 49, 100, 8, 2, OLED_UNFILLED);
+		if (i > 20) {
+			int16_t prog = (i - 20) * 96 / 30;
+			if (prog > 96) prog = 96;
+			OLED_DrawRectangle(16, 51, prog, 4, OLED_FILLED);
+		}
+
+		OLED_Update();
+		Delay_ms(30);
+	}
+
+	Delay_ms(400);
+
+	// === Phase 5: exit wipe from center ===
+	for (i = 0; i < 32; i += 2) {
+		OLED_ClearArea(0, 32 - i, 128, 2);
+		OLED_ClearArea(0, 32 + i, 128, 2);
+		OLED_Update();
+		Delay_ms(10);
+	}
+
+	OLED_Clear();
+	OLED_Update();
 }
 
 

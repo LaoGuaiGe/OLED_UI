@@ -55,7 +55,7 @@ int main(void)
 	timer_init();
 
 	// 蜂鸣器音乐
-	Beeper_Perform(BEEP1);
+	Beeper_Perform(BEEP2);
 
 	PWM_WS2812B_Init();
 

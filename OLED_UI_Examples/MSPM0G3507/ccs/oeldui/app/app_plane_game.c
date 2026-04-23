@@ -449,3 +449,15 @@ void plane_game_request_exit(void) {
 bool plane_game_should_exit(void) {
     return exit_requested;
 }
+
+void plane_game_tick(void) {
+    plane_game_handle_input();
+    plane_game_update();
+    plane_game_render();
+    plane_game_clear_controls();
+}
+
+void plane_game_on_exit(void) {
+    OLED_Clear();
+    OLED_Update();
+}

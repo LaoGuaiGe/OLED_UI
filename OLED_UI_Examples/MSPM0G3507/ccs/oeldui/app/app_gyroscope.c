@@ -32,6 +32,8 @@ static const uint8_t cube_e[12][2] = {
 };
 
 static bool exit_requested = false;
+static Angle gyro_angle;
+static char  gyro_buf[16];
 
 static void rotate_project(float vx, float vy, float vz,
                            float sx, float cx, float sy, float cy, float sz, float cz,
@@ -93,8 +95,6 @@ bool gyroscope_should_exit(void)
     return exit_requested;
 }
 
-#define FADEOUT_TIME 40
-
 static void render_frame(Angle *angle, char *buf)
 {
     OLED_Clear();
@@ -111,6 +111,45 @@ static void render_frame(Angle *angle, char *buf)
     float_to_string(angle->z, buf);
     OLED_ShowString(0, 44, "Z:", OLED_6X8_HALF);
     OLED_ShowString(12, 44, buf, OLED_6X8_HALF);
+}
+
+void gyroscope_init(void)
+{
+    exit_requested = false;
+    lsm6ds3_init();
+    angle_new.x = 0;
+    angle_new.y = 0;
+    angle_new.z = 0;
+    gyro_angle.x = 0;
+    gyro_angle.y = 0;
+    gyro_angle.z = 0;
+}
+
+void gyroscope_sample(void)
+{
+    lsm6ds3_get_angle(&angle_new);
+}
+
+void gyroscope_tick(void)
+{
+    gyro_angle = angle_new;
+    render_frame(&gyro_angle, gyro_buf);
+    OLED_Update();
+}
+
+void gyroscope_fade_tick(int8_t level)
+{
+    lsm6ds3_get_angle(&angle_new);
+    gyro_angle = angle_new;
+    render_frame(&gyro_angle, gyro_buf);
+    OLED_UI_FadeOut_Masking(0, 0, 128, 64, level);
+    OLED_Update();
+}
+
+void gyroscope_on_exit(void)
+{
+    OLED_Clear();
+    OLED_Update();
 }
 
 void gyroscope_loop(void)

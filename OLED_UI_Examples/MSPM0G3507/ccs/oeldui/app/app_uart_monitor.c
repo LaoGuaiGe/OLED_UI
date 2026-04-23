@@ -206,6 +206,51 @@ static void render_frame(void)
     OLED_Update();
 }
 
+void uart_monitor_init(void)
+{
+    exit_requested = false;
+    clear_requested = false;
+    clear_lines();
+}
+
+void uart_monitor_tick(void)
+{
+    parse_new_data();
+
+    if(key_menu.up == PRESS){
+        key_menu.up = RELEASE;
+        if(scroll_offset < line_count - UART_MON_VISIBLE){
+            scroll_offset++;
+            auto_scroll = false;
+        }
+    }
+    if(key_menu.down == PRESS){
+        key_menu.down = RELEASE;
+        if(scroll_offset > 0) scroll_offset--;
+        if(scroll_offset == 0) auto_scroll = true;
+    }
+
+    if(clear_requested){
+        clear_requested = false;
+        clear_lines();
+    }
+
+    render_frame();
+}
+
+void uart_monitor_fade_tick(int8_t level)
+{
+    render_frame();
+    OLED_UI_FadeOut_Masking(0, 0, 128, 64, level);
+    OLED_Update();
+}
+
+void uart_monitor_on_exit(void)
+{
+    OLED_Clear();
+    OLED_Update();
+}
+
 
 void uart_monitor_loop(void)
 {

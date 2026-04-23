@@ -186,4 +186,7 @@ void plane_game_request_exit(void);
  */
 bool plane_game_should_exit(void);
 
+void plane_game_tick(void);
+void plane_game_on_exit(void);
+
 #endif  // _APP_PLANE_GAME_H_

@@ -516,6 +516,17 @@ bool dino_game_should_exit(void) {
     return exit_requested;
 }
 
+void dino_game_tick(void) {
+    dino_game_handle_input();
+    dino_game_update();
+    dino_game_render();
+}
+
+void dino_game_on_exit(void) {
+    OLED_Clear();
+    OLED_Update();
+}
+
 // =============================================================================
 // 公共接口函数
 // =============================================================================

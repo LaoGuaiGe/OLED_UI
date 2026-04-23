@@ -92,4 +92,7 @@ void game_request_exit(void);
  */
 bool game_should_exit(void);
 
+void game_tick(void);
+void game_on_exit(void);
+
 #endif // _APP_BIRD_GAME_H_

@@ -7,6 +7,8 @@
 #include "app_plane_game.h"
 #include "app_gyroscope.h"
 #include "app_uart_monitor.h"
+#include "app_robot_face.h"
+#include "app_task.h"
 #include "hw_w25qxx.h"
 #include "app_key_task.h"
 #include "hw_ws2812.h"
@@ -100,11 +102,32 @@ void BuzzerVolumeWindow(void){
 /**
  * @brief 启动陀螺仪3D显示
  */
+static const AppTaskDef gyroscope_app = {
+	.init = gyroscope_init,
+	.tick = gyroscope_tick,
+	.sample = gyroscope_sample,
+	.should_exit = gyroscope_should_exit,
+	.on_exit = gyroscope_on_exit,
+	.fade_tick = gyroscope_fade_tick,
+	.fade_steps = 5,
+	.frame_interval_ms = 20,
+};
 void GyroscopeWindow(void){
-	gyroscope_loop();
+	app_task_start(&gyroscope_app);
 }
+
+static const AppTaskDef uart_monitor_app = {
+	.init = uart_monitor_init,
+	.tick = uart_monitor_tick,
+	.sample = NULL,
+	.should_exit = uart_monitor_should_exit,
+	.on_exit = uart_monitor_on_exit,
+	.fade_tick = uart_monitor_fade_tick,
+	.fade_steps = 5,
+	.frame_interval_ms = 30,
+};
 void UartMonitorStart(void){
-	uart_monitor_loop();
+	app_task_start(&uart_monitor_app);
 }
 /**
  * @brief 创建保存数据窗口
@@ -208,28 +231,69 @@ MenuWindow SetLightModeWindow = {
 
 void LightModeWindow(void) { OLED_UI_CreateWindow(&SetLightModeWindow); }
 
+static const AppTaskDef robot_face_app = {
+	.init = robot_face_init,
+	.tick = robot_face_tick,
+	.sample = NULL,
+	.should_exit = robot_face_should_exit,
+	.on_exit = robot_face_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
+void RobotFaceStart(void){
+	app_task_start(&robot_face_app);
+}
+
 /**
  * @brief 启动小恐龙游戏
  */
+static const AppTaskDef dino_game_app = {
+	.init = dino_game_init,
+	.tick = dino_game_tick,
+	.sample = NULL,
+	.should_exit = dino_game_should_exit,
+	.on_exit = dino_game_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
 void DinoGameStart(void){
-	dino_game_loop();
-	key_menu.back = RELEASE;
+	app_task_start(&dino_game_app);
 }
 
 /**
  * @brief 启动水管鸟游戏
  */
+static const AppTaskDef bird_game_app = {
+	.init = game_init,
+	.tick = game_tick,
+	.sample = NULL,
+	.should_exit = game_should_exit,
+	.on_exit = game_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
 void FlappyBirdStart(void){
-	game_loop();
-	key_menu.back = RELEASE;
+	app_task_start(&bird_game_app);
 }
 
 /**
  * @brief 启动飞机大战游戏
  */
+static const AppTaskDef plane_game_app = {
+	.init = plane_game_init,
+	.tick = plane_game_tick,
+	.sample = NULL,
+	.should_exit = plane_game_should_exit,
+	.on_exit = plane_game_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
 void PlaneGameStart(void){
-	plane_game_loop();
-	key_menu.back = RELEASE;
+	app_task_start(&plane_game_app);
 }
 //关于窗口的结构体
 MenuWindow NullWindow = {
@@ -411,6 +475,7 @@ MenuItem MainMenuItems[] = {
 	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBEffectMenuPage,.Tiles_Icon = gImage_rgb_icon},
 	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},
 	{.General_item_text = "串口",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_game_icon},
+	{.General_item_text = "机器人",.General_callback = RobotFaceStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_robot_icon},
 	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "更多",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},

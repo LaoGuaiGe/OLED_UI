@@ -1,4 +1,5 @@
 #include "OLED_UI.h"
+#include "app_task.h"
 
 
 #ifdef OLED_UI
@@ -1938,6 +1939,11 @@ void MoveMenuElements(void){
  */
 void OLED_UI_MainLoop(void){
 
+	if (app_task_is_active()) {
+		app_task_tick();
+		return;
+	}
+
 	//当渐隐互斥锁被置位时，运行渐隐效果
 	RunFadeOut();
 	
@@ -1968,6 +1974,15 @@ void OLED_UI_InterruptHandler(void){
 	// 获取当前屏幕刷新率
     GetFPS();
 	MenuWindow* window = CurrentWindow;
+	// 如果当前有app任务在运行，则不处理菜单中断事件，但需要同步按键状态
+	if(app_task_is_active()){
+		OLED_UI_Key.Up = Key_GetUpStatus();
+		OLED_UI_Key.Down = Key_GetDownStatus();
+		OLED_UI_Key.Enter = Key_GetEnterStatus();
+		OLED_UI_Key.Back = Key_GetBackStatus();
+		OLED_UI_LastKey = OLED_UI_Key;
+		return;
+	}
 	// 如果当前有正在执行的回调函数，则不处理中断内的任务
     if(GetEnterFlag() && GetFadeoutFlag()){
     	

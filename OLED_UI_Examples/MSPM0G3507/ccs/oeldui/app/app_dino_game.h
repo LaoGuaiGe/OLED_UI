@@ -146,4 +146,7 @@ void dino_game_request_exit(void);
  */
 bool dino_game_should_exit(void);
 
+void dino_game_tick(void);
+void dino_game_on_exit(void);
+
 #endif  // _APP_DINO_GAME_H_

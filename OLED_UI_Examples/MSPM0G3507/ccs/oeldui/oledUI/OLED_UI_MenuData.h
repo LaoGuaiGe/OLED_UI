@@ -35,6 +35,7 @@ void RGBBlueWindow(void);
 void RGBLedNumWindow(void);
 void RGBSpeedWindow(void);
 void LightModeWindow(void);
+void RobotFaceStart(void);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -172,6 +172,19 @@ bool game_should_exit(void)
     return exit_requested;
 }
 
+void game_tick(void)
+{
+    game_handle_input();
+    game_update();
+    game_render();
+}
+
+void game_on_exit(void)
+{
+    OLED_Clear();
+    OLED_Update();
+}
+
 /**
  * 内部函数区域 - 这些函数仅在模块内部调用，不对外暴露
  */

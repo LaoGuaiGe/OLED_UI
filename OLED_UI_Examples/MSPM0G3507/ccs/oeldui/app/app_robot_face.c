@@ -42,7 +42,8 @@ static const char *expr_names[] = {
     "Shy",     "Dizzy",   "Proud",   "Crazy",
     "Helpless",
     "Shocked",
-    "Sleeping"
+    "Sleeping",
+    "Bored"
 };
 
 //                                         ew  eh  er  sp  oy brow bal bar mw  mh  mc  L%   R%
@@ -66,6 +67,7 @@ static const RobotExpression presets[EXPR_COUNT] = {
     [EXPR_HELPLESS]   = { 22, 10, 5, 50, -2,  -7,  3, -3, 12, 0,  0, 100, 100 },
     [EXPR_SHOCKED]    = { 26, 26, 8, 48, -2,   0,  0,  0,  0, 0,  0,  60, 110 },
     [EXPR_SLEEPING]   = { 22,  2, 2, 50,  2,   0,  0,  0, 10, 0,  0, 100, 100 },
+    [EXPR_BORED]      = { 22, 22, 6, 50,  0,   0,  0,  0,  0, 0,  0, 100, 100 },
 };
 
 static void set_target(ExpressionType expr) {
@@ -218,6 +220,37 @@ static void draw_face(void) {
         if (reh < 2) reh = 2;
     }
 
+    static int16_t bored_mouth_r = 0;
+    static int16_t bored_tear = 0;
+    if (current_expr == EXPR_BORED) {
+        // 70 frames yawn open, 10 hold, 20 close = 100 frame cycle
+        int16_t cyc = frame_count % 100;
+        int16_t yawn_pct;
+        if (cyc < 70) {
+            yawn_pct = 100 - (int16_t)(cyc * 100 / 70);
+        } else if (cyc < 80) {
+            yawn_pct = 0;
+        } else {
+            yawn_pct = (int16_t)((cyc - 80) * 5);
+        }
+        if (yawn_pct < 15) yawn_pct = 15;
+        if (yawn_pct > 100) yawn_pct = 100;
+        leh = (int16_t)((int32_t)leh * yawn_pct / 100);
+        reh = (int16_t)((int32_t)reh * yawn_pct / 100);
+        if (leh < 2) leh = 2;
+        if (reh < 2) reh = 2;
+        bored_mouth_r = (int16_t)(7 - (int32_t)7 * yawn_pct / 100);
+        if (bored_mouth_r < 1) bored_mouth_r = 1;
+        if (cyc >= 65 && cyc < 85) {
+            bored_tear = (int16_t)(cyc - 65);
+        } else {
+            bored_tear = 0;
+        }
+    } else {
+        bored_mouth_r = 0;
+        bored_tear = 0;
+    }
+
     int16_t sp = FROM_FP(cur.eye_spacing);
     int16_t oy = FROM_FP(cur.eye_offset_y);
     if (leh < 2) leh = 2;
@@ -323,6 +356,8 @@ static void draw_face(void) {
 
     if (current_expr == EXPR_SURPRISED && mw == 0) {
         OLED_DrawCircle(CENTER_X, my, 5, OLED_UNFILLED);
+    } else if (current_expr == EXPR_BORED && bored_mouth_r > 0) {
+        OLED_DrawCircle(CENTER_X + shake_x, my + shake_y, bored_mouth_r, OLED_UNFILLED);
     } else if (current_expr == EXPR_SHOCKED && mw == 0) {
         int16_t tw = 10, th = 8;
         OLED_DrawLine(CENTER_X, my, CENTER_X - tw / 2, my + th);
@@ -367,6 +402,13 @@ static void draw_face(void) {
     if (current_expr == EXPR_SMIRK) {
         int16_t smx = mx + mw;
         OLED_DrawLine(smx, my, smx + 2, my - 2);
+    }
+
+    if (current_expr == EXPR_BORED && bored_tear > 0) {
+        int16_t tx = rx + ew - 2;
+        int16_t ty = rey + reh + 1;
+        draw_tear(tx, ty, bored_tear / 2);
+        OLED_DrawCircle(tx, ty + bored_tear / 2 + 1, 1, OLED_FILLED);
     }
 
     if (current_expr == EXPR_SLEEPY) {

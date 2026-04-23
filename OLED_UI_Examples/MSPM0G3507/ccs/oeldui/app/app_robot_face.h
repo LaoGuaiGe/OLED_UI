@@ -40,6 +40,7 @@ typedef enum {
     EXPR_HELPLESS,      // 无奈/无语
     EXPR_SHOCKED,       // 吃惊/震惊
     EXPR_SLEEPING,      // 睡觉/熟睡
+    EXPR_BORED,         // 无聊/打哈欠
     EXPR_COUNT
 } ExpressionType;
 

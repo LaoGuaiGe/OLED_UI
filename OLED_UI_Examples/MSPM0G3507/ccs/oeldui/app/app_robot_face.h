@@ -41,6 +41,13 @@ typedef enum {
     EXPR_SHOCKED,       // 吃惊/震惊
     EXPR_SLEEPING,      // 睡觉/熟睡
     EXPR_BORED,         // 无聊/打哈欠
+    EXPR_EXPECT,        // 期待/期望
+    EXPR_COZY,          // 安逸/舒适
+    EXPR_SIGH,          // 叹气/唉
+    EXPR_DISDAIN,       // 嫌弃/起鸡皮疙瘩
+    EXPR_CHEWING,       // 吃东西/咀嚼
+    EXPR_DISGUST,       // 讨厌/嫌恶
+    EXPR_HESITANT,      // 犹豫/纠结
     EXPR_COUNT
 } ExpressionType;
 

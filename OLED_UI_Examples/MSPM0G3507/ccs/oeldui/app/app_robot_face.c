@@ -43,7 +43,14 @@ static const char *expr_names[] = {
     "Helpless",
     "Shocked",
     "Sleeping",
-    "Bored"
+    "Bored",
+    "Expect",
+    "Cozy",
+    "Sigh",
+    "Disdain",
+    "Chewing",
+    "Disgust",
+    "Hesitant"
 };
 
 //                                         ew  eh  er  sp  oy brow bal bar mw  mh  mc  L%   R%
@@ -68,6 +75,13 @@ static const RobotExpression presets[EXPR_COUNT] = {
     [EXPR_SHOCKED]    = { 26, 26, 8, 48, -2,   0,  0,  0,  0, 0,  0,  60, 110 },
     [EXPR_SLEEPING]   = { 22,  2, 2, 50,  2,   0,  0,  0, 10, 0,  0, 100, 100 },
     [EXPR_BORED]      = { 22, 22, 6, 50,  0,   0,  0,  0,  0, 0,  0, 100, 100 },
+    [EXPR_EXPECT]     = { 26, 24, 8, 46, -3,   0,  0,  0,  0, 0,  0, 100, 100 },
+    [EXPR_COZY]       = { 24,  8, 6, 48,  3,   0,  0,  0,  0, 0,  0, 100, 100 },
+    [EXPR_SIGH]       = { 22, 16, 5, 50,  3,  -7,  3, -3,  0, 0,  0, 100, 100 },
+    [EXPR_DISDAIN]    = { 24,  9, 6, 50,  2,   0,  0,  0, 14, 0,  0, 100, 100 },
+    [EXPR_CHEWING]    = { 24, 10, 6, 50,  2,   0,  0,  0, 12, 0,  0, 100, 100 },
+    [EXPR_DISGUST]    = { 20, 14, 5, 52,  0,  -6, -3,  3, 12, 0, -3,  70, 100 },
+    [EXPR_HESITANT]   = { 20, 18, 5, 50,  0,  -7,  2, -2, 10, 0,  0,  80, 100 },
 };
 
 static void set_target(ExpressionType expr) {
@@ -272,6 +286,9 @@ static void draw_face(void) {
     if (current_expr == EXPR_CAUTIOUS) {
         eye_ox = fast_sin8((uint8_t)(frame_count * 3)) >> 2;
     }
+    if (current_expr == EXPR_HESITANT) {
+        eye_ox = fast_sin8((uint8_t)(frame_count * 2)) >> 2;
+    }
 
     if (current_expr == EXPR_LOVE && blink_h_pct > 80) {
         int16_t hs = (ew < leh) ? ew : leh;
@@ -363,6 +380,46 @@ static void draw_face(void) {
         OLED_DrawLine(CENTER_X, my, CENTER_X - tw / 2, my + th);
         OLED_DrawLine(CENTER_X, my, CENTER_X + tw / 2, my + th);
         OLED_DrawLine(CENTER_X - tw / 2, my + th, CENTER_X + tw / 2, my + th);
+    } else if (current_expr == EXPR_EXPECT && mw == 0) {
+        int16_t tw = 10, th = 7;
+        OLED_DrawLine(CENTER_X - tw / 2, my, CENTER_X + tw / 2, my);
+        OLED_DrawLine(CENTER_X - tw / 2, my, CENTER_X, my + th);
+        OLED_DrawLine(CENTER_X + tw / 2, my, CENTER_X, my + th);
+    } else if (current_expr == EXPR_COZY && mw == 0) {
+        int16_t tw = 8, th = 5;
+        OLED_DrawLine(CENTER_X - tw / 2, my, CENTER_X + tw / 2, my);
+        OLED_DrawLine(CENTER_X - tw / 2, my, CENTER_X, my + th);
+        OLED_DrawLine(CENTER_X + tw / 2, my, CENTER_X, my + th);
+    } else if (current_expr == EXPR_SIGH && mw == 0) {
+        OLED_DrawCircle(CENTER_X, my + 2, 4, OLED_UNFILLED);
+    } else if (current_expr == EXPR_DISDAIN) {
+        int16_t amp = 2 + (fast_sin8((uint8_t)(frame_count * 8)) > 0 ? 1 : -1);
+        int16_t ww = mw;
+        int16_t wx = CENTER_X - ww / 2;
+        OLED_DrawLine(wx, my, wx + ww / 4, my - amp);
+        OLED_DrawLine(wx + ww / 4, my - amp, wx + ww / 2, my + amp);
+        OLED_DrawLine(wx + ww / 2, my + amp, wx + ww * 3 / 4, my - amp);
+        OLED_DrawLine(wx + ww * 3 / 4, my - amp, wx + ww, my);
+    } else if (current_expr == EXPR_CHEWING) {
+        int16_t chew_phase = fast_sin8((uint8_t)(frame_count * 5));
+        int16_t open = 2 + (chew_phase > 0 ? chew_phase >> 3 : 0);
+        OLED_DrawLine(mx, my, mx + mw, my);
+        OLED_DrawLine(mx, my + open, mx + mw, my + open);
+        OLED_DrawLine(mx, my, mx, my + open);
+        OLED_DrawLine(mx + mw, my, mx + mw, my + open);
+        // food crumbs inside mouth when closed
+        if (open <= 3) {
+            OLED_DrawPoint(mx + 3, my + 1);
+            OLED_DrawPoint(mx + mw - 3, my + 1);
+            OLED_DrawPoint(mx + mw / 2, my + 1);
+        }
+        // food piece approaching from right side
+        uint16_t fcyc = frame_count % 30;
+        int16_t food_x = mx + mw + 12 - (int16_t)(fcyc * 12 / 30);
+        int16_t food_y = my + 1;
+        if (fcyc < 25) {
+            OLED_DrawRectangle(food_x, food_y, 3, 3, OLED_FILLED);
+        }
     } else if (current_expr == EXPR_HELPLESS) {
         int16_t hmy = my - 4;
         int16_t tw = 8, th = 5;
@@ -377,6 +434,11 @@ static void draw_face(void) {
             int16_t dy = (i & 1) ? -2 : 2;
             OLED_DrawLine(sx, my, sx, my + dy);
         }
+    } else if (current_expr == EXPR_HESITANT) {
+        int16_t mox = fast_sin8((uint8_t)(frame_count * 2)) >> 3;
+        OLED_DrawLine(mx + mox, my, mx + mw / 3 + mox, my + 2);
+        OLED_DrawLine(mx + mw / 3 + mox, my + 2, mx + mw * 2 / 3 + mox, my - 2);
+        OLED_DrawLine(mx + mw * 2 / 3 + mox, my - 2, mx + mw + mox, my);
     } else if (current_expr == EXPR_DIZZY) {
         int16_t ww = 14;
         int16_t wx = CENTER_X - ww / 2;
@@ -409,6 +471,22 @@ static void draw_face(void) {
         int16_t ty = rey + reh + 1;
         draw_tear(tx, ty, bored_tear / 2);
         OLED_DrawCircle(tx, ty + bored_tear / 2 + 1, 1, OLED_FILLED);
+    }
+
+    if (current_expr == EXPR_SIGH) {
+        // breath puff drifting down-right from mouth
+        uint16_t scyc = frame_count % 40;
+        if (scyc < 30) {
+            int16_t px = CENTER_X + 6 + scyc / 2;
+            int16_t py = my + 4 + scyc / 3;
+            int16_t pr = 2 + scyc / 6;
+            OLED_DrawCircle(px, py, pr, OLED_UNFILLED);
+            if (scyc > 8) {
+                int16_t px2 = CENTER_X + 4 + (scyc - 8) / 2;
+                int16_t py2 = my + 3 + (scyc - 8) / 3;
+                OLED_DrawCircle(px2, py2, 1 + (scyc - 8) / 8, OLED_UNFILLED);
+            }
+        }
     }
 
     if (current_expr == EXPR_SLEEPY) {

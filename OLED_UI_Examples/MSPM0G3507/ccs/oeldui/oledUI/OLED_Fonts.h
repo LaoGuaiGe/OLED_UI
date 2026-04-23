@@ -74,5 +74,6 @@ extern const unsigned char gImage_gyro[];
 extern const unsigned char gImage_game_icon[]; 
 extern const unsigned char gImage_rgb_icon[];
 extern const unsigned char gImage_robot_icon[];
+extern const unsigned char gImage_uart_icon[];
 #endif
 

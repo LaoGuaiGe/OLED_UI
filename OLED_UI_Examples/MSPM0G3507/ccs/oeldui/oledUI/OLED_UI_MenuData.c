@@ -474,7 +474,7 @@ MenuItem MainMenuItems[] = {
 	{.General_item_text = "设置",.General_callback = NULL,.General_SubMenuPage = &SettingsMenuPage,.Tiles_Icon = Image_setings},
 	{.General_item_text = "RGB灯",.General_callback = NULL,.General_SubMenuPage = &RGBEffectMenuPage,.Tiles_Icon = gImage_rgb_icon},
 	{.General_item_text = "陀螺仪",.General_callback = GyroscopeWindow,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},
-	{.General_item_text = "串口",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_game_icon},
+	{.General_item_text = "串口",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_uart_icon},
 	{.General_item_text = "机器人",.General_callback = RobotFaceStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_robot_icon},
 	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
 	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},

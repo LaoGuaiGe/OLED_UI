@@ -396,6 +396,24 @@ void OLED_UI_MainLoop(void);
 //OLED_UI的中断函数，内部包含需在中断内处理的任务
 void OLED_UI_InterruptHandler(void);          //OLED_UI库的中断处理函数,需要放在中断函数内调用，中断函数2需要设置为20ms
 
+//开机动画函数
+void boot_anim_decode(const char *text, int16_t tx, int16_t ty);
+void boot_anim_particle(const char *text, int16_t tx, int16_t ty);
+void boot_anim_circle(const char *text, int16_t tx, int16_t ty);
+void boot_anim_glitch(const char *text, int16_t tx, int16_t ty);
+
+/*==========================================================================
+ * 开机动画配置
+ * BOOT_TEXT: 开机显示的文字（仅支持英文和数字）
+ * BOOT_ANIM: 选择开机动画方案
+ *   1 = 解码效果（字符逐个锁定）
+ *   2 = 粒子汇聚
+ *   3 = 圆形揭示
+ *   4 = 故障风(Glitch)
+ *==========================================================================*/
+#define BOOT_TEXT   "MSPM0G3507"
+#define BOOT_ANIM   1
+
 
 
 #endif

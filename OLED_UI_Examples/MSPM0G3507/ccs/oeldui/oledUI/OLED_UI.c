@@ -1,5 +1,6 @@
 #include "OLED_UI.h"
 #include "app_task.h"
+#include "string.h"
 
 
 #ifdef OLED_UI
@@ -507,6 +508,224 @@ void CurrentMenuPageBackUp(void){
  * @param Page 菜单页面结构体
  * @return 无
  */
+static uint16_t boot_seed = 0xA5B7;
+static uint16_t boot_rand(void) {
+	boot_seed = boot_seed * 31421 + 6927;
+	return boot_seed;
+}
+
+/* 方案1：解码效果 — 每个字符位快速闪烁随机字符，从左到右逐个锁定 */
+void boot_anim_decode(const char *text, int16_t tx, int16_t ty)
+{
+	static const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-@#$%&";
+	int16_t len = strlen(text);
+	int16_t i, c;
+	char buf[20];
+	int16_t lock_frame = 4;  /* 每隔几帧锁定一个字符 */
+
+	for (i = 0; i < len * lock_frame + 10; i++) {
+		OLED_Clear();
+		int16_t locked = i / lock_frame;
+		if (locked > len) locked = len;
+
+		for (c = 0; c < len; c++) {
+			if (c < locked) {
+				buf[c] = text[c];
+			} else {
+				buf[c] = charset[boot_rand() % (sizeof(charset) - 1)];
+			}
+		}
+		buf[len] = '\0';
+
+		OLED_ShowString(tx, ty, buf, OLED_7X12_HALF);
+
+		/* 锁定位置下方画一个小光标 */
+		if (locked < len) {
+			int16_t cx = tx + locked * 7;
+			OLED_DrawRectangle(cx, ty + 13, 7, 2, OLED_FILLED);
+		}
+
+		OLED_Update();
+		Delay_ms(35);
+	}
+
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+	OLED_Update();
+	Delay_ms(1000);
+	OLED_Clear();
+	OLED_Update();
+}
+
+/* 方案2：粒子汇聚 — 随机噪点逐渐收敛成文字 */
+void boot_anim_particle(const char *text, int16_t tx, int16_t ty)
+{
+	int16_t i, px, py;
+
+	/* 先渲染文字到显存，保存目标像素 */
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+	OLED_Update();
+
+	/* 收集目标像素坐标（最多采样200个点） */
+	int16_t targets_x[200], targets_y[200];
+	int16_t target_count = 0;
+	for (py = ty; py < ty + 12 && target_count < 200; py++) {
+		for (px = tx; px < tx + (int16_t)strlen(text) * 7 && target_count < 200; px++) {
+			if (OLED_DisplayBuf[py / 8][px] & (1 << (py % 8))) {
+				if ((boot_rand() & 3) == 0) {  /* 采样1/4的像素 */
+					targets_x[target_count] = px;
+					targets_y[target_count] = py;
+					target_count++;
+				}
+			}
+		}
+	}
+
+	/* 为每个目标点生成随机起始位置 */
+	int16_t cur_x[200], cur_y[200];
+	for (i = 0; i < target_count; i++) {
+		cur_x[i] = boot_rand() % 128;
+		cur_y[i] = boot_rand() % 64;
+	}
+
+	/* 动画：粒子逐渐移向目标 */
+	for (i = 0; i < 30; i++) {
+		OLED_Clear();
+		int16_t p;
+		for (p = 0; p < target_count; p++) {
+			cur_x[p] += (targets_x[p] - cur_x[p] + 2) / 3;
+			cur_y[p] += (targets_y[p] - cur_y[p] + 2) / 3;
+			OLED_DrawPoint(cur_x[p], cur_y[p]);
+		}
+
+		/* 后半段开始叠加完整文字（半透明效果） */
+		if (i > 20) {
+			OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+		}
+
+		OLED_Update();
+		Delay_ms(30);
+	}
+
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+	OLED_Update();
+	Delay_ms(1000);
+	OLED_Clear();
+	OLED_Update();
+}
+
+/* 方案3：圆形揭示 — 从中心扩大的圆形区域内显示文字 */
+void boot_anim_circle(const char *text, int16_t tx, int16_t ty)
+{
+	int16_t i, px, py;
+	int16_t cx = 64, cy = 32;
+	int16_t max_r = 80;
+
+	/* 先渲染文字到临时buffer */
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+
+	uint8_t text_buf[8][128];
+	for (py = 0; py < 8; py++) {
+		for (px = 0; px < 128; px++) {
+			text_buf[py][px] = OLED_DisplayBuf[py][px];
+		}
+	}
+
+	for (i = 0; i <= 30; i++) {
+		OLED_Clear();
+		int32_t r = (int32_t)max_r * i / 30;
+		int32_t r2 = r * r;
+
+		for (py = 0; py < 64; py++) {
+			for (px = 0; px < 128; px++) {
+				int32_t dx = px - cx;
+				int32_t dy = py - cy;
+				if (dx * dx + dy * dy <= r2) {
+					if (text_buf[py / 8][px] & (1 << (py % 8))) {
+						OLED_DrawPoint(px, py);
+					}
+				}
+			}
+		}
+
+		/* 圆形边缘画一圈 */
+		if (r > 2) {
+			OLED_DrawCircle(cx, cy, (int16_t)r, OLED_UNFILLED);
+		}
+
+		OLED_Update();
+		Delay_ms(30);
+	}
+
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+	OLED_Update();
+	Delay_ms(1000);
+	OLED_Clear();
+	OLED_Update();
+}
+
+/* 方案4：故障风(Glitch) — 文字带水平错位和噪点，逐渐稳定 */
+void boot_anim_glitch(const char *text, int16_t tx, int16_t ty)
+{
+	int16_t i;
+
+	for (i = 0; i < 35; i++) {
+		OLED_Clear();
+
+		int16_t intensity = 15 - i * 15 / 34;
+
+		boot_rand();
+		int16_t offset = 0;
+		if (intensity > 0) {
+			offset = (int16_t)(boot_seed % (intensity * 2 + 1)) - intensity;
+		}
+		if (intensity > 5 && (boot_seed & 0x07) == 0) {
+			offset = (boot_seed & 0x10) ? intensity * 3 : -intensity * 3;
+		}
+
+		OLED_ShowString(tx + offset, ty, (char *)text, OLED_7X12_HALF);
+
+		if (intensity > 6) {
+			boot_rand();
+			int16_t tear_y = ty + (int16_t)(boot_seed % 12) - 6;
+			int16_t tear_off = (boot_seed & 0x20) ? 8 : -8;
+			OLED_ShowString(tx + tear_off, tear_y, (char *)text, OLED_7X12_HALF);
+		}
+
+		if (intensity > 2) {
+			int16_t bars = intensity / 3;
+			int16_t b;
+			for (b = 0; b < bars; b++) {
+				boot_rand();
+				int16_t by = boot_seed % 64;
+				int16_t bx = boot_seed % 40;
+				int16_t bw = 30 + boot_seed % 60;
+				if (bx + bw > 128) bw = 128 - bx;
+				OLED_ReverseArea(bx, by, bw, 1 + (boot_seed & 1));
+			}
+		}
+
+		if (intensity > 8 && (i & 3) == 0) {
+			boot_rand();
+			OLED_ReverseArea(boot_seed % 80, boot_seed % 40, 30 + boot_seed % 30, 4 + boot_seed % 8);
+		}
+
+		OLED_Update();
+		Delay_ms(intensity > 8 ? 40 : 30);
+	}
+
+	OLED_Clear();
+	OLED_ShowString(tx, ty, (char *)text, OLED_7X12_HALF);
+	OLED_Update();
+	Delay_ms(1000);
+	OLED_Clear();
+	OLED_Update();
+}
+
 void OLED_UI_Init(MenuPage* Page){
 
 	OLED_Init();
@@ -517,106 +736,23 @@ void OLED_UI_Init(MenuPage* Page){
 	CurrentMenuPage = Page;
 	CurrentMenuPageInit();
 
-	int16_t i, x, y;
+	/* 计算文字居中位置 */
+	int16_t text_len = strlen(BOOT_TEXT);
+	int16_t text_x = (128 - text_len * 7) / 2;
+	int16_t text_y = 26;
 
-	// === Phase 1: scan lines sweep ===
-	for (i = 0; i < 64; i += 2) {
-		OLED_DrawLine(0, i, 127, i);
-		OLED_Update();
-	}
-	Delay_ms(100);
+	/* 调用选中的开机动画 */
+#if BOOT_ANIM == 1
+	boot_anim_decode(BOOT_TEXT, text_x, text_y);
+#elif BOOT_ANIM == 2
+	boot_anim_particle(BOOT_TEXT, text_x, text_y);
+#elif BOOT_ANIM == 3
+	boot_anim_circle(BOOT_TEXT, text_x, text_y);
+#elif BOOT_ANIM == 4
+	boot_anim_glitch(BOOT_TEXT, text_x, text_y);
+#endif
 
-	// === Phase 2: grid pattern flash ===
-	OLED_Clear();
-	for (y = 0; y < 64; y += 8) {
-		for (x = 0; x < 128; x += 8) {
-			OLED_DrawRectangle(x, y, 6, 6, OLED_UNFILLED);
-		}
-	}
-	OLED_Update();
-	Delay_ms(150);
-
-	// === Phase 3: frame collapses to center ===
-	for (i = 0; i < 8; i++) {
-		OLED_Clear();
-		int16_t shrink = i * 8;
-		int16_t lx = shrink;
-		int16_t ly = shrink / 2;
-		int16_t w = 128 - shrink * 2;
-		int16_t h = 64 - shrink;
-		if (w > 4 && h > 4) {
-			OLED_DrawRoundedRectangle(lx, ly, w, h, 2, OLED_UNFILLED);
-			int16_t cb = 6;
-			OLED_DrawLine(lx, ly, lx + cb, ly);
-			OLED_DrawLine(lx, ly, lx, ly + cb);
-			OLED_DrawLine(lx + w - 1, ly, lx + w - 1 - cb, ly);
-			OLED_DrawLine(lx + w - 1, ly, lx + w - 1, ly + cb);
-			OLED_DrawLine(lx, ly + h - 1, lx + cb, ly + h - 1);
-			OLED_DrawLine(lx, ly + h - 1, lx, ly + h - 1 - cb);
-			OLED_DrawLine(lx + w - 1, ly + h - 1, lx + w - 1 - cb, ly + h - 1);
-			OLED_DrawLine(lx + w - 1, ly + h - 1, lx + w - 1, ly + h - 1 - cb);
-		}
-		OLED_Update();
-		Delay_ms(50);
-	}
-
-	// === Phase 4: HUD frame + name slide in + progress bar ===
-	// "MSPM0G3507" is 10 chars * 7 = 70px, center = (128-70)/2 = 29
-	// "V1.0.0" is 6 chars * 6 = 36px, center = (128-36)/2 = 46
-	int16_t name_target = 29;
-	int16_t ver_target = 46;
-	int16_t name_x = -80;
-	int16_t ver_x = 200;
-
-	for (i = 0; i <= 50; i++) {
-		OLED_Clear();
-
-		// HUD frame
-		OLED_DrawRoundedRectangle(2, 2, 124, 60, 3, OLED_UNFILLED);
-		int16_t cl = 10;
-		OLED_DrawLine(4, 4, 4 + cl, 4);
-		OLED_DrawLine(4, 4, 4, 4 + cl);
-		OLED_DrawLine(123, 4, 123 - cl, 4);
-		OLED_DrawLine(123, 4, 123, 4 + cl);
-		OLED_DrawLine(4, 59, 4 + cl, 59);
-		OLED_DrawLine(4, 59, 4, 59 - cl);
-		OLED_DrawLine(123, 59, 123 - cl, 59);
-		OLED_DrawLine(123, 59, 123, 59 - cl);
-
-		// smooth slide: ease-out (move fast at start, slow near target)
-		name_x = name_x + (name_target - name_x + 3) / 4;
-		ver_x = ver_x + (ver_target - ver_x - 3) / 4;
-
-		OLED_ShowString(name_x, 14, "MSPM0G3507", OLED_7X12_HALF);
-
-		if (i > 10) {
-			OLED_ShowString(ver_x, 30, "V1.0.0", OLED_6X8_HALF);
-		}
-
-		// progress bar (frames 20-50)
-		OLED_DrawRoundedRectangle(14, 49, 100, 8, 2, OLED_UNFILLED);
-		if (i > 20) {
-			int16_t prog = (i - 20) * 96 / 30;
-			if (prog > 96) prog = 96;
-			OLED_DrawRectangle(16, 51, prog, 4, OLED_FILLED);
-		}
-
-		OLED_Update();
-		Delay_ms(30);
-	}
-
-	Delay_ms(400);
-
-	// === Phase 5: exit wipe from center ===
-	for (i = 0; i < 32; i += 2) {
-		OLED_ClearArea(0, 32 - i, 128, 2);
-		OLED_ClearArea(0, 32 + i, 128, 2);
-		OLED_Update();
-		Delay_ms(10);
-	}
-
-	OLED_Clear();
-	OLED_Update();
+	// Delay_ms(500);
 }
 
 

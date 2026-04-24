@@ -231,6 +231,28 @@ MenuWindow SetLightModeWindow = {
 
 void LightModeWindow(void) { OLED_UI_CreateWindow(&SetLightModeWindow); }
 
+/* 开机动画展示回调 */
+void BootAnimDecodeDemo(void) {
+	int16_t len = strlen(BOOT_TEXT);
+	int16_t tx = (128 - len * 7) / 2;
+	boot_anim_decode(BOOT_TEXT, tx, 26);
+}
+void BootAnimParticleDemo(void) {
+	int16_t len = strlen(BOOT_TEXT);
+	int16_t tx = (128 - len * 7) / 2;
+	boot_anim_particle(BOOT_TEXT, tx, 26);
+}
+void BootAnimCircleDemo(void) {
+	int16_t len = strlen(BOOT_TEXT);
+	int16_t tx = (128 - len * 7) / 2;
+	boot_anim_circle(BOOT_TEXT, tx, 26);
+}
+void BootAnimGlitchDemo(void) {
+	int16_t len = strlen(BOOT_TEXT);
+	int16_t tx = (128 - len * 7) / 2;
+	boot_anim_glitch(BOOT_TEXT, tx, 26);
+}
+
 static const AppTaskDef robot_face_app = {
 	.init = robot_face_init,
 	.tick = robot_face_tick,
@@ -534,9 +556,19 @@ MenuItem AboutOLED_UIMenuItems[] = {
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
 };
 
+//开机动画菜单项
+MenuItem BootAnimMenuItems[] = {
+	{.General_item_text = "解码效果",.General_callback = BootAnimDecodeDemo,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "粒子汇聚",.General_callback = BootAnimParticleDemo,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "圆形揭示",.General_callback = BootAnimCircleDemo,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "故障风",.General_callback = BootAnimGlitchDemo,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = NULL},
+};
+
 MenuItem MoreMenuItems[] = {
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "串口监视器",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "开机动画",.General_callback = NULL,.General_SubMenuPage = &BootAnimMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度8demo",.General_callback = NULL,.General_SubMenuPage = &Font8MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度12demo",.General_callback = NULL,.General_SubMenuPage = &Font12MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度16demo",.General_callback = NULL,.General_SubMenuPage = &Font16MenuPage,.List_BoolRadioBox = NULL},
@@ -814,7 +846,7 @@ MenuItem RGBEffectMenuItems[] = {
 
 MenuPage MainMenuPage = {
 	//通用属性，必填
-	.General_MenuType = MENU_TYPE_TILES_HOPE,  		 //菜单类型为HOPE风格磁贴类型（XOR选择框+底部揭示条）	
+	.General_MenuType = MENU_TYPE_TILES_DEPTH,  		 //菜单类型为HOPE风格磁贴类型（XOR选择框+底部揭示条）	
 	.General_CursorStyle = NOT_SHOW,			 //光标类型
 	.General_FontSize = OLED_UI_FONT_16,			//字高
 	.General_ParentMenuPage = NULL,				//由于这是根菜单，所以父菜单为NULL
@@ -950,6 +982,24 @@ MenuPage MoreMenuPage = {
 	.List_StartPointX = 4,                        //列表起始点X坐标
 	.List_StartPointY = 2,                        //列表起始点Y坐标
 
+};
+
+MenuPage BootAnimMenuPage = {
+	.General_MenuType = MENU_TYPE_LIST,
+	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,
+	.General_FontSize = OLED_UI_FONT_12,
+	.General_ParentMenuPage = &MoreMenuPage,
+	.General_LineSpace = 4,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = BootAnimMenuItems,
+
+	.List_MenuArea = {1, 1, 128, 64},
+	.List_IfDrawFrame = false,
+	.List_IfDrawLinePerfix = true,
+	.List_StartPointX = 4,
+	.List_StartPointY = 2,
 };
 
 MenuPage Font8MenuPage = {

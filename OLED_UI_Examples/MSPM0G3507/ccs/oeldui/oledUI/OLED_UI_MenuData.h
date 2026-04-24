@@ -10,11 +10,11 @@ extern "C" {
 extern MenuItem MainMenuItems[],SettingsMenuItems[],GamesMenuItems[],AboutThisDeviceMenuItems[],
 AboutOLED_UIMenuItems[],MoreMenuItems[],Font8MenuItems[] ,Font12MenuItems[] ,
 Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[],
-RGBEffectMenuItems[];
+RGBEffectMenuItems[],BootAnimMenuItems[];
 extern MenuPage MainMenuPage,SettingsMenuPage,GamesMenuPage,AboutThisDeviceMenuPage,
 AboutOLED_UIMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
 ,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage,
-RGBEffectMenuPage;
+RGBEffectMenuPage,BootAnimMenuPage;
 
 // 窗口函数声明
 void BrightnessWindow(void);
@@ -35,6 +35,10 @@ void RGBBlueWindow(void);
 void RGBLedNumWindow(void);
 void RGBSpeedWindow(void);
 void LightModeWindow(void);
+void BootAnimDecodeDemo(void);
+void BootAnimParticleDemo(void);
+void BootAnimCircleDemo(void);
+void BootAnimGlitchDemo(void);
 void RobotFaceStart(void);
 
 #ifdef __cplusplus

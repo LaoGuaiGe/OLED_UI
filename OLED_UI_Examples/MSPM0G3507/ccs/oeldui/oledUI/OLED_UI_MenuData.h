@@ -10,11 +10,12 @@ extern "C" {
 extern MenuItem MainMenuItems[],SettingsMenuItems[],GamesMenuItems[],AboutThisDeviceMenuItems[],
 AboutOLED_UIMenuItems[],MoreMenuItems[],Font8MenuItems[] ,Font12MenuItems[] ,
 Font16MenuItems[] ,Font20MenuItems[],LongMenuItems[],SpringMenuItems[],LongListMenuItems[],SmallAreaMenuItems[],
-RGBEffectMenuItems[],BootAnimMenuItems[];
+RGBEffectMenuItems[],BootAnimMenuItems[],MenuStyleMenuItems[],MenuStyleDemoItems[];
 extern MenuPage MainMenuPage,SettingsMenuPage,GamesMenuPage,AboutThisDeviceMenuPage,
 AboutOLED_UIMenuPage,MoreMenuPage,Font8MenuPage,Font12MenuPage,Font16MenuPage
 ,Font20MenuPage,LongMenuPage,SpringMenuPage,LongListMenuPage,SmallAreaMenuPage,
-RGBEffectMenuPage,BootAnimMenuPage;
+RGBEffectMenuPage,BootAnimMenuPage,MenuStyleMenuPage,
+MenuStyleListPage,MenuStyleTilesPage,MenuStyleDepthPage,MenuStyleHopePage,MenuStyleArcPage;
 
 // 窗口函数声明
 void BrightnessWindow(void);

@@ -566,9 +566,31 @@ MenuItem BootAnimMenuItems[] = {
 	{.General_item_text = NULL},
 };
 
+//菜单类型样式选择菜单
+MenuItem MenuStyleMenuItems[] = {
+	{.General_item_text = "列表样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleListPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "磁贴样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleTilesPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "景深样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleDepthPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "HOPE样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleHopePage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "弧形样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleArcPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = NULL},
+};
+
+//菜单类型演示用的菜单项（带图标，适用于所有类型）
+MenuItem MenuStyleDemoItems[] = {
+	{.General_item_text = "Item A",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.Tiles_Icon = Image_setings},
+	{.General_item_text = "Item B",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_gyro},
+	{.General_item_text = "Item C",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_game_icon},
+	{.General_item_text = "Item D",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
+	{.General_item_text = "Item E",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.Tiles_Icon = Image_more},
+	{.General_item_text = NULL},
+};
+
 MenuItem MoreMenuItems[] = {
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "开机动画",.General_callback = NULL,.General_SubMenuPage = &BootAnimMenuPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "开机动画样式",.General_callback = NULL,.General_SubMenuPage = &BootAnimMenuPage,.List_BoolRadioBox = NULL},
+	{.General_item_text = "菜单类型样式",.General_callback = NULL,.General_SubMenuPage = &MenuStyleMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度8demo",.General_callback = NULL,.General_SubMenuPage = &Font8MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度12demo",.General_callback = NULL,.General_SubMenuPage = &Font12MenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "字体高度16demo",.General_callback = NULL,.General_SubMenuPage = &Font16MenuPage,.List_BoolRadioBox = NULL},
@@ -1000,6 +1022,111 @@ MenuPage BootAnimMenuPage = {
 	.List_IfDrawLinePerfix = true,
 	.List_StartPointX = 4,
 	.List_StartPointY = 2,
+};
+
+/* 菜单类型样式选择页 */
+MenuPage MenuStyleMenuPage = {
+	.General_MenuType = MENU_TYPE_LIST,
+	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,
+	.General_FontSize = OLED_UI_FONT_12,
+	.General_ParentMenuPage = &MoreMenuPage,
+	.General_LineSpace = 4,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleMenuItems,
+
+	.List_MenuArea = {1, 1, 128, 64},
+	.List_IfDrawFrame = false,
+	.List_IfDrawLinePerfix = true,
+	.List_StartPointX = 4,
+	.List_StartPointY = 2,
+};
+
+/* 列表样式演示 */
+MenuPage MenuStyleListPage = {
+	.General_MenuType = MENU_TYPE_LIST,
+	.General_CursorStyle = REVERSE_ROUNDRECTANGLE,
+	.General_FontSize = OLED_UI_FONT_12,
+	.General_ParentMenuPage = &MenuStyleMenuPage,
+	.General_LineSpace = 4,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleDemoItems,
+	.List_MenuArea = {1, 1, 128, 64},
+	.List_IfDrawFrame = false,
+	.List_IfDrawLinePerfix = true,
+	.List_StartPointX = 4,
+	.List_StartPointY = 2,
+};
+
+/* 磁贴样式演示 */
+MenuPage MenuStyleTilesPage = {
+	.General_MenuType = MENU_TYPE_TILES,
+	.General_CursorStyle = NOT_SHOW,
+	.General_FontSize = OLED_UI_FONT_16,
+	.General_ParentMenuPage = &MenuStyleMenuPage,
+	.General_LineSpace = 8,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleDemoItems,
+	.Tiles_ScreenHeight = 64,
+	.Tiles_ScreenWidth = 128,
+	.Tiles_TileWidth = 32,
+	.Tiles_TileHeight = 32,
+};
+
+/* 景深样式演示 */
+MenuPage MenuStyleDepthPage = {
+	.General_MenuType = MENU_TYPE_TILES_DEPTH,
+	.General_CursorStyle = NOT_SHOW,
+	.General_FontSize = OLED_UI_FONT_16,
+	.General_ParentMenuPage = &MenuStyleMenuPage,
+	.General_LineSpace = 8,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleDemoItems,
+	.Tiles_ScreenHeight = 64,
+	.Tiles_ScreenWidth = 128,
+	.Tiles_TileWidth = 32,
+	.Tiles_TileHeight = 32,
+};
+
+/* HOPE样式演示 */
+MenuPage MenuStyleHopePage = {
+	.General_MenuType = MENU_TYPE_TILES_HOPE,
+	.General_CursorStyle = NOT_SHOW,
+	.General_FontSize = OLED_UI_FONT_16,
+	.General_ParentMenuPage = &MenuStyleMenuPage,
+	.General_LineSpace = 8,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleDemoItems,
+	.Tiles_ScreenHeight = 64,
+	.Tiles_ScreenWidth = 128,
+	.Tiles_TileWidth = 32,
+	.Tiles_TileHeight = 32,
+};
+
+/* 弧形样式演示 */
+MenuPage MenuStyleArcPage = {
+	.General_MenuType = MENU_TYPE_TILES_ARC,
+	.General_CursorStyle = NOT_SHOW,
+	.General_FontSize = OLED_UI_FONT_16,
+	.General_ParentMenuPage = &MenuStyleMenuPage,
+	.General_LineSpace = 8,
+	.General_MoveStyle = UNLINEAR,
+	.General_MovingSpeed = SPEED,
+	.General_ShowAuxiliaryFunction = NULL,
+	.General_MenuItems = MenuStyleDemoItems,
+	.Tiles_ScreenHeight = 64,
+	.Tiles_ScreenWidth = 128,
+	.Tiles_TileWidth = 32,
+	.Tiles_TileHeight = 32,
 };
 
 MenuPage Font8MenuPage = {

@@ -18,6 +18,7 @@ extern int16_t  ws2812_r;        // 红色分量 0-255
 extern int16_t  ws2812_g;        // 绿色分量 0-255
 extern int16_t  ws2812_b;        // 蓝色分量 0-255
 extern int16_t  ws2812_led_num;  // 亮灯个数 1-4
+extern int16_t  ws2812_brightness; // 灯光亮度 0-100
 extern WS2812_Effect_Param effect_param;  // 效果参数
 
 void PWM_WS2812B_Init(void);

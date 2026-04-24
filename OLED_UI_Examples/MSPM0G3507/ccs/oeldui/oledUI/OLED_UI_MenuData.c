@@ -133,7 +133,7 @@ void UartMonitorStart(void){
  * @brief 创建保存数据窗口
  */
 void SavedataWindow(void){
-	uint8_t temp[12];
+	uint8_t temp[13];
 	temp[0] = (uint8_t)OLED_UI_Brightness;
 	temp[1] = Beeper0.Sound_Loud;
 	temp[2] = Beeper0.Beeper_Enable;
@@ -146,6 +146,7 @@ void SavedataWindow(void){
 	temp[9] = (uint8_t)ws2812_led_num;
 	temp[10] = (uint8_t)ws2812_light_mode;
 	temp[11] = (uint8_t)effect_param.speed;
+	temp[12] = (uint8_t)ws2812_brightness;
 	settings_save(temp);
 	OLED_UI_CreateWindow(&SetSavedataWindow);
 }
@@ -215,6 +216,21 @@ MenuWindow SetRGBSpeedWindow = {
 };
 
 void RGBSpeedWindow(void) { OLED_UI_CreateWindow(&SetRGBSpeedWindow); }
+
+/* RGB亮度窗口 */
+MenuWindow SetRGBBrightnessWindow = {
+	.General_Width = 80, .General_Height = 28,
+	.Text_String = "灯光亮度",
+	.Text_FontSize = OLED_UI_FONT_12,
+	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
+	.General_WindowType = WINDOW_ROUNDRECTANGLE,
+	.General_ContinueTime = 4.0,
+	.Prob_Data_Int_16 = &ws2812_brightness,
+	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 100,
+	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
+};
+
+void RGBBrightnessWindow(void) { OLED_UI_CreateWindow(&SetRGBBrightnessWindow); }
 
 /* 灯光模式窗口：0=关, 1=流水灯, 2=跑马灯 */
 MenuWindow SetLightModeWindow = {
@@ -857,6 +873,7 @@ MenuItem SmallAreaMenuItems[] = {
 MenuItem RGBEffectMenuItems[] = {
 	{.General_item_text = "灯光模式",.General_callback = LightModeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "渐变速度",.General_callback = RGBSpeedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "灯光亮度",.General_callback = RGBBrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "RGB开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ws2812_enable},
 	{.General_item_text = "红色 R",.General_callback = RGBRedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "绿色 G",.General_callback = RGBGreenWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},

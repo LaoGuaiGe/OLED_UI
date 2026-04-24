@@ -10,9 +10,9 @@
 
 // 系统参数存储配置
 #define SETTINGS_SECTOR_ADDR   0xFFF000   // 使用最后一个扇区，避免与字体等数据冲突
-#define SETTINGS_DATA_SIZE     12         // 参数数据字节数
-#define SETTINGS_RECORD_SIZE   13         // 每条记录大小（1字节标记 + 12字节数据）
-#define SETTINGS_MAGIC         0xAA       // 有效记录标记
+#define SETTINGS_DATA_SIZE     13         // 参数数据字节数
+#define SETTINGS_RECORD_SIZE   14         // 每条记录大小（1字节标记 + 13字节数据）
+#define SETTINGS_MAGIC         0xAB       // 有效记录标记（修改后旧记录自动失效）
 
 // 外部字库存储配置
 // Flash 地址分配:

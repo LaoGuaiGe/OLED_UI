@@ -43,6 +43,16 @@ static const uint8_t gamma_table[256] = {
     223, 225, 227, 229, 231, 234, 236, 238, 240, 242, 244, 246, 248, 251, 253, 255,
 };
 
+static uint32_t apply_brightness(uint32_t grb)
+{
+    uint16_t br = (uint16_t)ws2812_brightness;
+    if (br >= 100) return grb;
+    uint8_t g = (uint8_t)(((grb >> 16) & 0xFF) * br / 100);
+    uint8_t r = (uint8_t)(((grb >>  8) & 0xFF) * br / 100);
+    uint8_t b = (uint8_t)(( grb        & 0xFF) * br / 100);
+    return ((uint32_t)g << 16) | ((uint32_t)r << 8) | b;
+}
+
 static uint32_t wheel_color(uint16_t step)
 {
     uint8_t r, g, b;
@@ -86,7 +96,7 @@ static void do_flowing_effect(uint16_t speed)
     if (!need_update) return;
     need_update = false;
 
-    uint32_t grb = wheel_color(flowing_step);
+    uint32_t grb = apply_brightness(wheel_color(flowing_step));
     WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
     WS2812B_Write_24Bits(ws2812_led_num, grb);
     WS2812B_Show();
@@ -115,8 +125,13 @@ static void do_running_effect(uint16_t speed)
 
     running_buf[running_led] = color_lerp(from, to, (uint8_t)(running_step > 255 ? 255 : running_step));
 
+    uint32_t out_buf[WS2812B_NUM];
+    int i;
+    for (i = 0; i < ws2812_led_num && i < WS2812B_NUM; i++)
+        out_buf[i] = apply_brightness(running_buf[i]);
+
     WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
-    WS2812B_Write_24Bits_independence(ws2812_led_num, running_buf);
+    WS2812B_Write_24Bits_independence(ws2812_led_num, out_buf);
     WS2812B_Show();
 
     uint16_t step_size = 1 + (speed - 1) * 7 / 99;

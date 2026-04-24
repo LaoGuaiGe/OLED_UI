@@ -273,10 +273,14 @@ void settings_load(uint8_t* data)
     }
 
     if (last_slot >= 0) {
-        // 跳过标记字节，读取5字节数据
         W25Q128_read(data, SETTINGS_SECTOR_ADDR + (uint32_t)last_slot * SETTINGS_RECORD_SIZE + 1, SETTINGS_DATA_SIZE);
+    } else {
+        // 无有效记录但扇区非空（旧格式残留），擦除确保后续写入干净
+        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR, 1);
+        if (magic != 0xFF) {
+            W25Q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
+        }
     }
-    // 若无有效记录，data保持不变（调用方应已设置默认值）
 }
 
 void W25Q128_test(void)

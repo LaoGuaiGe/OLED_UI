@@ -12,6 +12,7 @@ int16_t  ws2812_r       = 0;
 int16_t  ws2812_g       = 0;
 int16_t  ws2812_b       = 0;
 int16_t  ws2812_led_num = 4;
+int16_t  ws2812_brightness = 100;
 
 /**
  * @brief TIM5_PWM_CH2&DMA1&PA1初始化
@@ -183,11 +184,12 @@ void ws2812_update(void)
 	static int16_t  prev_g       = -1;
 	static int16_t  prev_b       = -1;
 	static int16_t  prev_num     = -1;
+	static int16_t  prev_bright  = -1;
 
 	/* 参数没变就跳过 */
 	if (ws2812_enable == prev_enable &&
 	    ws2812_r == prev_r && ws2812_g == prev_g && ws2812_b == prev_b &&
-	    ws2812_led_num == prev_num) {
+	    ws2812_led_num == prev_num && ws2812_brightness == prev_bright) {
 		return;
 	}
 
@@ -196,6 +198,7 @@ void ws2812_update(void)
 	prev_g = ws2812_g;
 	prev_b = ws2812_b;
 	prev_num = ws2812_led_num;
+	prev_bright = ws2812_brightness;
 
 	if (!ws2812_enable || ws2812_led_num == 0) {
 		WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
@@ -206,6 +209,16 @@ void ws2812_update(void)
 	uint32_t grb = ((uint32_t)(ws2812_g & 0xFF) << 16)
 	             | ((uint32_t)(ws2812_r & 0xFF) << 8)
 	             | ((uint32_t)(ws2812_b & 0xFF));
+
+	/* 应用亮度 */
+	uint16_t br = (uint16_t)ws2812_brightness;
+	if (br > 100) br = 100;
+	if (br < 100) {
+		uint8_t g = (uint8_t)(((grb >> 16) & 0xFF) * br / 100);
+		uint8_t r = (uint8_t)(((grb >>  8) & 0xFF) * br / 100);
+		uint8_t b = (uint8_t)(( grb        & 0xFF) * br / 100);
+		grb = ((uint32_t)g << 16) | ((uint32_t)r << 8) | b;
+	}
 	uint16_t num = (uint16_t)ws2812_led_num;
 	if (num > WS2812B_NUM) num = WS2812B_NUM;
 

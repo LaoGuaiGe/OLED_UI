@@ -120,6 +120,7 @@ extern uint8_t OLED_DisplayBuf[OLED_HEIGHT/8][OLED_WIDTH];
 #define MENU_TYPE_TILES				(1)			//磁贴类型
 #define MENU_TYPE_TILES_DEPTH		(2)			//深度磁贴类型（带景深偏移效果）
 #define MENU_TYPE_TILES_HOPE		(3)			//HOPE风格磁贴类型（XOR选择框+底部揭示条）
+#define MENU_TYPE_TILES_ARC			(4)			//弧形透视磁贴类型（角括号选择框+弧形图标排列）
 
 
 /*********************关于动画类型的宏********************** */

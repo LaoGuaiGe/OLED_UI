@@ -846,13 +846,13 @@ MenuItem RGBEffectMenuItems[] = {
 
 MenuPage MainMenuPage = {
 	//通用属性，必填
-	.General_MenuType = MENU_TYPE_TILES_DEPTH,  		 //菜单类型为HOPE风格磁贴类型（XOR选择框+底部揭示条）	
+	.General_MenuType = MENU_TYPE_TILES_ARC,  		 //弧形透视磁贴类型
 	.General_CursorStyle = NOT_SHOW,			 //光标类型
-	.General_FontSize = OLED_UI_FONT_16,			//字高
+	.General_FontSize = OLED_UI_FONT_20,			//字高
 	.General_ParentMenuPage = NULL,				//由于这是根菜单，所以父菜单为NULL
-	.General_LineSpace = 8,						//磁贴间距 单位：像素（对于磁贴类型菜单，此值表示每个磁贴之间的间距，对于列表类型菜单，此值表示行间距）
-	.General_MoveStyle = PID_CURVE,				//移动方式 
-	.General_MovingSpeed = SPEED,					//动画移动速度(此值根据实际效果调整)
+	.General_LineSpace = 8,						//磁贴间距
+	.General_MoveStyle = UNLINEAR,				//移动方式
+	.General_MovingSpeed = SPEED,					//动画移动速度
 	.General_ShowAuxiliaryFunction = MainAuxFunc,		 //显示辅助函数
 	.General_MenuItems = MainMenuItems,			//菜单项内容数组
 

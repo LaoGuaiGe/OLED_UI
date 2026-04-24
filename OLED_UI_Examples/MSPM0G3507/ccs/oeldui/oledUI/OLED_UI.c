@@ -302,7 +302,7 @@ MenuID GetMenuItemNum(MenuItem * items){
 void ChangeFloatNum(float *CurrentNum, float *TargetNum, float *ErrorNum, float *LastErrorNum, float * IntegralNum, float *DerivativeNum)  {
 	//HOPE风格强制使用UNLINEAR，避免PID抖动
 	uint8_t moveStyle = CurrentMenuPage->General_MoveStyle;
-	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 		moveStyle = UNLINEAR;
 	}
 	if(moveStyle ==  UNLINEAR){
@@ -438,14 +438,14 @@ void CurrentMenuPageInit(void){
 		CurrentMenuPage->_Slot = 0;
 	}else
 	//如果当前的菜单类型为TILES
-	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE)
+	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC)
 	{
 		//设置全局页面目标起始点为屏幕中央向左偏移半个磁贴宽度，使得当前菜单项居中
 		OLED_UI_PageStartPoint.TargetPoint.X = CurrentMenuPage->Tiles_ScreenWidth/2-CurrentMenuPage->Tiles_TileWidth/2;
 		//设置全局页面目标起始点Y
 		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH){
 			OLED_UI_PageStartPoint.TargetPoint.Y = 6;
-		}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+		}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 			OLED_UI_PageStartPoint.TargetPoint.Y = 0;
 		}else{
 			OLED_UI_PageStartPoint.TargetPoint.Y = TILES_STARTPOINT_Y;
@@ -485,7 +485,7 @@ void CurrentMenuPageBackUp(void){
 		OLED_UI_LineStep.TargetDistance = CurrentMenuPage->General_LineSpace;
 	}else
 	//如果当前的菜单类型为TILES
-	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE)
+	if (CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC)
 	{
 		//设置全局页面当前起始点为菜单结构体的开始点+2
 		OLED_UI_PageStartPoint.CurrentPoint.X = CurrentMenuPage->_StartPoint.X + CurrentMenuPage->Tiles_TileWidth;
@@ -1144,7 +1144,7 @@ void SetTargetCursor(void){
 			OLED_UI_MenuFrame.CurrentArea.Width + OLED_UI_MenuFrame.CurrentArea.X - OLED_UI_PageStartPoint.CurrentPoint.X - 6 - LinePerfixWidth + LinePerfixWidth - RadioCompensationWidth) ;
 	}
 	//如果当前页面的类型为Tiles类
-	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+	if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 		//磁贴类不需要光标的显示，所以设置为0.
 		// SetCursorZero();
 		OLED_UI_Cursor.TargetArea.X = CurrentMenuPage->Tiles_ScreenWidth/2 - CalcStringWidth(GetOLED_Font(CurrentMenuPage->General_FontSize,CHINESE),GetOLED_Font(CurrentMenuPage->General_FontSize,ASCII),CurrentMenuPage->General_MenuItems[CurrentMenuPage->_ActiveMenuID].General_item_text)/2 - 1;
@@ -1186,7 +1186,7 @@ void SetLineSplitZero(void){
 void SetTargetScrollBarHeight(void){
 	if(CurrentMenuPage->General_MenuType == MENU_TYPE_LIST){
 		OLED_UI_ScrollBarHeight.TargetDistance = (float)CurrentMenuPage->List_MenuArea.Height*(CurrentMenuPage->_ActiveMenuID + 1)/GetMenuItemNum(CurrentMenuPage->General_MenuItems);
-	}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+	}else if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 		OLED_UI_ScrollBarHeight.TargetDistance = (float)(CurrentMenuPage->Tiles_ScreenWidth *(CurrentMenuPage->_ActiveMenuID + 1)/GetMenuItemNum(CurrentMenuPage->General_MenuItems));
 	}
 }
@@ -1650,6 +1650,140 @@ void PrintMenuElements(void){
 				page->General_MenuItems[page->_ActiveMenuID].General_item_text);
 
 	}
+
+	if(page->General_MenuType == MENU_TYPE_TILES_ARC){
+		/* 弧形透视磁贴：图标沿弧线排列 + 角括号选择框 + 底部文字动画 */
+
+		/* 静态动画变量 */
+		static MenuID arcLastID = -1;
+		static int8_t arcDirection = 0;
+		static float arcIndicator = 0;
+		static float arcUpX = 0, arcUpY = 0;
+		static float arcTextLineW = 0;
+		static float arcBarH = 0;  /* 底部矩形高度动画 */
+
+		/* 切换检测 */
+		if(page->_ActiveMenuID != arcLastID){
+			if(page->_ActiveMenuID > arcLastID)
+				{ arcDirection = 1; arcIndicator = 20; }
+			else
+				{ arcDirection = -1; arcIndicator = 30; }
+			arcLastID = page->_ActiveMenuID;
+			arcBarH = 0;  /* 切换时重置矩形高度，重新弹出 */
+		}
+
+		/* 低通滤波动画 */
+		arcUpX = 0.04f * arcIndicator + 0.96f * arcUpX;
+		arcUpY = 0.1f  * arcIndicator + 0.9f  * arcUpY;
+		if(arcUpY > 15) arcIndicator = 0;
+		if(fabs(arcIndicator - arcUpX) < 0.5f) arcUpX = arcIndicator;
+		if(fabs(arcIndicator - arcUpY) < 0.5f) arcUpY = arcIndicator;
+
+		/* 绘制图标（弧形透视） */
+		for(MenuID i = 0; i < num; i++){
+			if(CursorPoint.X + page->Tiles_TileWidth < 0 || CursorPoint.X > OLED_WIDTH){
+				CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
+				continue;
+			}
+			int16_t rawX = (int16_t)ceil(CursorPoint.X);
+			/* 透视变换：X压缩到一半并偏移到右侧，Y随X形成弧线 */
+			int16_t drawX = rawX / 2 + 60;
+			int16_t drawY = (int16_t)(CursorPoint.Y + rawX - 33);
+
+			OLED_ShowImageArea(drawX, drawY,
+				page->Tiles_TileWidth, page->Tiles_TileHeight,
+				0, 0, page->Tiles_ScreenWidth, page->Tiles_ScreenHeight,
+				page->General_MenuItems[i].Tiles_Icon == NULL ? UnKnown : page->General_MenuItems[i].Tiles_Icon);
+
+			CursorPoint.X += (page->Tiles_TileWidth + OLED_UI_LineStep.CurrentDistance);
+		}
+
+		/* 科幻HUD选择框（加粗） */
+		{
+			int16_t bx = (int16_t)(arcUpX * arcDirection) + 81;
+			int16_t by = (int16_t)(arcUpY * arcDirection) + 12;
+			int16_t bw = page->Tiles_TileWidth + 6;
+			int16_t bh = page->Tiles_TileHeight + 6;
+
+			/* 左上角：L形 + 延伸横线 + 端点 */
+			OLED_DrawLine(bx, by, bx + 10, by);
+			OLED_DrawLine(bx, by + 1, bx + 10, by + 1);
+			OLED_DrawLine(bx, by, bx, by + 6);
+			OLED_DrawLine(bx + 1, by, bx + 1, by + 6);
+			OLED_DrawRectangle(bx + 12, by, 2, 2, OLED_FILLED);
+
+			/* 右下角：L形 + 延伸横线 + 端点 */
+			OLED_DrawLine(bx + bw, by + bh - 1, bx + bw - 10, by + bh - 1);
+			OLED_DrawLine(bx + bw, by + bh - 2, bx + bw - 10, by + bh - 2);
+			OLED_DrawLine(bx + bw, by + bh - 1, bx + bw, by + bh - 7);
+			OLED_DrawLine(bx + bw - 1, by + bh - 1, bx + bw - 1, by + bh - 7);
+			OLED_DrawRectangle(bx + bw - 13, by + bh - 2, 2, 2, OLED_FILLED);
+
+			/* 左侧中间短竖线 */
+			OLED_DrawLine(bx, by + bh / 2 - 2, bx, by + bh / 2 + 2);
+			OLED_DrawLine(bx + 1, by + bh / 2 - 2, bx + 1, by + bh / 2 + 2);
+
+			/* 右侧中间短竖线 */
+			OLED_DrawLine(bx + bw, by + bh / 2 - 2, bx + bw, by + bh / 2 + 2);
+			OLED_DrawLine(bx + bw - 1, by + bh / 2 - 2, bx + bw - 1, by + bh / 2 + 2);
+		}
+
+		/* 底部文字 + 下划线动画 */
+		int16_t StringLength = CalcStringWidth(ChineseFont, ASCIIFont,
+			page->General_MenuItems[page->_ActiveMenuID].General_item_text);
+
+		if(StringLength > page->Tiles_ScreenWidth){
+#if IF_WAIT_ANIMATION_FINISH
+			if(OLED_UI_PageStartPoint.CurrentPoint.X == OLED_UI_PageStartPoint.TargetPoint.X &&
+				OLED_UI_PageStartPoint.CurrentPoint.Y == OLED_UI_PageStartPoint.TargetPoint.Y){
+#endif
+				page->General_MenuItems[page->_ActiveMenuID]._LineSlip -= LINE_SLIP_SPEED;
+#if IF_WAIT_ANIMATION_FINISH
+			}
+#endif
+		}else{
+			SetLineSplitZero();
+		}
+		if(page->General_MenuItems[page->_ActiveMenuID]._LineSlip < -StringLength){
+			page->General_MenuItems[page->_ActiveMenuID]._LineSlip = page->Tiles_ScreenWidth + 1;
+		}
+
+		/* 文字X位置（带弹跳偏移） */
+		int16_t textBaseX = StringLength > page->Tiles_ScreenWidth ?
+			(int16_t)page->General_MenuItems[page->_ActiveMenuID]._LineSlip :
+			page->Tiles_ScreenWidth / 2 - StringLength / 2 +
+			(int16_t)page->General_MenuItems[page->_ActiveMenuID]._LineSlip;
+
+		int16_t textX = (int16_t)(arcUpY) - 6 + textBaseX - 20;
+		int16_t textY = 34 + (int16_t)(arcUpY * 1.5f);
+
+		/* 底部矩形从下往上弹出，占据文字下方到屏幕底部 */
+		float arcBarH_trg = (float)(64 - textY - page->General_FontSize);
+		arcBarH += (arcBarH_trg - arcBarH) * 0.12f;
+		if(fabs(arcBarH - arcBarH_trg) < 0.5f) arcBarH = arcBarH_trg;
+
+		/* 矩形宽度跟随文字长度平滑展开 */
+		arcTextLineW = 0.1f * (float)StringLength + 0.9f * arcTextLineW;
+		int16_t barW = (int16_t)arcTextLineW + 10;
+		int16_t barH = (int16_t)arcBarH;
+		int16_t barX = textX - 5;
+		int16_t barY = 64 - barH;
+
+		if(barW > 0 && barH > 0){
+			OLED_ReverseArea(barX, barY, barW, barH);
+			/* 上方两个圆角：反转回角落像素 */
+			OLED_ReverseArea(barX, barY, 3, 1);           /* 左上 第1行 */
+			OLED_ReverseArea(barX, barY + 1, 1, 1);       /* 左上 第2行 */
+			OLED_ReverseArea(barX + barW - 3, barY, 3, 1);/* 右上 第1行 */
+			OLED_ReverseArea(barX + barW - 1, barY + 1, 1, 1);/* 右上 第2行 */
+		}
+
+		/* 文字 */
+		OLED_PrintfMixArea(0, 0, page->Tiles_ScreenWidth, page->Tiles_ScreenHeight,
+			textX, textY, ChineseFont, ASCIIFont,
+			page->General_MenuItems[page->_ActiveMenuID].General_item_text);
+	}
+
 	if(page->General_ShowAuxiliaryFunction != NULL){
 		//绘制辅助功能
 		page->General_ShowAuxiliaryFunction();
@@ -1985,7 +2119,7 @@ void RunFadeOut(void){
 			SetCursorZero();
 
 		}else //如果当前菜单类型是磁贴类
-		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+		if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 			//清除全部区域
 			OLED_UI_FadeoutAllArea();
 			//当前菜单项的页面类型是磁贴类的情况下，按下了确认操作
@@ -2245,7 +2379,7 @@ void OLED_UI_InterruptHandler(void){
 					}
 				}
 				//如果当前菜单类型是磁贴类
-				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 					if(CurrentMenuPage->_ActiveMenuID == 0){
 						MenuID lastID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
 						CurrentMenuPage->_ActiveMenuID = lastID;
@@ -2285,7 +2419,7 @@ void OLED_UI_InterruptHandler(void){
 					}
 				}
 				//如果当前菜单类型是磁贴类
-				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE){
+				if(CurrentMenuPage->General_MenuType == MENU_TYPE_TILES || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_DEPTH || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_HOPE || CurrentMenuPage->General_MenuType == MENU_TYPE_TILES_ARC){
 					MenuID maxID = GetMenuItemNum(CurrentMenuPage->General_MenuItems) - 1;
 					if(CurrentMenuPage->_ActiveMenuID >= maxID){
 						CurrentMenuPage->_ActiveMenuID = 0;

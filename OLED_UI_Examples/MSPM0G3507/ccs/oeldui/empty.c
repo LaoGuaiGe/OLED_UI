@@ -87,6 +87,11 @@ int main(void)
 	ws2812_light_mode        = (int16_t)temp[10];
 	effect_param.speed       = (uint16_t)temp[11];
 
+	/* 钳位：防止旧Flash数据越界 */
+	if (ws2812_led_num > WS2812B_NUM) ws2812_led_num = WS2812B_NUM;
+	if (ws2812_light_mode > 2) ws2812_light_mode = 0;
+	if (effect_param.speed > 100 || effect_param.speed < 1) effect_param.speed = 50;
+
 	// UI初始化
 	OLED_UI_Init(&MainMenuPage);
 

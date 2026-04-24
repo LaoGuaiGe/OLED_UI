@@ -52,6 +52,7 @@ void PWM_WS2812B_Init(void)
 void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data)
 {
 	uint8_t i, j;
+	if (num > WS2812B_NUM) num = WS2812B_NUM;
 	for (j = 0; j < num; j++)
 	{
 		for (i = 0; i < DATA_SIZE; i++)
@@ -64,6 +65,7 @@ void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data)
 void WS2812B_Write_24Bits_independence(uint16_t num, uint32_t *GRB_Data)
 {
 	uint8_t i, j;
+	if (num > WS2812B_NUM) num = WS2812B_NUM;
 	for (j = 0; j < num; j++)
 	{
 		for (i = 0; i < DATA_SIZE; i++)
@@ -75,41 +77,31 @@ void WS2812B_Write_24Bits_independence(uint16_t num, uint32_t *GRB_Data)
 
 static void WS2812B_Send(void)
 {
-	/* 确保DMA通道处于干净状态 */
 	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
 
 	DL_DMA_setSrcAddr(DMA, DMA_CH0_CHAN_ID, (uint32_t)Single_WS2812B_Buffer);
 	DL_DMA_setTransferSize(DMA, DMA_CH0_CHAN_ID, DATA_SIZE * WS2812B_NUM + 50);
 
-	/* 断开再重连事件通道，清除积压的定时器零事件 */
 	DL_Timer_disableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 	DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 
 	gChannel0InterruptTaken = false;
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
 
-	/* 带超时的等待，防止死锁 */
-	volatile uint32_t timeout = 100000;
-	while (gChannel0InterruptTaken == false && --timeout > 0) {
-		__WFE();
+	volatile uint32_t timeout = 200000;
+	while (gChannel0InterruptTaken == false) {
+		if (--timeout == 0) break;
 	}
 
-	/* 无论是否超时，都确保DMA被禁用并恢复CC */
 	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
 	WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX] = 1;
 }
 
 void WS2812B_Show(void)
 {
-	/* 禁用5ms定时器中断，防止中断处理延迟DMA事件 */
 	NVIC_DisableIRQ(TIMER_TICK_INST_INT_IRQN);
-
-	/* 等待>50us确保WS2812复位 */
 	delay_us(80);
-	/* 发送数据 */
 	WS2812B_Send();
-
-	/* 恢复定时器中断 */
 	NVIC_EnableIRQ(TIMER_TICK_INST_INT_IRQN);
 }
 

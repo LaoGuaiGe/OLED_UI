@@ -169,13 +169,11 @@ void ws2812_set_effect_speed(uint16_t speed)
 void ws2812_effect_update(void)
 {
     static bool prev_off = false;
-    static uint8_t log_cnt = 0;
 
     bool off = (!ws2812_enable || ws2812_led_num == 0);
 
     if (off) {
         if (!prev_off) {
-            debug_uart_send_string("E-OFF\r\n");
             need_update = false;
             WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
             WS2812B_Show();
@@ -185,19 +183,8 @@ void ws2812_effect_update(void)
     }
 
     if (prev_off) {
-        debug_uart_send_string("E-ON\r\n");
         prev_off = false;
         need_update = false;
-    }
-
-    /* 每50次打印一次状态 */
-    if (++log_cnt >= 50) {
-        log_cnt = 0;
-        char buf[48];
-        sprintf(buf, "E m=%d en=%d n=%d nu=%d\r\n",
-            (int)ws2812_light_mode, (int)ws2812_enable,
-            (int)ws2812_led_num, (int)need_update);
-        debug_uart_send_string(buf);
     }
 
     switch (ws2812_light_mode) {

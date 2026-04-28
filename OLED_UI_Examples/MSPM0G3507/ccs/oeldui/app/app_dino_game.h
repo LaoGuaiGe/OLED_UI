@@ -6,8 +6,8 @@
  * 为游戏实现提供必要的声明
  */
 
-#ifndef _APP_DINO_GAME_H_
-#define _APP_DINO_GAME_H_
+#ifndef __APP_DINO_GAME_H__
+#define __APP_DINO_GAME_H__
 
 // 包含必要的标准库头文件
 #include <stdbool.h>  // 提供bool类型定义

@@ -1,3 +1,7 @@
+/**
+ * mid_debug_led.c
+ * Debug LED driver — toggles an LED at fixed intervals for runtime status indication.
+ */
 #include "mid_debug_led.h"
 
 static DEBUG_LED_STRUCT debug_led;

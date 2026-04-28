@@ -52,9 +52,9 @@ struct _Button {
 	uint8_t  state : 3;                 // state machine state (0-7)
 	uint8_t  debounce_cnt : 3;          // debounce counter (0-7)
 	uint8_t  active_level : 1;          // active GPIO level (0 or 1)
-	uint8_t  button_level : 1;          // current button level
-	uint8_t  button_id;                 // button identifier
-	uint8_t  (*hal_button_level)(uint8_t button_id);  // HAL function to read GPIO
+	uint8_t  mid_button_level : 1;          // current button level
+	uint8_t  mid_button_id;                 // button identifier
+	uint8_t  (*hal_mid_button_level)(uint8_t mid_button_id);  // HAL function to read GPIO
 	BtnCallback cb[BTN_EVENT_COUNT];    // callback function array
 	Button* next;                       // next button in linked list
 };
@@ -64,18 +64,18 @@ extern "C" {
 #endif
 
 // Public API functions
-void button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_level, uint8_t button_id);
-void button_attach(Button* handle, ButtonEvent event, BtnCallback cb);
-void button_detach(Button* handle, ButtonEvent event);
-ButtonEvent button_get_event(Button* handle);
-int  button_start(Button* handle);
-void button_stop(Button* handle);
-void button_ticks(void);
+void mid_button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_level, uint8_t mid_button_id);
+void mid_button_attach(Button* handle, ButtonEvent event, BtnCallback cb);
+void mid_button_detach(Button* handle, ButtonEvent event);
+ButtonEvent mid_button_get_event(Button* handle);
+int  mid_button_start(Button* handle);
+void mid_button_stop(Button* handle);
+void mid_button_ticks(void);
 
 // Utility functions
-uint8_t button_get_repeat_count(Button* handle);
-void button_reset(Button* handle);
-int button_is_pressed(Button* handle);
+uint8_t mid_button_get_repeat_count(Button* handle);
+void mid_button_reset(Button* handle);
+int mid_button_is_pressed(Button* handle);
 
 #ifdef __cplusplus
 }

@@ -1,3 +1,7 @@
+/**
+ * hw_ws2812_effects.h
+ * WS2812 LED effects interface — effect mode enum, param struct, effect control functions.
+ */
 #ifndef __HW_WS2812_EFFECTS_H__
 #define __HW_WS2812_EFFECTS_H__
 

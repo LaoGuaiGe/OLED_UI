@@ -1,5 +1,9 @@
-#ifndef __HW_BUZZER_H__
-#define __HW_BUZZER_H__
+/**
+ * mid_music.h
+ * Buzzer music interface — note definitions, song structures, beeper type, and playback API.
+ */
+#ifndef __MID_MUSIC_H__
+#define __MID_MUSIC_H__
 
 #ifdef __cplusplus
 extern "C"
@@ -9,7 +13,7 @@ extern "C"
 #include <math.h>
 
 	/*音调频率表对应的每一个音符名称*/
-	typedef enum Musical_Note
+	typedef enum musical_note
 	{
 		// 休止符
 		REST_NOTE,
@@ -80,43 +84,43 @@ extern "C"
 	/*音符的结构体*/
 	typedef struct
 	{
-		note_t Note;	// musical_note
-		uint16_t Delay; // ms
-	} TONE;
+		note_t note;	// musical_note
+		uint16_t delay; // ms
+	} tone_t;
 
 	/*蜂鸣器的结构体*/
 	typedef struct
 	{
-		uint8_t Beeper_Enable;		  // 开启标志位
-		uint8_t Beeper_Continue_Flag; // 执行标志位
-		uint16_t Beeper_Count;		  // 音符长度
-		uint16_t Sound_Size;		  // 乐曲长度
-		uint16_t Beep_Play_Schedule;  // 当前所在的乐曲位置
-		uint8_t Sound_Loud;			  // 蜂鸣器响度
-	} BEEPER_Tag;
+		uint8_t enable;			// 开启标志位
+		uint8_t continue_flag;	// 执行标志位
+		uint16_t count;			// 音符长度
+		uint16_t sound_size;	// 乐曲长度
+		uint16_t play_schedule;	// 当前所在的乐曲位置
+		uint8_t sound_loud;		// 蜂鸣器响度
+	} mid_beeper_t;
 
-	extern TONE *MySound;
-	extern const TONE BEEPER_KEYPRESS[];
-	extern const TONE BEEPER_TRITONE[];
-	extern const TONE BEEPER_WARNING[];
-	extern const TONE BEEP1[];
-	extern const TONE BEEP2[];
-	extern BEEPER_Tag Beeper0;
+	extern tone_t *current_sound;
+	extern const tone_t song_keypress[];
+	extern const tone_t song_tritone[];
+	extern const tone_t song_warning[];
+	extern const tone_t song_boot[];
+	extern const tone_t song_startup[];
+	extern mid_beeper_t mid_beeper0;
 
 	/*音调频率表*/
-	extern const uint16_t MusicNoteFrequency[];
+	extern const uint16_t music_note_frequency[];
 
 	/*底层函数*/
-	void TIM9_PWM_Init(uint16_t arr);
-	void Beeper_Init(void);
-	uint16_t Set_Musical_Note(uint16_t frq);
-	void Beeper_Set_Musical_Tone(uint16_t frq);
+	void mid_beeper_tim_pwm_init(uint16_t arr);
+	void mid_beeper_init(void);
+	uint16_t set_musical_note(uint16_t frq);
+	void mid_beeper_set_musical_tone(uint16_t frq);
 
 	/*应用层函数*/
-	void Beeper_Perform(const TONE *Sound);
+	void mid_beeper_perform(const tone_t *sound);
 
 	/* 定时器中断处理函数 */
-	void Beeper_Proc(void);
+	void mid_beeper_proc(void);
 
 #ifdef __cplusplus
 }

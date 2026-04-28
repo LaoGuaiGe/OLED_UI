@@ -1,3 +1,8 @@
+/**
+ * oled_ext_font.h
+ * External Flash font interface — Chinese character and mixed CN/EN string display
+ * using font bitmaps stored in external SPI Flash.
+ */
 #ifndef _OLED_EXT_FONT_H_
 #define _OLED_EXT_FONT_H_
 

@@ -1,3 +1,8 @@
+/**
+ * OLED_UI_MenuData.h
+ * Menu data declarations — extern declarations for all MenuPage, MenuItem, and window
+ * callback functions defined in OLED_UI_MenuData.c.
+ */
 #ifndef __OLED_UI_MENUDATA_H
 #define __OLED_UI_MENUDATA_H
 // 检测是否是C++编译器

@@ -1,11 +1,14 @@
+/**
+ * OLED_UI_Driver.c
+ * Platform hardware abstraction layer — timer, key, encoder stubs, and delay functions.
+ * Porting guide: implement these functions according to your target MCU. The OLED display
+ * must work correctly (ShowString, etc.) before porting the input drivers.
+ */
+
 #include "OLED_UI_Driver.h"
-#include "hw_delay.h"
-/*
-【文件说明】：[硬件抽象层]
-此文件包含按键与编码器的驱动程序，如果需要移植此项目，请根据实际情况修改相关代码。
-当你确保oled屏幕能够正常点亮，并且能够正确地运行基础功能时（如显示字符串等），就可以开始移植
-有关按键与编码器等的驱动程序了。
-*/
+
+/* delay_us macro (replaces hw_delay.h; uses delay_cycles from ti_msp_dl_config.h) */
+#define delay_us(X) delay_cycles((80*(X)))
 
 
 /**

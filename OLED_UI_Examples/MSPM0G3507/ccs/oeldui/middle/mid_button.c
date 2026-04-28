@@ -12,27 +12,27 @@
 static Button* head_handle = NULL;
 
 // Forward declarations
-static void button_handler(Button* handle);
-static inline uint8_t button_read_level(Button* handle);
+static void mid_button_handler(Button* handle);
+static inline uint8_t mid_button_read_level(Button* handle);
 
 /**
   * @brief  Initialize the button struct handle
   * @param  handle: the button handle struct
   * @param  pin_level: read the HAL GPIO of the connected button level
   * @param  active_level: pressed GPIO level
-  * @param  button_id: the button id
+  * @param  mid_button_id: the button id
   * @retval None
   */
-void button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_level, uint8_t button_id)
+void mid_button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_level, uint8_t mid_button_id)
 {
 	if (!handle || !pin_level) return;  // parameter validation
 	
 	memset(handle, 0, sizeof(Button));
 	handle->event = (uint8_t)BTN_NONE_PRESS;
-	handle->hal_button_level = pin_level;
-	handle->button_level = !active_level;  // initialize to opposite of active level
+	handle->hal_mid_button_level = pin_level;
+	handle->mid_button_level = !active_level;  // initialize to opposite of active level
 	handle->active_level = active_level;
-	handle->button_id = button_id;
+	handle->mid_button_id = mid_button_id;
 	handle->state = BTN_STATE_IDLE;
 }
 
@@ -43,7 +43,7 @@ void button_init(Button* handle, uint8_t(*pin_level)(uint8_t), uint8_t active_le
   * @param  cb: callback function
   * @retval None
   */
-void button_attach(Button* handle, ButtonEvent event, BtnCallback cb)
+void mid_button_attach(Button* handle, ButtonEvent event, BtnCallback cb)
 {
 	if (!handle || event >= BTN_EVENT_COUNT) return;  // parameter validation
 	handle->cb[event] = cb;
@@ -55,7 +55,7 @@ void button_attach(Button* handle, ButtonEvent event, BtnCallback cb)
   * @param  event: trigger event type
   * @retval None
   */
-void button_detach(Button* handle, ButtonEvent event)
+void mid_button_detach(Button* handle, ButtonEvent event)
 {
 	if (!handle || event >= BTN_EVENT_COUNT) return;  // parameter validation
 	handle->cb[event] = NULL;
@@ -66,7 +66,7 @@ void button_detach(Button* handle, ButtonEvent event)
   * @param  handle: the button handle struct
   * @retval button event
   */
-ButtonEvent button_get_event(Button* handle)
+ButtonEvent mid_button_get_event(Button* handle)
 {
 	if (!handle) return BTN_NONE_PRESS;
 	return (ButtonEvent)(handle->event);
@@ -77,7 +77,7 @@ ButtonEvent button_get_event(Button* handle)
   * @param  handle: the button handle struct
   * @retval repeat count
   */
-uint8_t button_get_repeat_count(Button* handle)
+uint8_t mid_button_get_repeat_count(Button* handle)
 {
 	if (!handle) return 0;
 	return handle->repeat;
@@ -88,7 +88,7 @@ uint8_t button_get_repeat_count(Button* handle)
   * @param  handle: the button handle struct
   * @retval None
   */
-void button_reset(Button* handle)
+void mid_button_reset(Button* handle)
 {
 	if (!handle) return;
 	handle->state = BTN_STATE_IDLE;
@@ -103,10 +103,10 @@ void button_reset(Button* handle)
   * @param  handle: the button handle struct
   * @retval 1: pressed, 0: not pressed, -1: error
   */
-int button_is_pressed(Button* handle)
+int mid_button_is_pressed(Button* handle)
 {
 	if (!handle) return -1;
-	return (handle->button_level == handle->active_level) ? 1 : 0;
+	return (handle->mid_button_level == handle->active_level) ? 1 : 0;
 }
 
 /**
@@ -114,9 +114,9 @@ int button_is_pressed(Button* handle)
   * @param  handle: the button handle struct
   * @retval button level
   */
-static inline uint8_t button_read_level(Button* handle)
+static inline uint8_t mid_button_read_level(Button* handle)
 {
-	return handle->hal_button_level(handle->button_id);
+	return handle->hal_mid_button_level(handle->mid_button_id);
 }
 
 /**
@@ -124,9 +124,9 @@ static inline uint8_t button_read_level(Button* handle)
   * @param  handle: the button handle struct
   * @retval None
   */
-static void button_handler(Button* handle)
+static void mid_button_handler(Button* handle)
 {
-	uint8_t read_gpio_level = button_read_level(handle);
+	uint8_t read_gpio_level = mid_button_read_level(handle);
 
 	// Increment ticks counter when not in idle state
 	if (handle->state > BTN_STATE_IDLE) {
@@ -134,10 +134,10 @@ static void button_handler(Button* handle)
 	}
 
 	/*------------Button debounce handling---------------*/
-	if (read_gpio_level != handle->button_level) {
+	if (read_gpio_level != handle->mid_button_level) {
 		// Continue reading same new level for debounce
 		if (++(handle->debounce_cnt) >= DEBOUNCE_TICKS) {
-			handle->button_level = read_gpio_level;
+			handle->mid_button_level = read_gpio_level;
 			handle->debounce_cnt = 0;
 		}
 	} else {
@@ -148,7 +148,7 @@ static void button_handler(Button* handle)
 	/*-----------------State machine-------------------*/
 	switch (handle->state) {
 	case BTN_STATE_IDLE:
-		if (handle->button_level == handle->active_level) {
+		if (handle->mid_button_level == handle->active_level) {
 			// Button press detected
 			handle->event = (uint8_t)BTN_PRESS_DOWN;
 			EVENT_CB(BTN_PRESS_DOWN);
@@ -161,7 +161,7 @@ static void button_handler(Button* handle)
 		break;
 
 	case BTN_STATE_PRESS:
-		if (handle->button_level != handle->active_level) {
+		if (handle->mid_button_level != handle->active_level) {
 			// Button released
 			handle->event = (uint8_t)BTN_PRESS_UP;
 			EVENT_CB(BTN_PRESS_UP);
@@ -176,7 +176,7 @@ static void button_handler(Button* handle)
 		break;
 
 	case BTN_STATE_RELEASE:
-		if (handle->button_level == handle->active_level) {
+		if (handle->mid_button_level == handle->active_level) {
 			// Button pressed again
 			handle->event = (uint8_t)BTN_PRESS_DOWN;
 			EVENT_CB(BTN_PRESS_DOWN);
@@ -200,7 +200,7 @@ static void button_handler(Button* handle)
 		break;
 
 	case BTN_STATE_REPEAT:
-		if (handle->button_level != handle->active_level) {
+		if (handle->mid_button_level != handle->active_level) {
 			// Button released
 			handle->event = (uint8_t)BTN_PRESS_UP;
 			EVENT_CB(BTN_PRESS_UP);
@@ -217,7 +217,7 @@ static void button_handler(Button* handle)
 		break;
 
 	case BTN_STATE_LONG_HOLD:
-		if (handle->button_level == handle->active_level) {
+		if (handle->mid_button_level == handle->active_level) {
 			// Continue holding
 			handle->event = (uint8_t)BTN_LONG_PRESS_HOLD;
 			EVENT_CB(BTN_LONG_PRESS_HOLD);
@@ -241,7 +241,7 @@ static void button_handler(Button* handle)
   * @param  handle: target handle struct
   * @retval 0: succeed, -1: already exist, -2: invalid parameter
   */
-int button_start(Button* handle)
+int mid_button_start(Button* handle)
 {
 	if (!handle) return -2;  // invalid parameter
 	
@@ -261,7 +261,7 @@ int button_start(Button* handle)
   * @param  handle: target handle struct
   * @retval None
   */
-void button_stop(Button* handle)
+void mid_button_stop(Button* handle)
 {
 	if (!handle) return;  // parameter validation
 	
@@ -283,10 +283,10 @@ void button_stop(Button* handle)
   * @param  None
   * @retval None
   */
-void button_ticks(void)
+void mid_button_ticks(void)
 {
 	Button* target;
 	for (target = head_handle; target; target = target->next) {
-		button_handler(target);
+		mid_button_handler(target);
 	}
 }

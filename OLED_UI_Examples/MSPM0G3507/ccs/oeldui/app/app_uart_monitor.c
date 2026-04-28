@@ -54,9 +54,9 @@ static int  last_processed_len = 0;
 static bool     rx_blink = false;
 static uint32_t rx_blink_timer = 0;
 
-void uart_monitor_request_exit(void)  { exit_requested = true; }
-void uart_monitor_request_clear(void) { clear_requested = true; }
-bool uart_monitor_should_exit(void)   { return exit_requested; }
+void app_uart_monitor_request_exit(void)  { exit_requested = true; }
+void app_uart_monitor_request_clear(void) { clear_requested = true; }
+bool app_uart_monitor_should_exit(void)   { return exit_requested; }
 
 static void clear_lines(void)
 {
@@ -94,7 +94,7 @@ static void parse_new_data(void)
     int new_len = total_len - last_processed_len;
     total_bytes += new_len;
     rx_blink = true;
-    rx_blink_timer = get_sys_tick_ms();
+    rx_blink_timer = mid_get_sys_tick_ms();
 
     const char *line_start = p;
     for(int i = 0; i < new_len; i++){
@@ -138,7 +138,7 @@ static void render_frame(void)
     // RX闪烁指示（小实心圆点）
     if(rx_blink){
         OLED_DrawCircle(80, 5, 3, OLED_FILLED);
-        if(get_sys_tick_ms() - rx_blink_timer > 150) rx_blink = false;
+        if(mid_get_sys_tick_ms() - rx_blink_timer > 150) rx_blink = false;
     } else {
         OLED_DrawCircle(80, 5, 3, OLED_UNFILLED);
     }
@@ -206,14 +206,14 @@ static void render_frame(void)
     OLED_Update();
 }
 
-void uart_monitor_init(void)
+void app_uart_monitor_init(void)
 {
     exit_requested = false;
     clear_requested = false;
     clear_lines();
 }
 
-void uart_monitor_tick(void)
+void app_uart_monitor_tick(void)
 {
     parse_new_data();
 
@@ -238,21 +238,21 @@ void uart_monitor_tick(void)
     render_frame();
 }
 
-void uart_monitor_fade_tick(int8_t level)
+void app_uart_monitor_fade_tick(int8_t level)
 {
     render_frame();
     OLED_UI_FadeOut_Masking(0, 0, 128, 64, level);
     OLED_Update();
 }
 
-void uart_monitor_on_exit(void)
+void app_uart_monitor_on_exit(void)
 {
     OLED_Clear();
     OLED_Update();
 }
 
 
-void uart_monitor_loop(void)
+void app_uart_monitor_loop(void)
 {
     exit_requested = false;
     clear_requested = false;
@@ -289,7 +289,7 @@ void uart_monitor_loop(void)
             if(scroll_offset == 0) auto_scroll = true;
         }
 
-        // 清空（由 key1 长按触发，在 app_key_task 中调用 uart_monitor_request_clear）
+        // 清空（由 key1 长按触发，在 app_key_task 中调用 app_uart_monitor_request_clear）
         if(clear_requested){
             clear_requested = false;
             clear_lines();
@@ -297,7 +297,7 @@ void uart_monitor_loop(void)
 
         render_frame();
 
-        if(uart_monitor_should_exit()) break;
+        if(app_uart_monitor_should_exit()) break;
 
         delay_ms(30);
     }

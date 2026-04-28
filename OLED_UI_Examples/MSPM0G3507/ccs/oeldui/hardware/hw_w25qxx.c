@@ -1,3 +1,8 @@
+/**
+ * hw_w25qxx.c
+ * W25Q128 SPI Flash hardware driver — read/write/erase, page write, ID query,
+ * and wear-leveling system settings persistence.
+ */
 #include "hw_w25qxx.h"
 #include "hw_delay.h"
 uint8_t spi_read_write_byte(uint8_t dat)
@@ -24,7 +29,7 @@ uint8_t spi_read_write_byte(uint8_t dat)
 //0XEF16,表示芯片型号为W25Q64
 //0XEF17,表示芯片型号为W25Q128
 //读取设备ID
-uint16_t W25Q128_readID(void)
+uint16_t w25q128_read_id(void)
 {
     volatile uint16_t temp = 0;
     //将CS端拉低为低电平
@@ -48,7 +53,7 @@ uint16_t W25Q128_readID(void)
 }
 
 //发送写使能
-void W25Q128_write_enable(void)
+void w25q128_write_enable(void)
 {
     //拉低CS端为低电平
     SPI_CS(0);
@@ -59,7 +64,7 @@ void W25Q128_write_enable(void)
 }
 
 //等待忙检测
-void W25Q128_wait_busy(void)
+void w25q128_wait_busy(void)
 {
 	volatile unsigned char byte = 0;
 	do
@@ -76,21 +81,15 @@ void W25Q128_wait_busy(void)
 	 }while( ( byte & 0x01 ) == 1 );
 }
 
-/**********************************************************
- * 函 数 名 称：W25Q128_erase_sector
- * 函 数 功 能：擦除一个扇区 4K内容
- * 传 入 参 数：addr=擦除的扇区号
- * 函 数 返 回：无
- * 作       者：LC
- * 备       注：addr=擦除的扇区号，范围=0~15
-**********************************************************/
-void W25Q128_erase_sector(uint32_t addr)
+// 擦除一个扇区 4K 内容
+// addr: 擦除的扇区号，范围 0~15
+void w25q128_erase_sector(uint32_t addr)
 {
     volatile uint32_t addr_temp = 0;
 	//计算扇区号，一个扇区4KB=4096
 	addr_temp = addr * 4096;
-	W25Q128_write_enable();  //写使能
-	W25Q128_wait_busy();     //判断忙，如果忙则一直等待
+	w25q128_write_enable();  //写使能
+	w25q128_wait_busy();     //判断忙，如果忙则一直等待
 	//拉低CS端为低电平
 	SPI_CS(0);
 	//发送指令20h
@@ -104,39 +103,33 @@ void W25Q128_erase_sector(uint32_t addr)
 	//恢复CS端为高电平
 	SPI_CS(1);
 	//等待擦除完成
-	W25Q128_wait_busy();
+	w25q128_wait_busy();
 }
 
 //擦除整片芯片FLASH
-char W25Q128_erase_sector_all(void)
+char w25q128_erase_sector_all(void)
 {
-	W25Q128_write_enable();//写使能
+	w25q128_write_enable();//写使能
 	SPI_CS(0);
 	spi_read_write_byte(0xC7);
 	SPI_CS(1);
 	
-    W25Q128_wait_busy();//如果擦除未完成，在忙
+    w25q128_wait_busy();//如果擦除未完成，在忙
 	
     //擦除成功	
 	return 0;	
 }
-/**********************************************************
- * 函 数 名 称：W25Q128_write
- * 函 数 功 能：写数据到W25Q128进行保存
- * 传 入 参 数：buffer=写入的数据内容        addr=写入地址        numbyte=写入数据的长度
- * 函 数 返 回：无
- * 作       者：LC
- * 备       注：无
-**********************************************************/
-void W25Q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
+// 写数据到 W25Q128
+// buffer: 写入的数据  addr: 写入地址  numbyte: 写入数据长度
+void w25q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
 {
     unsigned int i = 0;
     //擦除扇区数据
-    W25Q128_erase_sector(addr/4096);
+    w25q128_erase_sector(addr/4096);
     //写使能
-    W25Q128_write_enable();
+    w25q128_write_enable();
     //忙检测
-    W25Q128_wait_busy();
+    w25q128_wait_busy();
     //写入数据
     //拉低CS端为低电平
     SPI_CS(0);
@@ -156,18 +149,12 @@ void W25Q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
     //恢复CS端为高电平
     SPI_CS(1);
     //忙检测
-    W25Q128_wait_busy();
+    w25q128_wait_busy();
 }
 
-/**********************************************************
- * 函 数 名 称：W25Q128_read
- * 函 数 功 能：读取W25Q128的数据
- * 传 入 参 数：buffer=读出数据的保存地址  read_addr=读取地址   read_length=读去长度
- * 函 数 返 回：无
- * 作       者：LC
- * 备       注：无
-**********************************************************/
-void W25Q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length)
+// 读取 W25Q128 的数据
+// buffer: 读出数据的保存地址  read_addr: 读取地址  read_length: 读取长度
+void w25q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length)
 {
 	uint16_t i;
 	//拉低CS端为低电平
@@ -192,11 +179,11 @@ void W25Q128_read(uint8_t* buffer,uint32_t read_addr,uint16_t read_length)
 /**
  * @brief 写数据到W25Q128，不擦除扇区（要求目标区域已是0xFF）
  */
-static void W25Q128_write_raw(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
+static void w25q128_write_raw(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
 {
     unsigned int i = 0;
-    W25Q128_write_enable();
-    W25Q128_wait_busy();
+    w25q128_write_enable();
+    w25q128_wait_busy();
     SPI_CS(0);
     spi_read_write_byte(0x02);
     spi_read_write_byte((uint8_t)(addr >> 16));
@@ -206,15 +193,15 @@ static void W25Q128_write_raw(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
         spi_read_write_byte(buffer[i]);
     }
     SPI_CS(1);
-    W25Q128_wait_busy();
+    w25q128_wait_busy();
 }
 
 /**
  * @brief 页写入（不擦除），最大 256 字节，供外部调用
  */
-void W25Q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
+void w25q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte)
 {
-    W25Q128_write_raw(buffer, addr, numbyte);
+    w25q128_write_raw(buffer, addr, numbyte);
 }
 
 /**
@@ -231,13 +218,13 @@ void settings_save(uint8_t* data)
 
     // 找下一个空槽（0xFF表示未写入）
     for (slot = 0; slot < max_slots; slot++) {
-        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
+        w25q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
         if (magic == 0xFF) break;
     }
 
     // 扇区已满，擦除后从头写
     if (slot >= max_slots) {
-        W25Q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
+        w25q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
         slot = 0;
     }
 
@@ -248,7 +235,7 @@ void settings_save(uint8_t* data)
     for (i = 0; i < SETTINGS_DATA_SIZE; i++) {
         record[i + 1] = data[i];
     }
-    W25Q128_write_raw(record, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, SETTINGS_RECORD_SIZE);
+    w25q128_write_raw(record, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, SETTINGS_RECORD_SIZE);
 }
 
 /**
@@ -264,7 +251,7 @@ void settings_load(uint8_t* data)
 
     // 扫描找最后一条有效记录
     for (slot = 0; slot < max_slots; slot++) {
-        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
+        w25q128_read(&magic, SETTINGS_SECTOR_ADDR + slot * SETTINGS_RECORD_SIZE, 1);
         if (magic == SETTINGS_MAGIC) {
             last_slot = (int32_t)slot;
         } else if (magic == 0xFF) {
@@ -273,40 +260,40 @@ void settings_load(uint8_t* data)
     }
 
     if (last_slot >= 0) {
-        W25Q128_read(data, SETTINGS_SECTOR_ADDR + (uint32_t)last_slot * SETTINGS_RECORD_SIZE + 1, SETTINGS_DATA_SIZE);
+        w25q128_read(data, SETTINGS_SECTOR_ADDR + (uint32_t)last_slot * SETTINGS_RECORD_SIZE + 1, SETTINGS_DATA_SIZE);
     } else {
         // 无有效记录但扇区非空（旧格式残留），擦除确保后续写入干净
-        W25Q128_read(&magic, SETTINGS_SECTOR_ADDR, 1);
+        w25q128_read(&magic, SETTINGS_SECTOR_ADDR, 1);
         if (magic != 0xFF) {
-            W25Q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
+            w25q128_erase_sector(SETTINGS_SECTOR_ADDR / 4096);
         }
     }
 }
 
-void W25Q128_test(void)
+void w25q128_test(void)
 {
     unsigned char rec_buff[50]={0};
     unsigned char uart_output_buff[50]={0};
 
     delay_ms(10);
 	//读取W25Q128的ID
-    sprintf((char*)uart_output_buff,"FLASH ID = %X\r\n",W25Q128_readID());
-    debug_uart_send_string((char*)uart_output_buff);
+    sprintf((char*)uart_output_buff,"FLASH ID = %X\r\n",w25q128_read_id());
+    // debug_uart_send_string((char*)uart_output_buff);
 
 	//读取0地址的5个字节数据到buff
-    W25Q128_read((uint8_t*)rec_buff, 0, 5);
+    w25q128_read((uint8_t*)rec_buff, 0, 5);
     //串口输出读取的数据
     sprintf((char*)uart_output_buff, "1 buff = %s\r\n",rec_buff);
-    debug_uart_send_string((char*)uart_output_buff);
+    // debug_uart_send_string((char*)uart_output_buff);
 
     //往0地址写入5个字节长度的数据 lckfb
-    W25Q128_write("lckfb", 0, 5);
+    w25q128_write("lckfb", 0, 5);
 
     //读取0地址的5个字节数据到buff
-    W25Q128_read((uint8_t*)rec_buff, 0, 5);
+    w25q128_read((uint8_t*)rec_buff, 0, 5);
     //串口输出读取的数据
     sprintf((char*)uart_output_buff, "2 buff = %s\r\n", rec_buff);
-    debug_uart_send_string((char*)uart_output_buff);
+    // debug_uart_send_string((char*)uart_output_buff);
 }
 
 /**
@@ -314,10 +301,10 @@ void W25Q128_test(void)
  * @param addr 字节地址
  * @param data 要写入的字节
  */
-void W25Q128_write_byte(uint32_t addr, uint8_t data)
+void w25q128_write_byte(uint32_t addr, uint8_t data)
 {
-    W25Q128_write_enable();
-    W25Q128_wait_busy();
+    w25q128_write_enable();
+    w25q128_wait_busy();
     SPI_CS(0);
     spi_read_write_byte(0x02);
     spi_read_write_byte((uint8_t)(addr >> 16));
@@ -325,18 +312,18 @@ void W25Q128_write_byte(uint32_t addr, uint8_t data)
     spi_read_write_byte((uint8_t)addr);
     spi_read_write_byte(data);
     SPI_CS(1);
-    W25Q128_wait_busy();
+    w25q128_wait_busy();
 }
 
 /**
  * @brief 擦除字库存储区域（0x000000 ~ 0x03FFFF，共 64 个扇区）
  * @note  擦除后所有字节为 0xFF，耗时约数秒
  */
-void W25Q128_erase_font_area(void)
+void w25q128_erase_font_area(void)
 {
     uint32_t sector;
     uint32_t total_sectors = FONT_AREA_END_ADDR / 4096;  // 64 个扇区
     for (sector = 0; sector < total_sectors; sector++) {
-        W25Q128_erase_sector(sector);
+        w25q128_erase_sector(sector);
     }
 }

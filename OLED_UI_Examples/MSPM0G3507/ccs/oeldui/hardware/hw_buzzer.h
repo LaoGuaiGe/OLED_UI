@@ -1,5 +1,9 @@
-#ifndef _HW_BUZZER_H_
-#define _HW_BUZZER_H_
+/**
+ * hw_buzzer.h
+ * Buzzer hardware interface — PWM frequency control and buzzer pin macros.
+ */
+#ifndef __HW_BUZZER_H__
+#define __HW_BUZZER_H__
 
 #include "ti_msp_dl_config.h"
 

@@ -1,16 +1,23 @@
+/**
+ * OLED_UI_Driver.h
+ * Platform abstraction layer interface — timer, key, encoder, and delay function
+ * declarations. Port these implementations to your target MCU.
+ */
 #ifndef __OLED_UI_DRIVER_H
 #define __OLED_UI_DRIVER_H
-/*【如果您需要移植此项目，则需要更改以下函数的实现方式。】 */
 #include "ti_msp_dl_config.h"           // Device header
-#include "hw_key.h"
-#include "app_key_task.h"
 
-//获取确认，取消，上，下按键状态的函数(【Q：为什么使用宏定义而不是函数？A：因为这样可以提高效率，减少代码量】)
-//按下0 松开1
-#define Key_GetEnterStatus()    key_menu.enter
-#define Key_GetBackStatus()     key_menu.back
-#define Key_GetUpStatus()       key_menu.up
-#define Key_GetDownStatus()     key_menu.down
+// 按键状态获取函数 — 实现在 app/oled_driver_port.c
+// 按下返回 0，松开返回 1
+extern uint8_t oled_key_get_enter(void);
+extern uint8_t oled_key_get_back(void);
+extern uint8_t oled_key_get_up(void);
+extern uint8_t oled_key_get_down(void);
+
+#define Key_GetEnterStatus()    oled_key_get_enter()
+#define Key_GetBackStatus()     oled_key_get_back()
+#define Key_GetUpStatus()       oled_key_get_up()
+#define Key_GetDownStatus()     oled_key_get_down()
 
 //定时器中断初始化函数
 void Timer_Init(void);

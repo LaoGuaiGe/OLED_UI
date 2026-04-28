@@ -1,3 +1,7 @@
+/**
+ * OLED_driver.h
+ * OLED I2C hardware abstraction — low-level I2C write command/data and init sequence.
+ */
 #ifndef __OLED_DRIVER_H
 #define __OLED_DRIVER_H
 

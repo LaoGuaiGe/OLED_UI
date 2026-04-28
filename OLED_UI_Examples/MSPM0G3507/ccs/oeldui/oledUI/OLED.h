@@ -1,3 +1,8 @@
+/**
+ * OLED.h
+ * OLED display driver interface — basic drawing primitives, character/text display,
+ * and display buffer update functions.
+ */
 #ifndef __OLED_H
 #define __OLED_H
 

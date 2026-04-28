@@ -1,3 +1,7 @@
+/**
+ * OLED_Fonts.h
+ * Built-in ASCII font interface — font data extern declarations and size constants.
+ */
 #ifndef __OLED_FONT_H
 #define __OLED_FONT_H
 

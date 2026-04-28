@@ -1,5 +1,9 @@
-#ifndef _BSP_W25QXX_H__
-#define _BSP_W25QXX_H__
+/**
+ * hw_w25qxx.h
+ * W25Q128 SPI Flash interface — address layout, R/W/erase, settings persistence API.
+ */
+#ifndef __HW_W25QXX_H__
+#define __HW_W25QXX_H__
 
 #include "ti_msp_dl_config.h"
 
@@ -47,18 +51,18 @@
 // 兼容旧宏名
 #define FONT_AREA_END_ADDR     FONT16_END_ADDR
 
-uint16_t W25Q128_readID(void);
-void W25Q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte);
-void W25Q128_read(uint8_t* buffer, uint32_t read_addr, uint16_t read_length);
-void W25Q128_test(void);
+uint16_t w25q128_read_id(void);
+void w25q128_write(uint8_t* buffer, uint32_t addr, uint16_t numbyte);
+void w25q128_read(uint8_t* buffer, uint32_t read_addr, uint16_t read_length);
+void w25q128_test(void);
 
 // wear leveling 接口
 void settings_save(uint8_t* data);
 void settings_load(uint8_t* data);
 
 // 字库烧录相关
-void W25Q128_write_byte(uint32_t addr, uint8_t data);
-void W25Q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte);
-void W25Q128_erase_font_area(void);
+void w25q128_write_byte(uint32_t addr, uint8_t data);
+void w25q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte);
+void w25q128_erase_font_area(void);
 
 #endif

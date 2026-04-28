@@ -1,6 +1,23 @@
+/**
+ * oled_ext_font.c
+ * External Flash font subsystem — reads GB2312 Chinese character bitmaps from SPI Flash
+ * via the mid_storage bridge, with UTF-8/GB2312 auto-detection and Unicode-to-GB2312 mapping.
+ */
 #include "oled_ext_font.h"
 #include "OLED.h"
-#include "hw_w25qxx.h"
+#include "mid_storage.h"
+#include <stdint.h>
+
+/* 字库存放地址常量（描述字体数据布局，非硬件配置） */
+#define FONT16_BASE_ADDR       0x000000
+#define FONT16_CHAR_SIZE       32
+#define FONT12_BASE_ADDR       0x050000
+#define FONT12_CHAR_SIZE       24
+#define FONT20_BASE_ADDR       0x080000
+#define FONT20_CHAR_SIZE       60
+#define U2G_MAP_BASE_ADDR      0x040000
+#define U2G_MAP_UNICODE_START  0x4E00
+#define U2G_MAP_UNICODE_END    0x9FFF
 
 /**
  * @brief 通过外部 Flash 映射表将 Unicode 码位转换为 GB2312 编码
@@ -12,7 +29,7 @@ static int8_t Unicode_to_GB2312(uint16_t unicode, uint8_t* gb_high, uint8_t* gb_
 
     uint32_t offset = (uint32_t)(unicode - U2G_MAP_UNICODE_START) * 2;
     uint8_t gb[2];
-    W25Q128_read(gb, U2G_MAP_BASE_ADDR + offset, 2);
+    mid_storage_read(gb, U2G_MAP_BASE_ADDR + offset, 2);
 
     if (gb[0] == 0x00 && gb[1] == 0x00)
         return -1;
@@ -56,7 +73,7 @@ void ExtFont_ReadChinese(uint8_t high, uint8_t low, uint8_t* buf, uint8_t fontSi
     ExtFont_GetParams(fontSize, &baseAddr, &charSize);
 
     uint32_t offset = ((uint32_t)(high - 0xA1) * 94 + (low - 0xA1)) * charSize;
-    W25Q128_read(buf, baseAddr + offset, charSize);
+    mid_storage_read(buf, baseAddr + offset, charSize);
 }
 
 /**

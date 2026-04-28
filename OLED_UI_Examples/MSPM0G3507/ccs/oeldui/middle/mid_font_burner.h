@@ -1,5 +1,9 @@
-#ifndef _MID_FONT_BURNER_H_
-#define _MID_FONT_BURNER_H_
+/**
+ * mid_font_burner.h
+ * Font flash programmer interface — entry points for burning HZK12/16/20 and U2G map to Flash.
+ */
+#ifndef __MID_FONT_BURNER_H__
+#define __MID_FONT_BURNER_H__
 
 #include "ti_msp_dl_config.h"
 #include "hw_w25qxx.h"

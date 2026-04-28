@@ -1,6 +1,15 @@
+/**
+ * OLED_UI.c
+ * OLED UI framework core — menu navigation, page rendering, cursor animation,
+ * boot animation effects, fade transitions, and window management.
+ */
 #include "OLED_UI.h"
-#include "app_task.h"
-#include "string.h"
+#include <stdbool.h>
+#include <string.h>
+
+/* app_task 接口声明（通过外部实现注入） */
+extern bool app_task_is_active(void);
+extern void app_task_tick(void);
 
 
 #ifdef OLED_UI

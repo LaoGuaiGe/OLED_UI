@@ -1,3 +1,7 @@
+/**
+ * hw_ws2812_effects.c
+ * WS2812 LED effect driver — flowing, running, and other animated light effects.
+ */
 #include "hw_ws2812_effects.h"
 #include "hw_ws2812.h"
 #include "hw_delay.h"
@@ -97,9 +101,9 @@ static void do_flowing_effect(uint16_t speed)
     need_update = false;
 
     uint32_t grb = apply_brightness(wheel_color(flowing_step));
-    WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
-    WS2812B_Write_24Bits(ws2812_led_num, grb);
-    WS2812B_Show();
+    ws2812_write_24bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
+    ws2812_write_24bits(ws2812_led_num, grb);
+    ws2812_show();
 
     uint16_t step_size = 1 + (speed - 1) * 7 / 99;
     flowing_step += step_size;
@@ -130,9 +134,9 @@ static void do_running_effect(uint16_t speed)
     for (i = 0; i < ws2812_led_num && i < WS2812B_NUM; i++)
         out_buf[i] = apply_brightness(running_buf[i]);
 
-    WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
-    WS2812B_Write_24Bits_independence(ws2812_led_num, out_buf);
-    WS2812B_Show();
+    ws2812_write_24bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
+    ws2812_write_24bits_independence(ws2812_led_num, out_buf);
+    ws2812_show();
 
     uint16_t step_size = 1 + (speed - 1) * 7 / 99;
     running_step += step_size;
@@ -190,8 +194,8 @@ void ws2812_effect_update(void)
     if (off) {
         if (!prev_off) {
             need_update = false;
-            WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
-            WS2812B_Show();
+            ws2812_write_24bits(WS2812B_NUM, 0x000000);
+            ws2812_show();
             prev_off = true;
         }
         return;

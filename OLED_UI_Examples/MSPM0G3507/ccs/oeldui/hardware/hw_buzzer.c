@@ -1,9 +1,8 @@
+/**
+ * hw_buzzer.c
+ * Buzzer hardware driver — PWM frequency control for buzzer sound output.
+ */
 #include "hw_buzzer.h"
-
-void buzzer_init(void)
-{
-    //TI的CCS中已通过图形化配置PWM定时器为1MHz
-}
 
 //开启蜂鸣器
 void buzzer_on(void)

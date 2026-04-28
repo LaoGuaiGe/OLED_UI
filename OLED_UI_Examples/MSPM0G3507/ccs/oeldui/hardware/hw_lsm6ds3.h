@@ -1,5 +1,12 @@
-#ifndef LSM6DS3_H
-#define LSM6DS3_H
+/**
+ * hw_lsm6ds3.h
+ * LSM6DS3TR-C IMU hardware interface — register map, data structures, init and readout.
+ */
+#ifndef __HW_LSM6DS3_H__
+#define __HW_LSM6DS3_H__
+
+#include <stdint.h>
+
 
 /************************ 陀螺仪 ************************/
 #define LSM6DS3TRC_I2CADDR 0x6A//SA0接GND，如果接的是VCC，则地址是0x6B
@@ -106,11 +113,16 @@ typedef struct {
     float z;
 } Angle;
 
-extern Angle angle_new;
+/* 传感器检测与复位 */
+uint8_t lsm6ds3_check_ok(void);
+void    lsm6ds3_reset(void);
 
-unsigned char lsm6ds3_init(void);
-void lsm6ds3_angle_return_zero(void);
-void lsm6ds3_get_angle(Angle* angle);
-void lsm6ds3_getAngle(Angle* angle);
-void float_to_string(float num, char *str);
+/* 原始数据读取 */
+uint8_t lsm6ds3_get_status(void);
+void    lsm6ds3_get_acceleration(uint8_t fsxl, float *acc_float);
+void    lsm6ds3_get_gyroscope(uint8_t fsg, float *gry_float);
+
+/* 硬件初始化（仅传感器寄存器配置，不含 AHRS） */
+unsigned char lsm6ds3_hw_init(void);
+
 #endif

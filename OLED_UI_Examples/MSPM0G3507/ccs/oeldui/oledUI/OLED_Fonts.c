@@ -1,3 +1,7 @@
+/**
+ * OLED_Fonts.c
+ * Built-in ASCII font bitmaps — 6x8, 8x16, 7x12, and 10x20 character glyph data.
+ */
 #include "OLED_Fonts.h"
 
 /*宽10像素，高20像素*/

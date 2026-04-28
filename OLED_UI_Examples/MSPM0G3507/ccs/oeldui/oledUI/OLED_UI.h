@@ -1,3 +1,8 @@
+/**
+ * OLED_UI.h
+ * OLED UI framework header — menu types, window types, page structures, cursor styles,
+ * animation configurations, boot animation API, and main loop entry point.
+ */
 #ifndef __OLED_UI_H
 #define __OLED_UI_H
 // 检测是否是C++编译器

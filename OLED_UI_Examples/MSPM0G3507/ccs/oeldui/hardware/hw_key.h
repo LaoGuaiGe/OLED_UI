@@ -1,5 +1,9 @@
-#ifndef _HW_KEY_H_
-#define _HW_KEY_H_
+/**
+ * hw_key.h
+ * Key GPIO scan interface — key status struct and level read function declarations.
+ */
+#ifndef __HW_KEY_H__
+#define __HW_KEY_H__
 
 #include "ti_msp_dl_config.h"
 

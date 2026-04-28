@@ -1,5 +1,9 @@
-#ifndef _MID_DEBUG_LED_H_
-#define _MID_DEBUG_LED_H_
+/**
+ * mid_debug_led.h
+ * Debug LED interface — toggle control for runtime status indication.
+ */
+#ifndef __MID_DEBUG_LED_H__
+#define __MID_DEBUG_LED_H__
 
 #include "ti_msp_dl_config.h"
 

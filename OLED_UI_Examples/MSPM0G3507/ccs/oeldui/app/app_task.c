@@ -1,3 +1,8 @@
+/**
+ * app_task.c
+ * App task scheduler — manages app lifecycle (init, tick, fade-in/out, exit)
+ * with a frame-interval-based state machine.
+ */
 #include "app_task.h"
 #include "app_key_task.h"
 #include "OLED.h"
@@ -15,7 +20,7 @@ void app_task_start(const AppTaskDef *app)
     if (app == NULL || state != APP_STATE_IDLE) return;
     current_app = app;
     current_app->init();
-    last_tick_ms = get_sys_tick_ms();
+    last_tick_ms = mid_get_sys_tick_ms();
 
     if (current_app->fade_tick && current_app->fade_steps > 0) {
         state = APP_STATE_FADE_IN;
@@ -49,7 +54,7 @@ void app_task_tick(void)
 {
     if (current_app == NULL) return;
 
-    uint32_t now = get_sys_tick_ms();
+    uint32_t now = mid_get_sys_tick_ms();
 
     switch (state) {
     case APP_STATE_FADE_IN:

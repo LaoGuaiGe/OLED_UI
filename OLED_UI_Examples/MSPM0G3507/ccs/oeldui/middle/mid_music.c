@@ -1,11 +1,15 @@
+/**
+ * mid_music.c
+ * Buzzer music driver — note frequency table, song playback, and timer-based note sequencing.
+ */
 # include "mid_music.h"
 # include "hw_buzzer.h"
 
 /*创建Beeper的handle*/
-BEEPER_Tag Beeper0;
+mid_beeper_t mid_beeper0;
 
 /*C4-B8的音调对应的频率大小*/
-const uint16_t MusicNoteFrequency[] = {
+const uint16_t music_note_frequency[] = {
     // rest_note
     0,
     // C    C#   D   Eb    E    F    F#   G    G#   A   Bb    B
@@ -73,16 +77,16 @@ const uint16_t MusicNoteFrequency[] = {
     0,
 };
 
-/*全局TONE结构体指针，用于定时器TIM4中断函数中*/
-TONE *MySound;
+/*全局tone_t结构体指针，用于定时器TIM4中断函数中*/
+tone_t *current_sound;
 
 /*乐曲*/
-TONE const BEEPER_KEYPRESS[] = {
+tone_t const song_keypress[] = {
     {NOTE_C6, 7},
     {CHECK_NOTE, 0}, // 检查位
 };
 
-TONE const BEEPER_TRITONE[] = {
+tone_t const song_tritone[] = {
     {NOTE_B5, 7},
     {REST_NOTE, 2},
     {NOTE_D6, 6},
@@ -91,14 +95,14 @@ TONE const BEEPER_TRITONE[] = {
     {CHECK_NOTE, 0}, // 检查位
 };
 
-TONE const BEEPER_WARNING[] = {
+tone_t const song_warning[] = {
     {NOTE_F4, 5},
     {REST_NOTE, 2},
     {NOTE_F4, 5},
     {CHECK_NOTE, 0}, // 检查位
 };
 
-TONE const BEEP1[] = {
+tone_t const song_boot[] = {
     {NOTE_C5, 11},
     {REST_NOTE, 2}, // 休止符
     {NOTE_C5, 11},
@@ -115,37 +119,13 @@ TONE const BEEP1[] = {
     {REST_NOTE, 2},
     {NOTE_F6, 11},
     {REST_NOTE, 2},
-    // {NOTE_F6, 11},
-    // {REST_NOTE, 2},
-    // {NOTE_E7, 11},
-    // {REST_NOTE, 2},
-    // {NOTE_E7, 11},
-    // {REST_NOTE, 2},
-    // {NOTE_D8, 11},
-    // {REST_NOTE, 2},
     {NOTE_D8, 11},
     {REST_NOTE, 2},
     {NOTE_C5, 11},
     {CHECK_NOTE, 0}, // 检查位
 };
 
-TONE const BEEP2[] = {
-    // {REST_NOTE, 20},
-    // {REST_NOTE, 20},
-    // {REST_NOTE, 20},
-    // {NOTE_C5, 10},
-    // {NOTE_B4, 10},
-
-    // {NOTE_A4, 20},
-    // {NOTE_E5, 40},
-    // {NOTE_C5, 10},
-    // {NOTE_A4, 10},
-
-    // {NOTE_B4, 20},
-    // {NOTE_F5, 20},
-    // {NOTE_E5, 10},
-    // {NOTE_D5, 30},
-
+tone_t const song_startup[] = {
     {NOTE_C5, 10},
     {NOTE_D5, 10},
     {NOTE_C5, 10},
@@ -181,19 +161,19 @@ TONE const BEEP2[] = {
 
 
 
-void Beeper_Init(void)
+void mid_beeper_init(void)
 {
     //需设置PWM的定时器频率为1MHz
     buzzer_off();// 先关掉防止蜂鸣器怪叫
     /* BEEPER使能标志位 */
-    Beeper0.Beeper_Enable = 1;
-    Beeper0.Beeper_Continue_Flag = 0;
+    mid_beeper0.enable = 1;
+    mid_beeper0.continue_flag = 0;
 
-    Beeper0.Sound_Loud = 20;
+    mid_beeper0.sound_loud = 20;
 }
 
 /*计算对应的预重装值 用 1000kHz / 音调频率 */
-uint16_t Set_Musical_Note(uint16_t frq)
+uint16_t set_musical_note(uint16_t frq)
 {
     /*防止休止符时蜂鸣器怪叫*/
     if (frq == 0)
@@ -205,58 +185,58 @@ uint16_t Set_Musical_Note(uint16_t frq)
 
 /**
  * @brief Beeper的应用层函数
- * @param  TONE *Sound 传入结构体数组
+ * @param  tone_t *sound 传入结构体数组
  * @retval 无
  */
-void Beeper_Perform(const TONE *Sound)
+void mid_beeper_perform(const tone_t *sound)
 {
     /*该变量用于计算结构体数组的长度*/
-    uint16_t Note_Length;
-    
+    uint16_t note_length;
+
     buzzer_off();
 
     /*让全局结构体指针指向传入的乐曲*/
-    MySound = (TONE *)Sound;
+    current_sound = (tone_t *)sound;
 
     /*通过寻找检查位CHECK_NOTE来计算传入的结构体长度//因为sizeof是在编译中完成的所以这里没法用*/
-    for (Note_Length = 0; MySound[Note_Length].Note != CHECK_NOTE; Note_Length++)
+    for (note_length = 0; current_sound[note_length].note != CHECK_NOTE; note_length++)
         ;
 
     /*赋予长度大小*/
-    Beeper0.Sound_Size = Note_Length;
+    mid_beeper0.sound_size = note_length;
     /*把音符表清零*/
-    Beeper0.Beep_Play_Schedule = 0;
+    mid_beeper0.play_schedule = 0;
 
     /*开启蜂鸣器继续标志位*/
-    Beeper0.Beeper_Continue_Flag = 1;
-    Beeper0.Beeper_Count = 0;
+    mid_beeper0.continue_flag = 1;
+    mid_beeper0.count = 0;
 }
 
 /* 用于10ms定时器中断进行循环 */
-void Beeper_Proc(void)
+void mid_beeper_proc(void)
 {
     /*判断是否继续*/
-    if (Beeper0.Beeper_Continue_Flag && Beeper0.Beeper_Enable)
+    if (mid_beeper0.continue_flag && mid_beeper0.enable)
     {
         /*判断音符表走完没*/
-        if (Beeper0.Beep_Play_Schedule <= Beeper0.Sound_Size)
+        if (mid_beeper0.play_schedule <= mid_beeper0.sound_size)
         {
             /*时间减短10ms*/
-            Beeper0.Beeper_Count--;
+            mid_beeper0.count--;
             /*这个操作的意思是如果count = 65535时，意思就是延时结束了，这个音符演完了*/
-            if (!(Beeper0.Beeper_Count < 65535))
+            if (!(mid_beeper0.count < 65535))
             {
-                // printf("Ps:%d ", Beeper0.Beep_Play_Schedule);
+                // printf("Ps:%d ", mid_beeper0.play_schedule);
                 /*给预重装载值赋值，改变音调*/
-                uint16_t arr = (uint16_t)Set_Musical_Note(MusicNoteFrequency[MySound[Beeper0.Beep_Play_Schedule].Note]);   
+                uint16_t arr = (uint16_t)set_musical_note(music_note_frequency[current_sound[mid_beeper0.play_schedule].note]);
                 buzzer_set_reload_value(arr);
 
                 /*给PWM占空比赋值，改变音量*/
-                buzzer_set_duty((uint16_t)arr / (100 - Beeper0.Sound_Loud));  
+                buzzer_set_duty((uint16_t)arr / (100 - mid_beeper0.sound_loud));
                 /*赋值新的延时长度给count*/
-                Beeper0.Beeper_Count = MySound[Beeper0.Beep_Play_Schedule].Delay;
+                mid_beeper0.count = current_sound[mid_beeper0.play_schedule].delay;
                 /*音符表走到下一个音符*/
-                Beeper0.Beep_Play_Schedule++;
+                mid_beeper0.play_schedule++;
 
                 buzzer_on();
             }
@@ -265,12 +245,12 @@ void Beeper_Proc(void)
         else
         {
             buzzer_off();
-            Beeper0.Beeper_Continue_Flag = 0;
+            mid_beeper0.continue_flag = 0;
         }
     }
     else
     {
         buzzer_off();
-        Beeper0.Beeper_Continue_Flag = 0;
+        mid_beeper0.continue_flag = 0;
     }
 }

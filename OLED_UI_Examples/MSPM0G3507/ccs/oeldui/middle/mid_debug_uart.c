@@ -1,3 +1,7 @@
+/**
+ * mid_debug_uart.c
+ * Debug UART driver — printf-style debug output and serial receive buffer management.
+ */
 #include "mid_debug_uart.h"
 #include "string.h"
 

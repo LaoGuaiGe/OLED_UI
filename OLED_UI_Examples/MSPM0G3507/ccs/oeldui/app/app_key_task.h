@@ -1,5 +1,9 @@
-#ifndef _APP_KEY_TASK_H_
-#define _APP_KEY_TASK_H_
+/**
+ * app_key_task.h
+ * Key input task interface — KEY_MENU_STATUS struct and key handler function declarations.
+ */
+#ifndef __APP_KEY_TASK_H__
+#define __APP_KEY_TASK_H__
 
 #include "ti_msp_dl_config.h"
 
@@ -15,29 +19,29 @@ typedef struct {
 
 extern KEY_MENU_STATUS key_menu;
 
-void user_keyBSP_init(void);
+void user_key_bsp_init(void);
 
-void key0_press_down_Handler(void *btn);
+void key0_press_down_handler(void *btn);
 
-void key0_press_up_Handler(void* btn);
+void key0_press_up_handler(void* btn);
 
-void key0_press_repeat_Handler(void *btn);
+void key0_press_repeat_handler(void *btn);
 
-void key0_single_click_Handler(void *btn);
+void key0_single_click_handler(void *btn);
 
-void key0_long_press_start_Handler(void* btn);
+void key0_long_press_start_handler(void* btn);
 
-void key0_long_press_hold_Handler(void *btn);
+void key0_long_press_hold_handler(void *btn);
 
-void key1_press_down_Handler(void* btn);
+void key1_press_down_handler(void* btn);
 
-void key1_press_up_Handler(void* btn);
+void key1_press_up_handler(void* btn);
 
-void key1_press_repeat_Handler(void *btn);
+void key1_press_repeat_handler(void *btn);
 
-void key1_single_click_Handler(void *btn);
+void key1_single_click_handler(void *btn);
 
-void key1_long_press_start_Handler(void *btn);
+void key1_long_press_start_handler(void *btn);
 
-void key1_long_press_hold_Handler(void *btn);
+void key1_long_press_hold_handler(void *btn);
 #endif

@@ -1,3 +1,8 @@
+/**
+ * empty.c
+ * Main application entry point — system init, peripheral startup, settings load,
+ * UI launch, and main loop with WS2812 effect update.
+ */
 #include "ti_msp_dl_config.h"
 #include "string.h"
 #include "stdio.h"
@@ -13,17 +18,17 @@
 #include "oled_ext_font.h"
 
 #include "hw_delay.h"
-#include "hw_lsm6ds3.h"
 #include "hw_ws2812.h"
 #include "hw_ws2812_effects.h"
 #include "hw_w25qxx.h"
 
 #include "app_bird_game.h"
 #include "app_dino_game.h"
+#include "app_timer_dispatch.h"
 
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
-extern BEEPER_Tag Beeper0;
+extern mid_beeper_t mid_beeper0;
 extern int16_t OLED_UI_Brightness;
 
 
@@ -46,18 +51,19 @@ int main(void)
 	// font_burner_map_run();     // 烧录 Unicode→GB2312 映射表 (发送 unicode_gb2312_map.bin)
 
 	// 蜂鸣器初始化
-	Beeper_Init();
+	mid_beeper_init();
 
 	// 按键初始化
-	user_keyBSP_init();
+	user_key_bsp_init();
 
 	// 5ms定时器中断
-	timer_init();
+	mid_timer_init();
+	app_timer_dispatch_init();
 
 	// 蜂鸣器音乐
-	Beeper_Perform(BEEP1);
+	mid_beeper_perform(song_boot);
 
-	PWM_WS2812B_Init();
+	ws2812_init();
 
 	/*=== 外部字库显示测试（三种字号）===*/
 	// {
@@ -75,8 +81,8 @@ int main(void)
 	uint8_t temp[13] = {100, 50, 0, 0, 1, 1, 0, 0, 0, 4, 0, 50, 100};
 	settings_load(temp);
 	OLED_UI_Brightness       = (uint16_t)temp[0];
-	Beeper0.Sound_Loud       = temp[1];
-	Beeper0.Beeper_Enable    = temp[2];
+	mid_beeper0.sound_loud       = temp[1];
+	mid_beeper0.enable           = temp[2];
 	ColorMode                = (bool)temp[3];
 	OLED_UI_ShowFps          = (bool)temp[4];
 	ws2812_enable            = (bool)temp[5];

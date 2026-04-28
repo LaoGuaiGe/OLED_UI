@@ -1,3 +1,9 @@
+/**
+ * app_robot_face.c
+ * Robot face expression display — renders animated facial expressions
+ * using OLED primitives (eyes, brows, mouth) with smooth transitions
+ * and character-based random eye blinking.
+ */
 #include "app_robot_face.h"
 #include "app_key_task.h"
 #include "OLED.h"
@@ -558,8 +564,8 @@ static void draw_face(void) {
         OLED_DrawLine(CENTER_X + 30, sy - 1, CENTER_X + 36, sy - 1);
         OLED_DrawLine(CENTER_X + 30, sy, CENTER_X + 36, sy);
     }
-
-    OLED_ShowString(CENTER_X - 21, 56, (char *)expr_names[current_expr], OLED_6X8_HALF);
+    // 取消显示图片时的表情名称展示
+    //OLED_ShowString(CENTER_X - 21, 56, (char *)expr_names[current_expr], OLED_6X8_HALF);
 }
 
 static void handle_input(void) {
@@ -585,7 +591,7 @@ static void handle_input(void) {
     }
 }
 
-void robot_face_init(void) {
+void app_robot_face_init(void) {
     exit_requested = false;
     current_expr = EXPR_NORMAL;
     frame_count = 0;
@@ -598,7 +604,7 @@ void robot_face_init(void) {
     OLED_Update();
 }
 
-void robot_face_tick(void) {
+void app_robot_face_tick(void) {
     handle_input();
     if (exit_requested) return;
 
@@ -613,11 +619,11 @@ void robot_face_tick(void) {
     OLED_Update();
 }
 
-bool robot_face_should_exit(void) {
+bool app_robot_face_should_exit(void) {
     return exit_requested;
 }
 
-void robot_face_on_exit(void) {
+void app_robot_face_on_exit(void) {
     OLED_Clear();
     OLED_Update();
 }

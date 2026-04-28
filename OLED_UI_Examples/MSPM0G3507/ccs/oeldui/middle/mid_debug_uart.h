@@ -1,5 +1,9 @@
-#ifndef _MID_DEBUG_UART_H_
-#define _MID_DEBUG_UART_H_
+/**
+ * mid_debug_uart.h
+ * Debug UART interface — send/receive functions and UART interrupt configuration.
+ */
+#ifndef __MID_DEBUG_UART_H__
+#define __MID_DEBUG_UART_H__
 
 #include "ti_msp_dl_config.h"
 

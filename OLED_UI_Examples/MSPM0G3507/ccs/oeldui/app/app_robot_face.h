@@ -1,5 +1,9 @@
-#ifndef _APP_ROBOT_FACE_H_
-#define _APP_ROBOT_FACE_H_
+/**
+ * app_robot_face.h
+ * Robot face expression interface — expression types, parameter struct, and lifecycle callbacks.
+ */
+#ifndef __APP_ROBOT_FACE_H__
+#define __APP_ROBOT_FACE_H__
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -51,9 +55,9 @@ typedef enum {
     EXPR_COUNT
 } ExpressionType;
 
-void robot_face_init(void);
-void robot_face_tick(void);
-bool robot_face_should_exit(void);
-void robot_face_on_exit(void);
+void app_robot_face_init(void);
+void app_robot_face_tick(void);
+bool app_robot_face_should_exit(void);
+void app_robot_face_on_exit(void);
 
 #endif

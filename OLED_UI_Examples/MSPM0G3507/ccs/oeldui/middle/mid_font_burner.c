@@ -1,3 +1,7 @@
+/**
+ * mid_font_burner.c
+ * Font flash programmer — receives font binary over UART and writes to external SPI Flash.
+ */
 #include "mid_font_burner.h"
 #include "mid_debug_uart.h"
 #include "hw_delay.h"
@@ -23,7 +27,7 @@ static void flash_burn(uint32_t start_addr, uint32_t total_size, const char* nam
     NVIC_DisableIRQ(UART_DEBUG_INST_INT_IRQN);
 
     // 1. 打印 Flash ID
-    sprintf(msg, "FLASH ID: 0x%04X\r\n", W25Q128_readID());
+    sprintf(msg, "FLASH ID: 0x%04X\r\n", w25q128_read_id());
     debug_uart_send_string(msg);
 
     // 2. 擦除目标区域
@@ -31,7 +35,7 @@ static void flash_burn(uint32_t start_addr, uint32_t total_size, const char* nam
     debug_uart_send_string(msg);
     for (sector = start_addr / 4096; sector < (end_addr + 4095) / 4096; sector++)
     {
-        W25Q128_erase_sector(sector);
+        w25q128_erase_sector(sector);
     }
     debug_uart_send_string("Erase done.\r\n");
 
@@ -46,7 +50,7 @@ static void flash_burn(uint32_t start_addr, uint32_t total_size, const char* nam
 
         if (buf_index >= 256)
         {
-            W25Q128_write_page(page_buf, write_addr, 256);
+            w25q128_write_page(page_buf, write_addr, 256);
             write_addr += 256;
             total_written += 256;
             buf_index = 0;
@@ -56,7 +60,7 @@ static void flash_burn(uint32_t start_addr, uint32_t total_size, const char* nam
     // 剩余不足 256 字节的尾部数据
     if (buf_index > 0)
     {
-        W25Q128_write_page(page_buf, write_addr, buf_index);
+        w25q128_write_page(page_buf, write_addr, buf_index);
         total_written += buf_index;
     }
 

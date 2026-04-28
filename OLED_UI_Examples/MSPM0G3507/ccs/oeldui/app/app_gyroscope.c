@@ -6,7 +6,7 @@
 #include "app_gyroscope.h"
 #include "OLED.h"
 #include "OLED_UI.h"
-#include "hw_lsm6ds3.h"
+#include "mid_imu.h"
 #include "hw_delay.h"
 #include "mid_timer.h"
 #include <math.h>
@@ -85,12 +85,12 @@ static void draw_cube(float ax, float ay, float az)
     }
 }
 
-void gyroscope_request_exit(void)
+void app_gyroscope_request_exit(void)
 {
     exit_requested = true;
 }
 
-bool gyroscope_should_exit(void)
+bool app_gyroscope_should_exit(void)
 {
     return exit_requested;
 }
@@ -100,23 +100,23 @@ static void render_frame(Angle *angle, char *buf)
     OLED_Clear();
     draw_cube(angle->x, angle->y, angle->z);
 
-    float_to_string(angle->x, buf);
+    mid_imu_float_to_string(angle->x, buf);
     OLED_ShowString(0, 4, "X:", OLED_6X8_HALF);
     OLED_ShowString(12, 4, buf, OLED_6X8_HALF);
 
-    float_to_string(angle->y, buf);
+    mid_imu_float_to_string(angle->y, buf);
     OLED_ShowString(0, 24, "Y:", OLED_6X8_HALF);
     OLED_ShowString(12, 24, buf, OLED_6X8_HALF);
 
-    float_to_string(angle->z, buf);
+    mid_imu_float_to_string(angle->z, buf);
     OLED_ShowString(0, 44, "Z:", OLED_6X8_HALF);
     OLED_ShowString(12, 44, buf, OLED_6X8_HALF);
 }
 
-void gyroscope_init(void)
+void app_gyroscope_init(void)
 {
     exit_requested = false;
-    lsm6ds3_init();
+    mid_imu_init();
     angle_new.x = 0;
     angle_new.y = 0;
     angle_new.z = 0;
@@ -125,34 +125,34 @@ void gyroscope_init(void)
     gyro_angle.z = 0;
 }
 
-void gyroscope_sample(void)
+void app_gyroscope_sample(void)
 {
-    lsm6ds3_get_angle(&angle_new);
+    mid_imu_get_angle(&angle_new);
 }
 
-void gyroscope_tick(void)
+void app_gyroscope_tick(void)
 {
     gyro_angle = angle_new;
     render_frame(&gyro_angle, gyro_buf);
     OLED_Update();
 }
 
-void gyroscope_fade_tick(int8_t level)
+void app_gyroscope_fade_tick(int8_t level)
 {
-    lsm6ds3_get_angle(&angle_new);
+    mid_imu_get_angle(&angle_new);
     gyro_angle = angle_new;
     render_frame(&gyro_angle, gyro_buf);
     OLED_UI_FadeOut_Masking(0, 0, 128, 64, level);
     OLED_Update();
 }
 
-void gyroscope_on_exit(void)
+void app_gyroscope_on_exit(void)
 {
     OLED_Clear();
     OLED_Update();
 }
 
-void gyroscope_loop(void)
+void app_gyroscope_loop(void)
 {
     Angle angle;
     char buf[16];
@@ -160,14 +160,14 @@ void gyroscope_loop(void)
     exit_requested = false;
 
     // init sensor and zero angles
-    lsm6ds3_init();
+    mid_imu_init();
     angle_new.x = 0;
     angle_new.y = 0;
     angle_new.z = 0;
 
     // fade-in: masking level 5 -> 1 (heavy mask to clear)
     for (i = 5; i >= 1; i--) {
-        lsm6ds3_get_angle(&angle_new);
+        mid_imu_get_angle(&angle_new);
         angle = angle_new;
         render_frame(&angle, buf);
         OLED_UI_FadeOut_Masking(0, 0, 128, 64, i);
@@ -178,9 +178,9 @@ void gyroscope_loop(void)
     while (1) {
         // 在渲染间隙多次采样 IMU，提高姿态积分精度
         {
-            uint32_t frame_start = get_sys_tick_ms();
-            while ((get_sys_tick_ms() - frame_start) < 20) {
-                lsm6ds3_get_angle(&angle_new);
+            uint32_t frame_start = mid_get_sys_tick_ms();
+            while ((mid_get_sys_tick_ms() - frame_start) < 20) {
+                mid_imu_get_angle(&angle_new);
             }
         }
         angle = angle_new;
@@ -188,10 +188,10 @@ void gyroscope_loop(void)
         render_frame(&angle, buf);
         OLED_Update();
 
-        if (gyroscope_should_exit()) {
+        if (app_gyroscope_should_exit()) {
             // fade-out: masking level 1 -> 5 (clear to heavy mask)
             for (i = 1; i <= 5; i++) {
-                lsm6ds3_get_angle(&angle_new);
+                mid_imu_get_angle(&angle_new);
                 angle = angle_new;
                 render_frame(&angle, buf);
                 OLED_UI_FadeOut_Masking(0, 0, 128, 64, i);

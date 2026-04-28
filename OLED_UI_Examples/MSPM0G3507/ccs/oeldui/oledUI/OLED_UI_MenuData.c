@@ -1,28 +1,19 @@
+/**
+ * OLED_UI_MenuData.c
+ * Menu data definitions — all menu pages, items, window descriptors, and callback
+ * functions that define the UI structure. This is the single place to edit menus.
+ */
 #include "OLED_UI_MenuData.h"
 #include "OLED_UI.h"
-#include "mid_music.h"
+#include "mid_ui_bridge.h"
 #include "stdio.h"
-#include "app_dino_game.h"
-#include "app_bird_game.h"
-#include "app_plane_game.h"
-#include "app_gyroscope.h"
-#include "app_uart_monitor.h"
-#include "app_robot_face.h"
-#include "app_task.h"
-#include "hw_w25qxx.h"
-#include "app_key_task.h"
-#include "hw_ws2812.h"
-#include "hw_ws2812_effects.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
 
 // ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
-extern BEEPER_Tag Beeper0;
 // OLED_UI_Brightness 是一个在OLED_UI当中定义的int16_t类型变量，用于控制OLED显示的亮度。这里将其引出是为了创建调整亮度的滑动条窗口，范围0-255。
 extern int16_t OLED_UI_Brightness;
-extern WS2812_Effect_Param effect_param;
-extern int16_t ws2812_light_mode;
 float testfloatnum = 0.5;
 int32_t testintnum = 1;
 #define SPEED 10
@@ -56,7 +47,7 @@ MenuWindow SetBuzzerVolumeWindow = {
 	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
 	.General_ContinueTime = 4.0,						//窗口持续时间
 
-	.Prob_Data_Int_16 = &Beeper0.Sound_Loud,				//显示的变量地址
+	.Prob_Data_Int_16 = &mid_beeper0.sound_loud,				//显示的变量地址
 	.Prob_DataStep = 5,								//步长
 	.Prob_MinData = 5,									//最小值
 	.Prob_MaxData = 100, 								//最大值
@@ -102,32 +93,32 @@ void BuzzerVolumeWindow(void){
 /**
  * @brief 启动陀螺仪3D显示
  */
-static const AppTaskDef gyroscope_app = {
-	.init = gyroscope_init,
-	.tick = gyroscope_tick,
-	.sample = gyroscope_sample,
-	.should_exit = gyroscope_should_exit,
-	.on_exit = gyroscope_on_exit,
-	.fade_tick = gyroscope_fade_tick,
+static const AppTaskDef app_gyroscope_app = {
+	.init = app_gyroscope_init,
+	.tick = app_gyroscope_tick,
+	.sample = app_gyroscope_sample,
+	.should_exit = app_gyroscope_should_exit,
+	.on_exit = app_gyroscope_on_exit,
+	.fade_tick = app_gyroscope_fade_tick,
 	.fade_steps = 5,
 	.frame_interval_ms = 20,
 };
 void GyroscopeWindow(void){
-	app_task_start(&gyroscope_app);
+	app_task_start(&app_gyroscope_app);
 }
 
-static const AppTaskDef uart_monitor_app = {
-	.init = uart_monitor_init,
-	.tick = uart_monitor_tick,
+static const AppTaskDef app_uart_monitor_app = {
+	.init = app_uart_monitor_init,
+	.tick = app_uart_monitor_tick,
 	.sample = NULL,
-	.should_exit = uart_monitor_should_exit,
-	.on_exit = uart_monitor_on_exit,
-	.fade_tick = uart_monitor_fade_tick,
+	.should_exit = app_uart_monitor_should_exit,
+	.on_exit = app_uart_monitor_on_exit,
+	.fade_tick = app_uart_monitor_fade_tick,
 	.fade_steps = 5,
 	.frame_interval_ms = 30,
 };
 void UartMonitorStart(void){
-	app_task_start(&uart_monitor_app);
+	app_task_start(&app_uart_monitor_app);
 }
 /**
  * @brief 创建保存数据窗口
@@ -135,8 +126,8 @@ void UartMonitorStart(void){
 void SavedataWindow(void){
 	uint8_t temp[13];
 	temp[0] = (uint8_t)OLED_UI_Brightness;
-	temp[1] = Beeper0.Sound_Loud;
-	temp[2] = Beeper0.Beeper_Enable;
+	temp[1] = mid_beeper0.sound_loud;
+	temp[2] = mid_beeper0.enable;
 	temp[3] = (uint8_t)ColorMode;
 	temp[4] = (uint8_t)OLED_UI_ShowFps;
 	temp[5] = (uint8_t)ws2812_enable;
@@ -269,18 +260,18 @@ void BootAnimGlitchDemo(void) {
 	boot_anim_glitch(BOOT_TEXT, tx, 26);
 }
 
-static const AppTaskDef robot_face_app = {
-	.init = robot_face_init,
-	.tick = robot_face_tick,
+static const AppTaskDef app_robot_face_app = {
+	.init = app_robot_face_init,
+	.tick = app_robot_face_tick,
 	.sample = NULL,
-	.should_exit = robot_face_should_exit,
-	.on_exit = robot_face_on_exit,
+	.should_exit = app_robot_face_should_exit,
+	.on_exit = app_robot_face_on_exit,
 	.fade_tick = NULL,
 	.fade_steps = 0,
 	.frame_interval_ms = 30,
 };
 void RobotFaceStart(void){
-	app_task_start(&robot_face_app);
+	app_task_start(&app_robot_face_app);
 }
 
 /**
@@ -304,11 +295,11 @@ void DinoGameStart(void){
  * @brief 启动水管鸟游戏
  */
 static const AppTaskDef bird_game_app = {
-	.init = game_init,
-	.tick = game_tick,
+	.init = app_bird_game_init,
+	.tick = app_bird_game_tick,
 	.sample = NULL,
-	.should_exit = game_should_exit,
-	.on_exit = game_on_exit,
+	.should_exit = app_bird_game_should_exit,
+	.on_exit = app_bird_game_on_exit,
 	.fade_tick = NULL,
 	.fade_steps = 0,
 	.frame_interval_ms = 30,
@@ -524,7 +515,7 @@ MenuItem MainMenuItems[] = {
 MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "音量",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
+	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &mid_beeper0.enable},
 	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
 	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps},
 	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},

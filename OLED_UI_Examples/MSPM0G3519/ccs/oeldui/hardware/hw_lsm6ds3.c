@@ -14,14 +14,14 @@ Angle angle_new;
 // 上次调用时间戳（ms）
 static uint32_t last_tick_ms = 0;
 
-static void delay_syms(long X)     
+static void delay_syms(long X)
 {
 	delay_ms(X);
 }
 
 /*******************************************************************************
- * 函数名：LSM6DS3TRC_ReadOneByte
- * 描述  ：从LSM6DS3TRC指定地址处开始读取一个字节数据
+ * 函数名：lsm6ds3_read_one_byte
+ * 描述  ：从LSM6DS3TRC指定地址处开始读取一个字节数据（硬件I2C）
  * 输入  ：reg_addr地址
  * 输出  ：读取的数据dat
  * 调用  ：
@@ -29,64 +29,27 @@ static void delay_syms(long X)
  *******************************************************************************/
 unsigned char lsm6ds3_read_one_byte(unsigned char reg_addr)
 {
-	uint8_t dat = 0;	
-		
-    IIC_Start();//发送起始信号
-    
-    IIC_Send_Byte((LSM6DS3TRC_I2CADDR<<1) | 0x00);//从设备地址    
-    delay_syms(1);	
-    		
-  	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		IIC_Stop();//产生一个停止条件
-	}
-	
-    IIC_Send_Byte(reg_addr);//寄存器地址
-    delay_syms(1);			
-    
-  	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		 IIC_Stop();//产生一个停止条件	  			
-	}
-
-		
-    IIC_Start();//发送重复起始信号，准备读取数据
-    
-	IIC_Send_Byte((LSM6DS3TRC_I2CADDR<<1) | 0x01);//从设备地址（读取模式）
-    delay_syms(1);	
-    		
-  	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		IIC_Stop();//产生一个停止条件	  			
-	}
-	
-    dat = IIC_Read_Byte(0);
-    
-	IIC_Stop();//发送停止信号	
-	  
-    return dat;		
+	uint8_t dat = 0;
+	(void)IIC_HW_ReadReg(LSM6DS3TRC_I2CADDR, reg_addr, &dat, 1);
+	return dat;
 }
 
 /*******************************************************************************
- * 函数名：lsm6ds3_ReadCommand
- * 描述  ：对LSM6DS3TRC读取数据
+ * 函数名：lsm6ds3_read_command
+ * 描述  ：对LSM6DS3TRC读取数据（硬件I2C连续读取）
  * 输入  ：uint8_t reg_addr, uint8_t *rev_data, uint8_t length
  * 输出  ：void
  * 调用  ：内部调用
- * 备注  ：
+ * 备注  ：LSM6DS3支持寄存器地址自动递增
  *******************************************************************************/
 void lsm6ds3_read_command(uint8_t reg_addr, uint8_t *rev_data, uint8_t length)
-{	
-	while(length)
-	{
-		*rev_data++ = lsm6ds3_read_one_byte(reg_addr++);
-		length--; 
-	}		
+{
+	(void)IIC_HW_ReadReg(LSM6DS3TRC_I2CADDR, reg_addr, rev_data, length);
 }
 
 /*******************************************************************************
- * 函数名：lsm6ds3_WriteCommand
- * 描述  ：往LSM6DS3TRC写入命令
+ * 函数名：lsm6ds3_write_command
+ * 描述  ：往LSM6DS3TRC写入命令（硬件I2C）
  * 输入  ：uint8_t reg_addr, uint8_t *send_data, uint16_t length
  * 输出  ：void
  * 调用  ：内部调用
@@ -94,79 +57,25 @@ void lsm6ds3_read_command(uint8_t reg_addr, uint8_t *rev_data, uint8_t length)
  *******************************************************************************/
 void lsm6ds3_write_command(uint8_t reg_addr, uint8_t *send_data, uint16_t length)
 {
-	IIC_Start();	
-		
-	delay_syms(10);	
-
-	IIC_Send_Byte((LSM6DS3TRC_I2CADDR<<1) | 0x00);//发送设备地址	
-
-	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		IIC_Stop();//产生一个停止条件	  								
-	}
-	else
-	{	
-	}	
-		
-	delay_syms(10);			
-			
-	IIC_Send_Byte(reg_addr);//发送寄存器地址	
-
-	delay_syms(10);	
-
-	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		IIC_Stop();//产生一个停止条件	  					
-	}
-	else
-	{	
-	}	
-			
-	delay_syms(10);		
-			
-	IIC_Send_Byte(*send_data);//发送数据		
-
-	delay_syms(10);	
-
-	if(IIC_Wait_Ack())	/* 检测设备的ACK应答 */
-	{
-		IIC_Stop();//产生一个停止条件	  						
-	}
-	else
-	{	
-	}	
-			
-	delay_syms(10);	
-
-	IIC_Stop();//产生一个停止条件	
+	(void)IIC_HW_WriteReg(LSM6DS3TRC_I2CADDR, reg_addr, send_data, length);
 }
 
 /*******************************************************************************
- * 函数名：IIC_CheckDevice
- * 描述  ：检测I2C总线设备，CPU向发送设备地址，然后读取设备应答来判断该设备是否存在
- * 输入  ：_Address：设备的I2C总线地址
- * 输出  ：
+ * 函数名：i2c_check_device
+ * 描述  ：检测I2C总线设备（硬件I2C，尝试读取WHO_AM_I寄存器）
+ * 输入  ：_Address：设备的I2C总线地址（7位）
+ * 输出  ：0 设备存在，非0 设备不存在
  * 调用  ：
  * 备注  ：
  *******************************************************************************/
 uint8_t i2c_check_device(uint8_t _Address)
 {
-	uint8_t ucAck;
- 
-	
-    IIC_Start();		/* 发送启动信号 */
-
-    IIC_Send_Byte(_Address );
-    ucAck = IIC_Wait_Ack();	/* 检测设备的ACK应答 */
-
-    IIC_Stop();			/* 发送停止信号 */
-
-    return ucAck;
-
+	uint8_t dummy;
+	return IIC_HW_ReadReg(_Address, LSM6DS3TRC_WHO_AM_I, &dummy, 1);
 }
 
 /*******************************************************************************
- * 函数名：lsm6ds3_CheckOk
+ * 函数名：lsm6ds3_check_ok
  * 描述  ：判断LSM6DS3TRC是否正常
  * 输入  ：void
  * 输出  ： 1 表示正常， 0 表示不正常
@@ -175,18 +84,11 @@ uint8_t i2c_check_device(uint8_t _Address)
  *******************************************************************************/
 uint8_t lsm6ds3_check_ok(void)
 {
-	if(i2c_check_device( LSM6DS3TRC_I2CADDR ) == 1)
+	if (i2c_check_device(LSM6DS3TRC_I2CADDR) == 0)
 	{
-	    //printf("Device exist\r\n");
 		return 1;
 	}
-	else
-	{
-		/* 失败后，切记发送I2C总线停止信号 */
-	    //printf("Device not exist\r\n");		
-		IIC_Stop();
-		return 0;
-	}
+	return 0;
 }
 
 /*******************************************************************************
@@ -202,15 +104,12 @@ uint8_t lsm6ds3_get_Chip_id(void)
 	uint8_t buf = 0;
 
 	lsm6ds3_read_command(LSM6DS3TRC_WHO_AM_I, &buf, 1);//Who I am ID
-	//printf("buf 0x%02X\r\n",buf);		
 	if (buf == 0x6a)
 	{
-	    //printf("ID ok\r\n");	
 		return 1;
 	}
 	else
 	{
-	    //printf("ID error\r\n");	
 		return 0;
 	}
 }
@@ -388,7 +287,7 @@ void lsm6ds3_get_acceleration(uint8_t fsxl, float *acc_float)
 	case LSM6DS3TRC_ACC_FSXL_2G:
 		acc_float[0] = ((float)acc[0] * 0.061f);
 		acc_float[1] = ((float)acc[1] * 0.061f);
-		acc_float[2] = ((float)acc[2] * 0.061f);		
+		acc_float[2] = ((float)acc[2] * 0.061f);
 		break;
 
 	case LSM6DS3TRC_ACC_FSXL_16G:
@@ -423,12 +322,12 @@ void lsm6ds3_get_gyroscope(uint8_t fsg, float *gry_float)
 {
 	uint8_t buf[6];
 	int16_t gry[3];
-	
+
 	lsm6ds3_read_command(LSM6DS3TRC_OUTX_L_G, buf, 6);//获取陀螺仪原始数据
 
 	gry[0] = buf[1] << 8 | buf[0];
 	gry[1] = buf[3] << 8 | buf[2];
-	gry[2] = buf[5] << 8 | buf[4];		
+	gry[2] = buf[5] << 8 | buf[4];
 	switch (fsg)//根据不同量程来选择输出的数据的转换系数
 	{
 	case LSM6DS3TRC_GYR_FSG_245:

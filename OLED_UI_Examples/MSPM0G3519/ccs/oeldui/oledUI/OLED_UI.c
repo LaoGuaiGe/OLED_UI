@@ -49,7 +49,7 @@ OLED_ChangeDistance OLED_UI_LineStep;
  * @return 无
  */
 void GetFPS(void){
-	if(OLED_FPS.step<49){
+	if(OLED_FPS.step<9){
 		OLED_FPS.step++;
 	}else{
 		OLED_FPS.step=0;

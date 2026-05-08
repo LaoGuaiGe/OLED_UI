@@ -18,13 +18,19 @@
 #define IIC_SCL(x)      ( (x) ? (DL_GPIO_setPins(OLED_PORT,OLED_SCL_PIN)) : (DL_GPIO_clearPins(OLED_PORT,OLED_SCL_PIN)) )
 
 
-// IIC所有操作函数
-void IIC_Start(void);                // 发送IIC开始信号
-void IIC_Stop(void);                 // 发送IIC停止信号
-void IIC_Send_Byte(unsigned char txd);          // IIC发送一个字节
-unsigned char IIC_Read_Byte(unsigned char ack); // IIC读取一个字节
-unsigned char IIC_Wait_Ack(void);               // IIC等待ACK信号
-void IIC_Ack(void);                  // IIC发送ACK信号
-void IIC_NAck(void);                 // IIC不发送ACK信号
+/* 硬件 I2C 操作（使用 I2C0，与 OLED 共享总线） */
+uint8_t IIC_HW_WriteReg(uint8_t dev_addr, uint8_t reg_addr,
+	const uint8_t *data, uint16_t len);
+uint8_t IIC_HW_ReadReg(uint8_t dev_addr, uint8_t reg_addr,
+	uint8_t *data, uint16_t len);
+
+/* 软件 I2C 操作（保留兼容，新代码应使用硬件 I2C） */
+void IIC_Start(void);
+void IIC_Stop(void);
+void IIC_Send_Byte(unsigned char txd);
+unsigned char IIC_Read_Byte(unsigned char ack);
+unsigned char IIC_Wait_Ack(void);
+void IIC_Ack(void);
+void IIC_NAck(void);
 
 #endif

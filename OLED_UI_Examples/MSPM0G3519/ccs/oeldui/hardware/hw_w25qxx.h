@@ -60,5 +60,6 @@ void settings_load(uint8_t* data);
 void W25Q128_write_byte(uint32_t addr, uint8_t data);
 void W25Q128_write_page(uint8_t* buffer, uint32_t addr, uint16_t numbyte);
 void W25Q128_erase_font_area(void);
+void W25Q128_erase_sector(uint32_t addr);
 
 #endif

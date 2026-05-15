@@ -86,30 +86,36 @@ static void WS2812B_Send(void)
 	DL_Timer_disableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 	DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 
-	gChannel0InterruptTaken = false;
+	/* 暂停蜂鸣器定时器，防止总线竞争 */
+	bool buzzer_was_running = DL_Timer_isRunning(BUZZER_INST);
+	if (buzzer_was_running) DL_Timer_stopCounter(BUZZER_INST);
+
+	__disable_irq();
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
 
-	volatile uint32_t timeout = 200000;
-	while (gChannel0InterruptTaken == false) {
-		if (--timeout == 0) break;
+	while (DL_DMA_getTransferSize(DMA, DMA_CH0_CHAN_ID) > 0) {
+		;
 	}
+	__enable_irq();
+
+	/* 恢复蜂鸣器 */
+	if (buzzer_was_running) DL_Timer_startCounter(BUZZER_INST);
 
 	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
+	gChannel0InterruptTaken = true;
 	WS2812_INST->COUNTERREGS.CC_01[GPIO_WS2812_C0_IDX] = 1;
 }
 
 void WS2812B_Show(void)
 {
-	NVIC_DisableIRQ(TIMER_TICK_INST_INT_IRQN);
 	delay_us(80);
 	WS2812B_Send();
-	NVIC_EnableIRQ(TIMER_TICK_INST_INT_IRQN);
 }
 
 // N个灯珠发红光
 void PWM_WS2812B_Red(uint16_t num)
 {
-	WS2812B_Write_24Bits(num, 0x00ff00); 
+	WS2812B_Write_24Bits(num, 0x00ff00);
 	WS2812B_Show();
 }
 // N个灯珠发绿光
@@ -134,7 +140,7 @@ void set_ws2812_breathing(uint8_t index)
 	case 0: /* red */
 		for (i = 0; i < 254; i += 2)
 		{
-			WS2812B_Write_24Bits(64, (uint32_t)(0x00 << 16 | i << 8 | 0x00)); 
+			WS2812B_Write_24Bits(64, (uint32_t)(0x00 << 16 | i << 8 | 0x00));
 			WS2812B_Show();
 			delay_ms(10);
 		}

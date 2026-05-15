@@ -84,12 +84,15 @@ MenuWindow SetSavedataWindow = {
 	.Text_FontSideDistance = 80/2-24,							//字体距离左侧的距离
 	.Text_FontTopDistance = 3,							//字体距离顶部的距离
 	.General_WindowType = WINDOW_ROUNDRECTANGLE, 		//窗口类型
-	.General_ContinueTime = 1.0,						//窗口持续时间
+	.General_ContinueTime = 0.3,						//窗口持续时间
 };
 
 /**
  * @brief 创建显示亮度窗口
  */
+void ToggleColorMode(void){
+	ColorMode = !ColorMode;
+}
 void BrightnessWindow(void){
 	OLED_UI_CreateWindow(&SetBrightnessWindow);
 }
@@ -515,7 +518,7 @@ MenuItem MainMenuItems[] = {
 	{.General_item_text = "串口",.General_callback = UartMonitorStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_uart_icon},
 	{.General_item_text = "机器人",.General_callback = RobotFaceStart,.General_SubMenuPage = NULL,.Tiles_Icon = gImage_robot_icon},
 	{.General_item_text = "小游戏",.General_callback = NULL,.General_SubMenuPage = &GamesMenuPage,.Tiles_Icon = gImage_game_icon},
-	{.General_item_text = "主题",.General_callback = NULL,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
+	{.General_item_text = "主题",.General_callback = ToggleColorMode,.General_SubMenuPage = NULL,.Tiles_Icon = Image_night},
 	{.General_item_text = "更多",.General_callback = NULL,.General_SubMenuPage = &MoreMenuPage,.Tiles_Icon = Image_more},
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/
 

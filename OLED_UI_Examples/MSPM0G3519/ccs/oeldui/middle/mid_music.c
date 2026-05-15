@@ -252,7 +252,9 @@ void Beeper_Proc(void)
                 buzzer_set_reload_value(arr);
 
                 /*给PWM占空比赋值，改变音量*/
-                buzzer_set_duty((uint16_t)arr / (100 - Beeper0.Sound_Loud));  
+                uint8_t loud = Beeper0.Sound_Loud;
+                if (loud > 95) loud = 95;
+                buzzer_set_duty((uint16_t)arr / (100 - loud));  
                 /*赋值新的延时长度给count*/
                 Beeper0.Beeper_Count = MySound[Beeper0.Beep_Play_Schedule].Delay;
                 /*音符表走到下一个音符*/

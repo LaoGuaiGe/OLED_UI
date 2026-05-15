@@ -1019,17 +1019,10 @@ void OLED_DrawWindow(void){
 			int16_t WindowTextStringLength = CalcStringWidth(ChineseFont,ASCIIFont,CurrentWindow->Text_String);
 			//如果字符串的宽度超过了最大限定宽度
 			if(WindowTextStringLength > MaxLength){
-#if IF_WAIT_ANIMATION_FINISH
-                if( OLED_UI_Window.CurrentArea.X == OLED_UI_Window.TargetArea.X &&
-                        OLED_UI_Window.CurrentArea.Y == OLED_UI_Window.TargetArea.Y &&
-                        OLED_UI_Window.CurrentArea.Width == OLED_UI_Window.TargetArea.Width &&
-                        OLED_UI_Window.CurrentArea.Height == OLED_UI_Window.TargetArea.Height){
-#endif
 		    	CurrentWindow->_LineSlip-=LINE_SLIP_SPEED;
-#if IF_WAIT_ANIMATION_FINISH
-                }
-#endif
-		}
+			} else {
+				CurrentWindow->_LineSlip = 0;
+			}
 			if(CurrentWindow->_LineSlip < -WindowTextStringLength){
 		   	 	CurrentWindow->_LineSlip =  MaxLength + 1;
 			}

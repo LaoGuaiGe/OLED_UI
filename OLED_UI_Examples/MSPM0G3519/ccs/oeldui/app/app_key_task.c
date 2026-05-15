@@ -6,6 +6,8 @@
 #include "app_dino_game.h"
 #include "app_bird_game.h"
 #include "app_plane_game.h"
+#include "app_brick_game.h"
+#include "app_snake_game.h"
 #include "app_gyroscope.h"
 #include "app_uart_monitor.h"
 
@@ -70,6 +72,8 @@ void key0_press_repeat_Handler(void *btn)
 	key_menu.back = RELEASE;
     key_menu.up = PRESS;
     plane_game_set_up();
+    brick_game_set_click();
+    snake_game_turn_left();
     Beeper_Perform(BEEPER_KEYPRESS);
 //	printf("***> key0 press repeat! <***\r\n");
 }
@@ -79,6 +83,8 @@ void key0_single_click_Handler(void *btn)
 	key_menu.back = RELEASE;
     key_menu.up = PRESS;
     plane_game_set_up();
+    brick_game_set_click();
+    snake_game_turn_left();
     Beeper_Perform(BEEPER_KEYPRESS);
 //	printf("***> key0 single click! <***\r\n");
 }
@@ -88,13 +94,17 @@ void key0_long_press_start_Handler(void *btn)
     key_menu.back = PRESS;
     key_menu.up = RELEASE;
     Beeper_Perform(BEEPER_WARNING);
-    
+
     // 请求退出水管鸟游戏
     game_request_exit();
     //请求退出小恐龙游戏
     dino_game_request_exit();
     //请求退出飞机大战游戏
     plane_game_request_exit();
+    //请求退出打砖块游戏
+    brick_game_request_exit();
+    //请求退出贪吃蛇游戏
+    snake_game_request_exit();
     // 请求退出陀螺仪显示
     gyroscope_request_exit();
     // 请求退出串口监视器
@@ -119,9 +129,11 @@ void key1_press_repeat_Handler(void *btn)
 {
 //	printf("***> key1 press repeat! <***\r\n");
 	key_menu.enter = RELEASE;
-    key_menu.down = PRESS;  
-    game_set_jump();//水管鸟游戏单击事件
-    dino_game_set_click();//小恐龙游戏单击事件
+    key_menu.down = PRESS;
+    game_set_jump();
+    dino_game_set_click();
+    brick_game_set_click();
+    snake_game_turn_right();
     plane_game_set_down();
     Beeper_Perform(BEEPER_KEYPRESS);
 }
@@ -130,9 +142,11 @@ void key1_single_click_Handler(void *btn)
 {
 //	printf("***> key1 single click! <***\r\n");
 	key_menu.enter = RELEASE;
-    key_menu.down = PRESS;  
-    game_set_jump();//水管鸟游戏单击事件
-    dino_game_set_click();//小恐龙游戏单击事件
+    key_menu.down = PRESS;
+    game_set_jump();
+    dino_game_set_click();
+    brick_game_set_click();
+    snake_game_turn_right();
     plane_game_set_down();
     Beeper_Perform(BEEPER_KEYPRESS);
 }
@@ -163,6 +177,8 @@ void key2_single_click_Handler(void *btn)
     game_set_jump();
     dino_game_set_click();
     plane_game_set_click();
+    brick_game_set_click();
+    snake_game_set_click();
     Beeper_Perform(BEEPER_TRITONE);
 }
 
@@ -174,6 +190,8 @@ void key2_long_press_start_Handler(void *btn)
     game_request_exit();
     dino_game_request_exit();
     plane_game_request_exit();
+    brick_game_request_exit();
+    snake_game_request_exit();
     gyroscope_request_exit();
     uart_monitor_request_exit();
 }

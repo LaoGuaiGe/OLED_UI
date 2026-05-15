@@ -14,6 +14,8 @@ typedef enum {
 #define STORAGE_ID_DINO   0x0001
 #define STORAGE_ID_PLANE  0x0002
 #define STORAGE_ID_BIRD   0x0003
+#define STORAGE_ID_BRICK  0x0004
+#define STORAGE_ID_SNAKE  0x0005
 
 #define GAME_SAVE_MAGIC   0xA5A5A5A5
 

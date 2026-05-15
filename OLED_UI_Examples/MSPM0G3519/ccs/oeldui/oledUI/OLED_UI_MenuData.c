@@ -5,6 +5,8 @@
 #include "app_dino_game.h"
 #include "app_bird_game.h"
 #include "app_plane_game.h"
+#include "app_brick_game.h"
+#include "app_snake_game.h"
 #include "app_gyroscope.h"
 #include "app_uart_monitor.h"
 #include "app_robot_face.h"
@@ -336,6 +338,40 @@ static const AppTaskDef plane_game_app = {
 void PlaneGameStart(void){
 	app_task_start(&plane_game_app);
 }
+
+/**
+ * @brief 启动打砖块游戏
+ */
+static const AppTaskDef brick_game_app = {
+	.init = brick_game_init,
+	.tick = brick_game_tick,
+	.sample = NULL,
+	.should_exit = brick_game_should_exit,
+	.on_exit = brick_game_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
+void BrickGameStart(void){
+	app_task_start(&brick_game_app);
+}
+
+/**
+ * @brief 启动贪吃蛇游戏
+ */
+static const AppTaskDef snake_game_app = {
+	.init = snake_game_init,
+	.tick = snake_game_tick,
+	.sample = NULL,
+	.should_exit = snake_game_should_exit,
+	.on_exit = snake_game_on_exit,
+	.fade_tick = NULL,
+	.fade_steps = 0,
+	.frame_interval_ms = 30,
+};
+void SnakeGameStart(void){
+	app_task_start(&snake_game_app);
+}
 //关于窗口的结构体
 MenuWindow NullWindow = {
 	.General_Width = 80,							//窗口宽度
@@ -544,6 +580,8 @@ MenuItem GamesMenuItems[] = {
 	{.General_item_text = "小恐龙 ",.General_callback = DinoGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "水管鸟 ",.General_callback = FlappyBirdStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "飞机大战",.General_callback = PlaneGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "打砖块",.General_callback = BrickGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "贪吃蛇",.General_callback = SnakeGameStart,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "[返回]",.General_callback = OLED_UI_Back,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 
 	{.General_item_text = NULL},/*最后一项的General_item_text置为NULL，表示该项为分割线*/

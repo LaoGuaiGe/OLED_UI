@@ -1,6 +1,5 @@
 #include "mid_wireless_uart.h"
-#include <string.h>
-
+#include "mid_debug_uart.h"
 static struct {
     char buf[WIRELESS_RX_BUF_MAX];
     int  len;
@@ -10,6 +9,7 @@ static struct {
 
 void wireless_uart_init(void)
 {
+    DL_UART_Main_enableInterrupt(UART_WIRELESS_INST,DL_UART_MAIN_INTERRUPT_RX);
     NVIC_ClearPendingIRQ(UART_WIRELESS_INST_INT_IRQN);
     NVIC_EnableIRQ(UART_WIRELESS_INST_INT_IRQN);
     wireless_uart_clear_rx_data();
@@ -34,7 +34,10 @@ char* wireless_uart_get_rx_data(void)
 void wireless_uart_clear_rx_data(void)
 {
     wireless_rx.len = 0;
-    memset(wireless_rx.buf, 0, WIRELESS_RX_BUF_MAX);
+    for(int i =0; i < WIRELESS_RX_BUF_MAX; i++ )
+    {
+        wireless_rx.buf[i] = 0;
+    }
 }
 
 bool wireless_uart_is_linked(void)
@@ -44,9 +47,33 @@ bool wireless_uart_is_linked(void)
 
 void UART_WIRELESS_INST_IRQHandler(void)
 {
-    if (DL_UART_getPendingInterrupt(UART_WIRELESS_INST) == DL_UART_IIDX_RX) {
-        wireless_rx.buf[wireless_rx.len++] = DL_UART_Main_receiveData(UART_WIRELESS_INST);
+    // 读 IIDX 清中断标志（含 overrun）；再无条件排空 RX FIFO，避免溢出后 RX 卡死
+    DL_UART_getPendingInterrupt(UART_WIRELESS_INST);
+    while (!DL_UART_isRXFIFOEmpty(UART_WIRELESS_INST)) {
+        char ch = DL_UART_Main_receiveData(UART_WIRELESS_INST);
+        wireless_rx.buf[wireless_rx.len++] = ch;
         if (wireless_rx.len >= WIRELESS_RX_BUF_MAX - 1)
             wireless_rx.len = 0;
+        debug_uart_send_char(ch);
     }
+}
+
+bool wireless_uart_rf_on(void)
+{
+    // 关 UART7 RX 中断，保证命令字节连续发出不被打断（AT 解析依赖完整帧）
+    NVIC_DisableIRQ(UART_WIRELESS_INST_INT_IRQN);
+    wireless_uart_send_string("AT_RF=ON\r\n");
+    while (DL_UART_isBusy(UART_WIRELESS_INST));
+    NVIC_EnableIRQ(UART_WIRELESS_INST_INT_IRQN);
+    return true;
+}
+
+bool wireless_uart_rf_off(void)
+{
+    // 关 UART7 RX 中断，保证命令字节连续发出不被打断（AT 解析依赖完整帧）
+    NVIC_DisableIRQ(UART_WIRELESS_INST_INT_IRQN);
+    wireless_uart_send_string("AT_RF=OFF\r\n");
+    while (DL_UART_isBusy(UART_WIRELESS_INST));
+    NVIC_EnableIRQ(UART_WIRELESS_INST_INT_IRQN);
+    return true;
 }

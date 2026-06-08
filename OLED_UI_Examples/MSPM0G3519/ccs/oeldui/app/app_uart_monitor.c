@@ -229,6 +229,7 @@ void uart_monitor_init(void)
     exit_requested = false;
     clear_requested = false;
     clear_lines();
+    wireless_uart_rf_on();
 }
 
 void uart_monitor_tick(void)
@@ -252,6 +253,7 @@ void uart_monitor_tick(void)
     if(clear_requested){
         clear_requested = false;
         clear_lines();
+    //wireless_uart_rf_on();
     }
 
     render_frame();
@@ -266,6 +268,7 @@ void uart_monitor_fade_tick(int8_t level)
 
 void uart_monitor_on_exit(void)
 {
+    wireless_uart_rf_off();
     OLED_Clear();
     OLED_Update();
 }
@@ -276,6 +279,7 @@ void uart_monitor_loop(void)
     exit_requested = false;
     clear_requested = false;
     clear_lines();
+   // wireless_uart_rf_on();
 
     // 淡入
     int8_t i;
@@ -313,6 +317,7 @@ void uart_monitor_loop(void)
         if(clear_requested){
             clear_requested = false;
             clear_lines();
+    //wireless_uart_rf_on();
         }
 
         render_frame();

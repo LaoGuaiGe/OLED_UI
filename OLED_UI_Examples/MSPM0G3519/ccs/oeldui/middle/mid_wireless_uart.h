@@ -4,7 +4,7 @@
 #include "ti_msp_dl_config.h"
 #include <stdbool.h>
 
-#define WIRELESS_RX_BUF_MAX  512
+#define WIRELESS_RX_BUF_MAX  128
 
 // 2.4G无线连接状态引脚（PB23）
 // SysConfig 生成的宏为 WIRELESS_PORT + WIRELESS_LINK_PIN

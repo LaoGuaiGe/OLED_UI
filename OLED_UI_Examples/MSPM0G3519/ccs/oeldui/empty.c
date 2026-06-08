@@ -35,18 +35,20 @@ int main(void)
 	// 图形化外设配置初始化
 	SYSCFG_DL_init();	
 
-	// 串口初始化 9600
-	debug_uart_init();
+	Delay_ms(1000);
 
+	// 串口初始化 115200
+	debug_uart_init();
+    debug_uart_send_string("TQX Demo start\r\n");
 	// 2.4G无线串口初始化
 	wireless_uart_init();
 
-	Delay_ms(500);
+	
 
 	/*=== 字库烧录模式（每次只取消一个注释，烧录完再注释回来）===*/
 	// font_burner_hzk16_run();   // 烧录 HZK16 字库 (发送 HZK16.bin)
 	// font_burner_hzk12_run();   // 烧录 HZK12 字库 (发送 HZK12.bin)
-	// font_burner_hzk20_run();   // 烧录 HZK20 字库 (发送 HZK20.bin)
+	// font_burner_hzk20_run();   // 烧录 HZK20 字库 (发送 HZK20.bin)               
 	// font_burner_map_run();     // 烧录 Unicode→GB2312 映射表 (发送 unicode_gb2312_map.bin)
 
 	// 蜂鸣器初始化

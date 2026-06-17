@@ -8,6 +8,7 @@ typedef enum {
     EFFECT_STATIC = 0,
     EFFECT_FLOWING = 1,
     EFFECT_RUNNING = 2,
+    EFFECT_BREATHE = 3,
 } WS2812_Effect_Mode;
 
 typedef struct {
@@ -17,7 +18,7 @@ typedef struct {
 } WS2812_Effect_Param;
 
 extern WS2812_Effect_Param effect_param;
-extern int16_t ws2812_light_mode;  /* 0=关, 1=流水灯, 2=跑马灯 */
+extern int16_t ws2812_light_mode;  /* 0=关, 1=流水灯, 2=跑马灯, 3=呼吸灯 */
 
 void ws2812_set_effect_mode(WS2812_Effect_Mode mode);
 void ws2812_set_effect_speed(uint16_t speed);

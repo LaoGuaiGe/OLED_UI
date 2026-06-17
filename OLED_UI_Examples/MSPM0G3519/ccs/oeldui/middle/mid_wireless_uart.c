@@ -66,7 +66,7 @@ void UART_WIRELESS_INST_IRQHandler(void)
         wireless_rx.buf[wireless_rx.len++] = ch;
         if (wireless_rx.len >= WIRELESS_RX_BUF_MAX - 1)
             wireless_rx.len = 0;
-        debug_uart_send_char(ch);
+        // debug_uart_send_char(ch);//串口0回显
     }
 }
 

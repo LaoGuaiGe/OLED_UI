@@ -8,7 +8,7 @@ WS2812_Effect_Param effect_param = {
     .brightness = 255
 };
 
-/* 灯光模式：0=关, 1=流水灯, 2=跑马灯 */
+/* 灯光模式：0=关, 1=流水灯, 2=跑马灯, 3=呼吸灯 */
 int16_t ws2812_light_mode = 0;
 
 static volatile bool need_update = false;
@@ -22,6 +22,10 @@ static uint8_t  running_led   = 0;
 static uint16_t running_step  = 0;
 static uint16_t running_color = 0;
 static uint32_t running_buf[WS2812B_NUM] = {0};
+
+/* 呼吸灯状态 */
+static uint16_t breathe_step = 0;       // 当前亮度进度 0~510 (0~255渐亮, 256~510渐灭)
+#define BREATHE_TOTAL 510
 
 /* gamma 2.2 校正表 */
 static const uint8_t gamma_table[256] = {
@@ -149,6 +153,41 @@ static void do_running_effect(uint16_t speed)
     }
 }
 
+/* ===== 呼吸灯 ===== */
+static void do_breathe_effect(uint16_t speed)
+{
+    if (!need_update) return;
+    need_update = false;
+
+    // 计算当前亮度比例 (0~255)
+    uint8_t level;
+    if (breathe_step <= 255) {
+        level = (uint8_t)breathe_step;          // 渐亮阶段
+    } else {
+        level = (uint8_t)(BREATHE_TOTAL - breathe_step);  // 渐灭阶段
+    }
+
+    // gamma校正：让渐亮和渐灭的感知速度一致
+    level = gamma_table[level];
+
+    // 用设置的颜色, 按 level/255 缩放, 再叠加 brightness
+    uint8_t r = (uint8_t)((uint16_t)(ws2812_r & 0xFF) * level / 255);
+    uint8_t g = (uint8_t)((uint16_t)(ws2812_g & 0xFF) * level / 255);
+    uint8_t b = (uint8_t)((uint16_t)(ws2812_b & 0xFF) * level / 255);
+
+    uint32_t grb = ((uint32_t)g << 16) | ((uint32_t)r << 8) | (uint32_t)b;
+    grb = apply_brightness(grb);
+
+    WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
+    WS2812B_Write_24Bits(ws2812_led_num, grb);
+    WS2812B_Show();
+
+    // 步进: speed越大越快
+    uint16_t step_size = 1 + (speed - 1) * 3 / 99;
+    breathe_step += step_size;
+    if (breathe_step > BREATHE_TOTAL) breathe_step = 0;
+}
+
 /* ===== tick（5ms中断调用）===== */
 void ws2812_effect_tick(void)
 {
@@ -164,6 +203,7 @@ void ws2812_set_effect_mode(WS2812_Effect_Mode mode)
     running_led   = 0;
     running_step  = 0;
     running_color = 0;
+    breathe_step  = 0;
     need_update   = false;
 
     if (mode == EFFECT_RUNNING) {
@@ -205,6 +245,7 @@ void ws2812_effect_update(void)
     switch (ws2812_light_mode) {
         case 1: do_flowing_effect(effect_param.speed); break;
         case 2: do_running_effect(effect_param.speed); break;
+        case 3: do_breathe_effect(effect_param.speed); break;
         default: ws2812_update(); break;
     }
 }

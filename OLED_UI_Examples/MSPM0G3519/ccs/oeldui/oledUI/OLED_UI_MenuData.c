@@ -246,7 +246,7 @@ MenuWindow SetLightModeWindow = {
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
 	.Prob_Data_Int_16 = &ws2812_light_mode,
-	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 2,
+	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 3,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
 

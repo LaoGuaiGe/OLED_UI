@@ -32,16 +32,17 @@
 // 布局常量
 #define STATUS_H        10          // 状态栏高度
 #define FRAME_Y         10          // 外框顶部Y
-#define FRAME_H         43          // 外框高度（Y=10~52）
+#define FRAME_H         39          // 外框高度（Y=10~48）
 #define CONTENT_X       3           // 内容起始X
 #define CONTENT_Y       13          // 内容起始Y（框内留2px边距）
-#define FOOTER_SEP_Y    53          // 底部分隔线Y
-#define FOOTER_Y        55          // 底部文字Y
+#define FOOTER_SEP_Y    50          // 底部分隔线Y
+#define FOOTER_Y        52          // 底部按钮起始Y
 
-#define UART_BAUD_RATE  9600
+#define UART_BAUD_RATE  115200
 
 static bool exit_requested = false;
 static bool clear_requested = false;
+static bool toggle_scroll_requested = false;
 
 static char line_buf[UART_MON_MAX_LINES][UART_MON_LINE_WIDTH + 1];
 static int  line_count = 0;
@@ -56,6 +57,7 @@ static uint32_t rx_blink_timer = 0;
 
 void uart_monitor_request_exit(void)  { exit_requested = true; }
 void uart_monitor_request_clear(void) { clear_requested = true; }
+void uart_monitor_request_toggle_scroll(void) { toggle_scroll_requested = true; }
 bool uart_monitor_should_exit(void)   { return exit_requested; }
 
 static void clear_lines(void)
@@ -127,31 +129,22 @@ static void render_frame(void)
     OLED_DrawRectangle(0, 0, 128, STATUS_H, OLED_FILLED);
     OLED_ReverseArea(0, 0, 128, STATUS_H);
 
-    // 左侧：2.4G无线标签 + 连接状态
-    bool linked = wireless_uart_is_linked();
-    if(linked){
-        OLED_ShowString(1, 1, "2.4G", OLED_6X8_HALF);
-    } else {
-        OLED_ShowString(1, 1, "2.4G", OLED_6X8_HALF);
-        // 未连接时在 2.4G 后面画删除线表示断开
-        OLED_DrawLine(1, 5, 24, 5);
-    }
-
-    // 波特率
+    // 左侧：波特率
     char baud_str[10];
     snprintf(baud_str, sizeof(baud_str), "%d", UART_BAUD_RATE);
-    OLED_ShowString(28, 1, baud_str, OLED_6X8_HALF);
+    OLED_ShowString(1, 1, baud_str, OLED_6X8_HALF);
 
     // RX闪烁指示（小实心圆点）
     if(rx_blink){
-        OLED_DrawCircle(68, 5, 3, OLED_FILLED);
+        OLED_DrawCircle(56, 5, 3, OLED_FILLED);
         if(get_sys_tick_ms() - rx_blink_timer > 150) rx_blink = false;
     } else {
-        OLED_DrawCircle(68, 5, 3, OLED_UNFILLED);
+        OLED_DrawCircle(56, 5, 3, OLED_UNFILLED);
     }
 
     // 连接状态图标（信号塔样式）
-    int icon_x = 76;
+    bool linked = wireless_uart_is_linked();
+    int icon_x = 64;
     if(linked){
         OLED_DrawLine(icon_x + 2, 2, icon_x + 2, 8);
         OLED_DrawLine(icon_x, 4, icon_x, 8);
@@ -171,11 +164,8 @@ static void render_frame(void)
     int cnt_x = 127 - (int)strlen(cnt_str) * 6;
     OLED_ShowString(cnt_x, 1, cnt_str, OLED_6X8_HALF);
 
-    // ---- 中间加粗双线矩形框 ----
-    // 外框
-    OLED_DrawRectangle(0, FRAME_Y, 128, FRAME_H, OLED_UNFILLED);
-    // 内框（偏移1px，形成加粗效果）
-    OLED_DrawRectangle(1, FRAME_Y + 1, 126, FRAME_H - 2, OLED_UNFILLED);
+    // ---- 中间圆角矩形框 ----
+    OLED_DrawRoundedRectangle(0, FRAME_Y, 128, FRAME_H, 3, OLED_UNFILLED);
 
     // ---- 内容区数据 ----
     if(line_count == 0){
@@ -202,24 +192,32 @@ static void render_frame(void)
         int bar_h   = FRAME_H - 6;
         int thumb_h = bar_h * UART_MON_VISIBLE / line_count;
         if(thumb_h < 3) thumb_h = 3;
-        int thumb_y = bar_y + (bar_h - thumb_h) * scroll_offset / (line_count - UART_MON_VISIBLE);
+        int thumb_y = bar_y + (bar_h - thumb_h) * (line_count - UART_MON_VISIBLE - scroll_offset) / (line_count - UART_MON_VISIBLE);
         OLED_DrawLine(bar_x, bar_y, bar_x, bar_y + bar_h - 1);
         OLED_DrawRectangle(bar_x - 1, thumb_y, 3, thumb_h, OLED_FILLED);
     }
 
-    // ---- 底部按键提示栏 ----
+    // ---- 底部按键提示栏（微型按钮风格）----
     OLED_DrawLine(0, FOOTER_SEP_Y, 127, FOOTER_SEP_Y);
 
-    // 左侧：滚动模式
+    // 按钮高度12px(字体8+上下各2px边距), 宽度=字符数×6+左右各3px
+    // 左侧：AUTO/HOLD 状态按钮 (4字×6=24, +6=30)
     if(auto_scroll){
-        OLED_ShowString(0, FOOTER_Y, "AUTO", OLED_6X8_HALF);
+        OLED_DrawRoundedRectangle(1, FOOTER_Y, 30, 12, 2, OLED_UNFILLED);
+        OLED_ShowString(4, FOOTER_Y + 2, "AUTO", OLED_6X8_HALF);
+        OLED_ReverseArea(1, FOOTER_Y, 30, 12);
     } else {
-        OLED_ShowString(0, FOOTER_Y, "HOLD", OLED_6X8_HALF);
+        OLED_DrawRoundedRectangle(1, FOOTER_Y, 30, 12, 2, OLED_UNFILLED);
+        OLED_ShowString(4, FOOTER_Y + 2, "HOLD", OLED_6X8_HALF);
     }
 
-    // 中间：操作提示
-    OLED_ShowString(30, FOOTER_Y, "H1:CLR", OLED_6X8_HALF);
-    OLED_ShowString(78, FOOTER_Y, "H0:EXIT", OLED_6X8_HALF);
+    // 中间：CLR 按钮 (3字×6=18, +6=24)
+    OLED_DrawRoundedRectangle(52, FOOTER_Y, 24, 12, 2, OLED_UNFILLED);
+    OLED_ShowString(55, FOOTER_Y + 2, "CLR", OLED_6X8_HALF);
+
+    // 右侧：EXIT 按钮 (4字×6=24, +6=30)
+    OLED_DrawRoundedRectangle(97, FOOTER_Y, 30, 12, 2, OLED_UNFILLED);
+    OLED_ShowString(100, FOOTER_Y + 2, "EXIT", OLED_6X8_HALF);
 
     OLED_Update();
 }
@@ -237,14 +235,14 @@ void uart_monitor_tick(void)
     parse_new_data();
 
     int16_t enc_delta = Encoder_Get();
-    if(enc_delta > 0 || key_menu.up == PRESS){
+    if(enc_delta < 0 || key_menu.up == PRESS){
         if(key_menu.up == PRESS) key_menu.up = RELEASE;
         if(scroll_offset < line_count - UART_MON_VISIBLE){
             scroll_offset++;
             auto_scroll = false;
         }
     }
-    if(enc_delta < 0 || key_menu.down == PRESS){
+    if(enc_delta > 0 || key_menu.down == PRESS){
         if(key_menu.down == PRESS) key_menu.down = RELEASE;
         if(scroll_offset > 0) scroll_offset--;
         if(scroll_offset == 0) auto_scroll = true;
@@ -254,6 +252,17 @@ void uart_monitor_tick(void)
         clear_requested = false;
         clear_lines();
     //wireless_uart_rf_on();
+    }
+
+    // 编码器单击切换 AUTO/HOLD
+    if(toggle_scroll_requested){
+        toggle_scroll_requested = false;
+        if(!auto_scroll){
+            scroll_offset = 0;
+            auto_scroll = true;
+        } else {
+            auto_scroll = false;
+        }
     }
 
     render_frame();
@@ -296,7 +305,7 @@ void uart_monitor_loop(void)
 
         // 按键处理
         int16_t enc_delta2 = Encoder_Get();
-        if(enc_delta2 > 0 || key_menu.up == PRESS){
+        if(enc_delta2 < 0 || key_menu.up == PRESS){
             if(key_menu.up == PRESS) key_menu.up = RELEASE;
             // 向上滚动（看更旧的数据）
             if(scroll_offset < line_count - UART_MON_VISIBLE){
@@ -304,7 +313,7 @@ void uart_monitor_loop(void)
                 auto_scroll = false;
             }
         }
-        if(enc_delta2 < 0 || key_menu.down == PRESS){
+        if(enc_delta2 > 0 || key_menu.down == PRESS){
             if(key_menu.down == PRESS) key_menu.down = RELEASE;
             // 向下滚动（看更新的数据）
             if(scroll_offset > 0){
@@ -318,6 +327,17 @@ void uart_monitor_loop(void)
             clear_requested = false;
             clear_lines();
     //wireless_uart_rf_on();
+        }
+
+        // 编码器单击切换 AUTO/HOLD
+        if(toggle_scroll_requested){
+            toggle_scroll_requested = false;
+            if(!auto_scroll){
+                scroll_offset = 0;
+                auto_scroll = true;
+            } else {
+                auto_scroll = false;
+            }
         }
 
         render_frame();

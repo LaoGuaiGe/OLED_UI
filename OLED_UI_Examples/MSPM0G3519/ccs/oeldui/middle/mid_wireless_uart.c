@@ -42,7 +42,19 @@ void wireless_uart_clear_rx_data(void)
 
 bool wireless_uart_is_linked(void)
 {
-    return DL_GPIO_readPins(WIRELESS_LINK_PORT, WIRELESS_LINK_PIN) != 0;
+    // 软件滤波：连续多次采样都为低电平才判定断开，避免RF瞬态断连导致状态闪烁
+    // 该函数约30ms调用一次，阈值100≈持续3秒低电平才确认断开
+    static uint8_t low_count = 0;
+    static bool last_state = false;
+
+    if (DL_GPIO_readPins(WIRELESS_LINK_PORT, WIRELESS_LINK_PIN) != 0) {
+        low_count = 0;
+        last_state = true;
+    } else {
+        if (low_count < 100) low_count++;
+        if (low_count >= 100) last_state = false;
+    }
+    return last_state;
 }
 
 void UART_WIRELESS_INST_IRQHandler(void)

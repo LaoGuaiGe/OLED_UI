@@ -96,7 +96,7 @@ GPIO2.associatedPins[1].ioStructure  = "OD";
 GPIO2.associatedPins[1].pin.$assign  = "PA1";
 
 GPIO3.$name                              = "KEY";
-GPIO3.associatedPins.create(3);
+GPIO3.associatedPins.create(5);
 GPIO3.associatedPins[0].$name            = "ENTER";
 GPIO3.associatedPins[0].direction        = "INPUT";
 GPIO3.associatedPins[0].internalResistor = "PULL_UP";
@@ -114,6 +114,15 @@ GPIO3.associatedPins[2].assignedPort     = "PORTA";
 GPIO3.associatedPins[2].assignedPin      = "31";
 GPIO3.associatedPins[2].internalResistor = "PULL_UP";
 GPIO3.associatedPins[2].$name            = "ENCODER_SW";
+GPIO3.associatedPins[3].$name            = "A24";
+GPIO3.associatedPins[3].direction        = "INPUT";
+GPIO3.associatedPins[3].internalResistor = "PULL_UP";
+GPIO3.associatedPins[3].pin.$assign      = "PA24";
+GPIO3.associatedPins[4].$name            = "B24";
+GPIO3.associatedPins[4].direction        = "INPUT";
+GPIO3.associatedPins[4].internalResistor = "PULL_UP";
+GPIO3.associatedPins[4].assignedPort     = "PORTB";
+GPIO3.associatedPins[4].assignedPin      = "24";
 
 GPIO4.$name                              = "FLASH";
 GPIO4.associatedPins[0].$name            = "CS";
@@ -250,4 +259,5 @@ scripting.suppress("All four File Generation options must be enabled in order to
  * re-solve from scratch.
  */
 GPIO3.associatedPins[2].pin.$suggestSolution = "PA31";
+GPIO3.associatedPins[4].pin.$suggestSolution = "PB24";
 GPIO5.associatedPins[0].pin.$suggestSolution = "PB23";

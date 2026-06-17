@@ -179,6 +179,7 @@ void key2_single_click_Handler(void *btn)
     plane_game_set_click();
     brick_game_set_click();
     snake_game_set_click();
+    uart_monitor_request_toggle_scroll(); // 串口监视器编码器单击切换AUTO/HOLD
     Beeper_Perform(BEEPER_TRITONE);
 }
 

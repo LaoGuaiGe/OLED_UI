@@ -86,10 +86,6 @@ static void WS2812B_Send(void)
 	DL_Timer_disableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 	DL_Timer_enableEvent(WS2812_INST, DL_TIMER_EVENT_ROUTE_1, DL_TIMER_EVENT_ZERO_EVENT);
 
-	/* 暂停蜂鸣器定时器，防止总线竞争 */
-	bool buzzer_was_running = DL_Timer_isRunning(BUZZER_INST);
-	if (buzzer_was_running) DL_Timer_stopCounter(BUZZER_INST);
-
 	__disable_irq();
 	DL_DMA_enableChannel(DMA, DMA_CH0_CHAN_ID);
 
@@ -97,9 +93,6 @@ static void WS2812B_Send(void)
 		;
 	}
 	__enable_irq();
-
-	/* 恢复蜂鸣器 */
-	if (buzzer_was_running) DL_Timer_startCounter(BUZZER_INST);
 
 	DL_DMA_disableChannel(DMA, DMA_CH0_CHAN_ID);
 	gChannel0InterruptTaken = true;

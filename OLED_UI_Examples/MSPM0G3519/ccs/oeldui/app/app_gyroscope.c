@@ -10,12 +10,13 @@
 #include "hw_delay.h"
 #include "mid_timer.h"
 #include <math.h>
+#include <string.h>
 
 #define SCREEN_W 128
 #define SCREEN_H 64
-#define CUBE_CX  88   // cube center X on screen (right half)
+#define CUBE_CX  34   // cube center X on screen (left half)
 #define CUBE_CY  32   // cube center Y on screen
-#define CUBE_SIZE 18.0f  // half-edge length in pixels
+#define CUBE_SIZE 15.0f  // half-edge length in pixels
 #define DEG2RAD  0.017453f
 
 // 8 vertices of a unit cube, scaled by CUBE_SIZE
@@ -95,22 +96,49 @@ bool gyroscope_should_exit(void)
     return exit_requested;
 }
 
+// 度数符号：3px 小圆环，画在数值末位右上角
+static void draw_degree(int16_t x, int16_t y)
+{
+    OLED_DrawCircle(x, y, 1, OLED_UNFILLED);
+}
+
+// 画一张姿态卡片：圆角外框 + 轴徽标(亮底黑字) + 右对齐数值 + 度数符号
+static void draw_card(int16_t x, int16_t y, char axis, float value, char *buf)
+{
+    int16_t text_x, len;
+    char *dot;
+
+    /* 卡片圆角外框 58x18 */
+    OLED_DrawRoundedRectangle(x, y, 58, 18, 3, OLED_UNFILLED);
+
+    /* 轴徽标：先写字母，再把所在小矩形整体反色，得到"亮底黑字"芯片 */
+    OLED_ShowChar(x + 4, y + 5, axis, OLED_6X8_HALF);
+    OLED_ReverseArea(x + 3, y + 4, 8, 10);
+
+    /* 数值字符串：复用共享函数后在本地截断到 1 位小数，不改动共享实现 */
+    float_to_string(value, buf);
+    dot = strchr(buf, '.');
+    if (dot && dot[1] != '\0' && dot[2] != '\0') {
+        dot[2] = '\0';
+    }
+    len = (int16_t)strlen(buf);
+
+    /* 右对齐：卡片右内边约 x+54，末尾为度数符号预留 ~5px */
+    text_x = (int16_t)(x + 54) - 5 - len * OLED_6X8_HALF;
+    if (text_x < x + 16) text_x = x + 16;   /* 防止与左侧徽标重叠 */
+
+    OLED_ShowString(text_x, y + 5, buf, OLED_6X8_HALF);
+    draw_degree(text_x + len * OLED_6X8_HALF + 1, y + 6);
+}
+
 static void render_frame(Angle *angle, char *buf)
 {
     OLED_Clear();
     draw_cube(angle->x, angle->y, angle->z);
 
-    float_to_string(angle->x, buf);
-    OLED_ShowString(0, 4, "X:", OLED_6X8_HALF);
-    OLED_ShowString(12, 4, buf, OLED_6X8_HALF);
-
-    float_to_string(angle->y, buf);
-    OLED_ShowString(0, 24, "Y:", OLED_6X8_HALF);
-    OLED_ShowString(12, 24, buf, OLED_6X8_HALF);
-
-    float_to_string(angle->z, buf);
-    OLED_ShowString(0, 44, "Z:", OLED_6X8_HALF);
-    OLED_ShowString(12, 44, buf, OLED_6X8_HALF);
+    draw_card(68,  2, 'X', angle->x, buf);
+    draw_card(68, 23, 'Y', angle->y, buf);
+    draw_card(68, 44, 'Z', angle->z, buf);
 }
 
 void gyroscope_init(void)

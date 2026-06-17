@@ -492,8 +492,9 @@ void lsm6ds3_get_angle(Angle *angle)
 
     // 提取欧拉角（度）
     euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&fusionAhrs));
-    angle->x = euler.angle.roll;
-    angle->y = -euler.angle.pitch;
+    // 硬件传感器贴装方向变更：X/Y 两轴对调（转向不变，Z 轴不受影响）
+    angle->x = -euler.angle.pitch;
+    angle->y = euler.angle.roll;
     angle->z = -euler.angle.yaw;
 
     // 等AHRS初始化结束后再计数70帧（~4秒），让offset收敛后归零Yaw

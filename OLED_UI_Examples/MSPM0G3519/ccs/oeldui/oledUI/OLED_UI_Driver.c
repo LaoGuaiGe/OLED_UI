@@ -1,6 +1,8 @@
 #include "OLED_UI_Driver.h"
 #include "hw_delay.h"
 #include "hw_encoder.h"
+#include "hw_key.h"
+#include "app_key_task.h"
 /*
 【文件说明】：[硬件抽象层]
 此文件包含按键与编码器的驱动程序，如果需要移植此项目，请根据实际情况修改相关代码。
@@ -81,6 +83,11 @@ int16_t Encoder_Get(void)
 	return HW_Encoder_GetDelta();
 }
 
+/* 按键状态适配：UI 核心只调本组函数，移植时改这里即可 */
+uint8_t Key_GetEnterStatus(void) { return key_menu.enter; }
+uint8_t Key_GetBackStatus(void)  { return key_menu.back;  }
+uint8_t Key_GetUpStatus(void)    { return key_menu.up;    }
+uint8_t Key_GetDownStatus(void)  { return key_menu.down;  }
 
 
 /**

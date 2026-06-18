@@ -1,7 +1,8 @@
 #ifndef __HW_WS2812_H__
 #define __HW_WS2812_H__
 
-#include "ti_msp_dl_config.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "hw_ws2812_effects.h"
 
 #define WS2812B_ARR 105 // TIM2的自动重装值//使得PWM输出频率在800kHz
@@ -12,14 +13,17 @@
 #define WS2812B_NUM 4
 #define DATA_SIZE 24 // WS2812B传输一个数据的大小是3个字节（24bit）
 
-/* RGB控制参数（供菜单UI绑定） */
-extern bool     ws2812_enable;   // RGB灯总开关
-extern int16_t  ws2812_r;        // 红色分量 0-255
-extern int16_t  ws2812_g;        // 绿色分量 0-255
-extern int16_t  ws2812_b;        // 蓝色分量 0-255
-extern int16_t  ws2812_led_num;  // 亮灯个数 1-4
-extern int16_t  ws2812_brightness; // 灯光亮度 0-100
-extern WS2812_Effect_Param effect_param;  // 效果参数
+/* RGB 控制参数（供菜单 UI 通过 &ws2812_config()->field 绑定）*/
+typedef struct {
+    bool     enable;       // RGB灯总开关
+    int16_t  r;            // 红色分量 0-255
+    int16_t  g;            // 绿色分量 0-255
+    int16_t  b;            // 蓝色分量 0-255
+    int16_t  led_num;      // 亮灯个数 1-4
+    int16_t  brightness;   // 灯光亮度 0-100
+} WS2812_Config_t;
+
+WS2812_Config_t* ws2812_config(void);   // 获取配置句柄
 
 void PWM_WS2812B_Init(void);
 void WS2812B_Write_24Bits(uint16_t num, uint32_t GRB_Data);

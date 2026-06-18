@@ -27,9 +27,13 @@ MenuWindow *CurrentWindow = NULL;									//全局结构体指针，当前窗口
 MutexFlag KeyEnterFlag = FLAGEND;										//全局enter按键的互斥锁，互斥锁为FLAGSTART时表示正在执行回调函数
 MutexFlag FadeOutFlag = FLAGEND;										//渐隐效果的互斥锁，互斥锁为FLAGSTART时表示正在执行渐隐效果
 MutexFlag WindowFlag = FLAGEND;										//窗口互斥锁，互斥锁为FLAGSTART时表示正在执行窗口动画
-bool ColorMode = DARKMODE;											//全局布尔型数据，存储当前显示模式，true为深色模式，false为浅色模式
-bool OLED_UI_ShowFps = true;										//全局布尔型数据，用于控制是否显示帧率
-int16_t OLED_UI_Brightness = 100;									//全局变量，存储当前屏幕亮度 
+static bool ColorMode = DARKMODE;											//全局布尔型数据，存储当前显示模式，true为深色模式，false为浅色模式
+static bool OLED_UI_ShowFps = true;										//全局布尔型数据，用于控制是否显示帧率
+static int16_t OLED_UI_Brightness = 100;									//全局变量，存储当前屏幕亮度
+
+bool*    oled_ui_color_mode(void)  { return &ColorMode; }
+bool*    oled_ui_show_fps(void)    { return &OLED_UI_ShowFps; }
+int16_t* oled_ui_brightness(void)  { return &OLED_UI_Brightness; }
 OLED_UI_WindowSustainCounter OLED_SustainCounter = {0,false};			//用于存储窗口持续时间的结构体
 int16_t WindowProbDeltaData = 0;											//窗口进度条数据的增量数据
 /***********************************************************************************************/

@@ -9,7 +9,9 @@
 #include "FusionOffset.h"
 
 
-Angle angle_new;
+static Angle angle_new;
+
+Angle* lsm6ds3_angle(void) { return &angle_new; }
 
 // 上次调用时间戳（ms）
 static uint32_t last_tick_ms = 0;

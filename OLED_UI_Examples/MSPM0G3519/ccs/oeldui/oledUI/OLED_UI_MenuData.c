@@ -16,15 +16,6 @@
 #include "hw_ws2812.h"
 #include "hw_ws2812_effects.h"
 /*此文件用于存放菜单数据。实际上菜单数据可以存放在任何地方，存放于此处是为了规范与代码模块化*/
-
-// ColorMode 是一个在OLED_UI当中定义的bool类型变量，用于控制OLED显示的颜色模式， DARKMODE 为深色模式， LIGHTMOOD 为浅色模式。这里将其引出是为了创建单选框菜单项。
-extern bool ColorMode;
-extern bool OLED_UI_ShowFps;
-extern BEEPER_Tag Beeper0;
-// OLED_UI_Brightness 是一个在OLED_UI当中定义的int16_t类型变量，用于控制OLED显示的亮度。这里将其引出是为了创建调整亮度的滑动条窗口，范围0-255。
-extern int16_t OLED_UI_Brightness;
-extern WS2812_Effect_Param effect_param;
-extern int16_t ws2812_light_mode;
 float testfloatnum = 0.5;
 int32_t testintnum = 1;
 #define SPEED 10
@@ -40,7 +31,7 @@ MenuWindow SetBrightnessWindow = {
 	.General_WindowType = WINDOW_ROUNDRECTANGLE, 	//窗口类型
 	.General_ContinueTime = 4.0,						//窗口持续时间
 
-	.Prob_Data_Int_16 = &OLED_UI_Brightness,				//显示的变量地址
+	.Prob_Data_Int_16 = NULL,				//显示的变量地址(运行时由MenuData_Init打补丁)
 	.Prob_DataStep = 5,								//步长
 	.Prob_MinData = 5,									//最小值
 	.Prob_MaxData = 255, 								//最大值
@@ -93,7 +84,7 @@ MenuWindow SetSavedataWindow = {
  * @brief 创建显示亮度窗口
  */
 void ToggleColorMode(void){
-	ColorMode = !ColorMode;
+	*oled_ui_color_mode() = !*oled_ui_color_mode();
 }
 void BrightnessWindow(void){
 	OLED_UI_CreateWindow(&SetBrightnessWindow);
@@ -139,19 +130,19 @@ void UartMonitorStart(void){
  */
 void SavedataWindow(void){
 	uint8_t temp[13];
-	temp[0] = (uint8_t)OLED_UI_Brightness;
+	temp[0] = (uint8_t)*oled_ui_brightness();
 	temp[1] = Beeper0.Sound_Loud;
 	temp[2] = Beeper0.Beeper_Enable;
-	temp[3] = (uint8_t)ColorMode;
-	temp[4] = (uint8_t)OLED_UI_ShowFps;
-	temp[5] = (uint8_t)ws2812_enable;
-	temp[6] = (uint8_t)ws2812_r;
-	temp[7] = (uint8_t)ws2812_g;
-	temp[8] = (uint8_t)ws2812_b;
-	temp[9] = (uint8_t)ws2812_led_num;
-	temp[10] = (uint8_t)ws2812_light_mode;
-	temp[11] = (uint8_t)effect_param.speed;
-	temp[12] = (uint8_t)ws2812_brightness;
+	temp[3] = (uint8_t)*oled_ui_color_mode();
+	temp[4] = (uint8_t)*oled_ui_show_fps();
+	temp[5] = (uint8_t)ws2812_config()->enable;
+	temp[6] = (uint8_t)ws2812_config()->r;
+	temp[7] = (uint8_t)ws2812_config()->g;
+	temp[8] = (uint8_t)ws2812_config()->b;
+	temp[9] = (uint8_t)ws2812_config()->led_num;
+	temp[10] = (uint8_t)*ws2812_light_mode_ref();
+	temp[11] = (uint8_t)ws2812_effect_param()->speed;
+	temp[12] = (uint8_t)ws2812_config()->brightness;
 	settings_save(temp);
 	OLED_UI_CreateWindow(&SetSavedataWindow);
 }
@@ -164,7 +155,7 @@ MenuWindow SetRGBRedWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_r,
+	.Prob_Data_Int_16 = NULL, /* ws2812_config()->r — 运行时打补丁 */
 	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -175,7 +166,7 @@ MenuWindow SetRGBGreenWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_g,
+	.Prob_Data_Int_16 = NULL, /* ws2812_config()->g — 运行时打补丁 */
 	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -186,7 +177,7 @@ MenuWindow SetRGBBlueWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_b,
+	.Prob_Data_Int_16 = NULL, /* ws2812_config()->b — 运行时打补丁 */
 	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 255,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -197,7 +188,7 @@ MenuWindow SetRGBLedNumWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_led_num,
+	.Prob_Data_Int_16 = NULL, /* ws2812_config()->led_num — 运行时打补丁 */
 	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 4,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -215,7 +206,7 @@ MenuWindow SetRGBSpeedWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = (int16_t*)&effect_param.speed,
+	.Prob_Data_Int_16 = NULL, /* ws2812_effect_param()->speed — 运行时打补丁 */
 	.Prob_DataStep = 5, .Prob_MinData = 1, .Prob_MaxData = 100,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -230,7 +221,7 @@ MenuWindow SetRGBBrightnessWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_brightness,
+	.Prob_Data_Int_16 = NULL, /* ws2812_config()->brightness — 运行时打补丁 */
 	.Prob_DataStep = 5, .Prob_MinData = 0, .Prob_MaxData = 100,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
@@ -245,12 +236,33 @@ MenuWindow SetLightModeWindow = {
 	.Text_FontSideDistance = 4, .Text_FontTopDistance = 3,
 	.General_WindowType = WINDOW_ROUNDRECTANGLE,
 	.General_ContinueTime = 4.0,
-	.Prob_Data_Int_16 = &ws2812_light_mode,
+	.Prob_Data_Int_16 = NULL, /* ws2812_light_mode_ref() — 运行时打补丁 */
 	.Prob_DataStep = 1, .Prob_MinData = 0, .Prob_MaxData = 3,
 	.Prob_BottomDistance = 3, .Prob_LineHeight = 8, .Prob_SideDistance = 4,
 };
 
 void LightModeWindow(void) { OLED_UI_CreateWindow(&SetLightModeWindow); }
+
+/**
+ * @brief 运行时补丁：将访问器返回的指针写入静态初始化时无法填充的字段
+ *        必须在 OLED_UI_Init() 之前调用一次
+ */
+void MenuData_Init(void) {
+    /* OLED_UI 配置绑定 */
+    SetBrightnessWindow.Prob_Data_Int_16        = oled_ui_brightness();
+    SettingsMenuItems[3].List_BoolRadioBox       = oled_ui_color_mode();   /* 黑暗模式 */
+    SettingsMenuItems[4].List_BoolRadioBox       = oled_ui_show_fps();     /* 显示帧率 */
+    /* WS2812 基础配置绑定 */
+    SetRGBRedWindow.Prob_Data_Int_16            = &ws2812_config()->r;
+    SetRGBGreenWindow.Prob_Data_Int_16          = &ws2812_config()->g;
+    SetRGBBlueWindow.Prob_Data_Int_16           = &ws2812_config()->b;
+    SetRGBLedNumWindow.Prob_Data_Int_16         = &ws2812_config()->led_num;
+    SetRGBBrightnessWindow.Prob_Data_Int_16     = &ws2812_config()->brightness;
+    RGBEffectMenuItems[3].List_BoolRadioBox      = &ws2812_config()->enable; /* RGB开关 */
+    /* WS2812 效果配置绑定 */
+    SetRGBSpeedWindow.Prob_Data_Int_16          = (int16_t*)&ws2812_effect_param()->speed;
+    SetLightModeWindow.Prob_Data_Int_16         = ws2812_light_mode_ref();
+}
 
 /* 开机动画展示回调 */
 void BootAnimDecodeDemo(void) {
@@ -564,8 +576,8 @@ MenuItem SettingsMenuItems[] = {
 	{.General_item_text = "亮度",.General_callback = BrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "音量",.General_callback = BuzzerVolumeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "声音开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &Beeper0.Beeper_Enable},
-	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ColorMode},
-	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &OLED_UI_ShowFps},
+	{.General_item_text = "黑暗模式",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
+	{.General_item_text = "显示帧率",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "保存数据",.General_callback = SavedataWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "此设备",.General_callback = NULL,.General_SubMenuPage = &AboutThisDeviceMenuPage,.List_BoolRadioBox = NULL},
 	{.General_item_text = "关于OLED UI",.General_callback = NULL,.General_SubMenuPage = &AboutOLED_UIMenuPage,.List_BoolRadioBox = NULL},
@@ -915,7 +927,7 @@ MenuItem RGBEffectMenuItems[] = {
 	{.General_item_text = "灯光模式",.General_callback = LightModeWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "渐变速度",.General_callback = RGBSpeedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "灯光亮度",.General_callback = RGBBrightnessWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
-	{.General_item_text = "RGB开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = &ws2812_enable},
+	{.General_item_text = "RGB开关",.General_callback = NULL,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "红色 R",.General_callback = RGBRedWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "绿色 G",.General_callback = RGBGreenWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},
 	{.General_item_text = "蓝色 B",.General_callback = RGBBlueWindow,.General_SubMenuPage = NULL,.List_BoolRadioBox = NULL},

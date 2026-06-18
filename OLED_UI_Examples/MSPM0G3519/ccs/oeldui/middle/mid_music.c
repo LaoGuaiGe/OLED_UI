@@ -74,7 +74,7 @@ const uint16_t MusicNoteFrequency[] = {
 };
 
 /*全局TONE结构体指针，用于定时器TIM4中断函数中*/
-TONE *MySound;
+static TONE *MySound;
 
 /*乐曲*/
 TONE const BEEPER_KEYPRESS[] = {

@@ -145,9 +145,9 @@ void gyroscope_init(void)
 {
     exit_requested = false;
     lsm6ds3_init();
-    angle_new.x = 0;
-    angle_new.y = 0;
-    angle_new.z = 0;
+    lsm6ds3_angle()->x = 0;
+    lsm6ds3_angle()->y = 0;
+    lsm6ds3_angle()->z = 0;
     gyro_angle.x = 0;
     gyro_angle.y = 0;
     gyro_angle.z = 0;
@@ -155,20 +155,20 @@ void gyroscope_init(void)
 
 void gyroscope_sample(void)
 {
-    lsm6ds3_get_angle(&angle_new);
+    lsm6ds3_get_angle(lsm6ds3_angle());
 }
 
 void gyroscope_tick(void)
 {
-    gyro_angle = angle_new;
+    gyro_angle = *lsm6ds3_angle();
     render_frame(&gyro_angle, gyro_buf);
     OLED_Update();
 }
 
 void gyroscope_fade_tick(int8_t level)
 {
-    lsm6ds3_get_angle(&angle_new);
-    gyro_angle = angle_new;
+    lsm6ds3_get_angle(lsm6ds3_angle());
+    gyro_angle = *lsm6ds3_angle();
     render_frame(&gyro_angle, gyro_buf);
     OLED_UI_FadeOut_Masking(0, 0, 128, 64, level);
     OLED_Update();
@@ -189,14 +189,14 @@ void gyroscope_loop(void)
 
     // init sensor and zero angles
     lsm6ds3_init();
-    angle_new.x = 0;
-    angle_new.y = 0;
-    angle_new.z = 0;
+    lsm6ds3_angle()->x = 0;
+    lsm6ds3_angle()->y = 0;
+    lsm6ds3_angle()->z = 0;
 
     // fade-in: masking level 5 -> 1 (heavy mask to clear)
     for (i = 5; i >= 1; i--) {
-        lsm6ds3_get_angle(&angle_new);
-        angle = angle_new;
+        lsm6ds3_get_angle(lsm6ds3_angle());
+        angle = *lsm6ds3_angle();
         render_frame(&angle, buf);
         OLED_UI_FadeOut_Masking(0, 0, 128, 64, i);
         OLED_Update();
@@ -208,10 +208,10 @@ void gyroscope_loop(void)
         {
             uint32_t frame_start = get_sys_tick_ms();
             while ((get_sys_tick_ms() - frame_start) < 20) {
-                lsm6ds3_get_angle(&angle_new);
+                lsm6ds3_get_angle(lsm6ds3_angle());
             }
         }
-        angle = angle_new;
+        angle = *lsm6ds3_angle();
 
         render_frame(&angle, buf);
         OLED_Update();
@@ -219,8 +219,8 @@ void gyroscope_loop(void)
         if (gyroscope_should_exit()) {
             // fade-out: masking level 1 -> 5 (clear to heavy mask)
             for (i = 1; i <= 5; i++) {
-                lsm6ds3_get_angle(&angle_new);
-                angle = angle_new;
+                lsm6ds3_get_angle(lsm6ds3_angle());
+                angle = *lsm6ds3_angle();
                 render_frame(&angle, buf);
                 OLED_UI_FadeOut_Masking(0, 0, 128, 64, i);
                 OLED_Update();

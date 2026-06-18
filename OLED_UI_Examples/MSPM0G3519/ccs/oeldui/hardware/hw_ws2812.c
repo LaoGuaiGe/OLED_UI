@@ -7,12 +7,11 @@ uint32_t Single_WS2812B_Buffer[DATA_SIZE * WS2812B_NUM + 50] = {0};
 volatile bool gChannel0InterruptTaken           = false;
 
 /* RGB控制参数 */
-bool     ws2812_enable  = true;
-int16_t  ws2812_r       = 0;
-int16_t  ws2812_g       = 0;
-int16_t  ws2812_b       = 0;
-int16_t  ws2812_led_num = 4;
-int16_t  ws2812_brightness = 100;
+static WS2812_Config_t s_ws2812_cfg = {
+    .enable = true, .r = 0, .g = 0, .b = 0, .led_num = 4, .brightness = 100,
+};
+
+WS2812_Config_t* ws2812_config(void) { return &s_ws2812_cfg; }
 
 /**
  * @brief TIM5_PWM_CH2&DMA1&PA1初始化
@@ -186,31 +185,31 @@ void ws2812_update(void)
 	static int16_t  prev_bright  = -1;
 
 	/* 参数没变就跳过 */
-	if (ws2812_enable == prev_enable &&
-	    ws2812_r == prev_r && ws2812_g == prev_g && ws2812_b == prev_b &&
-	    ws2812_led_num == prev_num && ws2812_brightness == prev_bright) {
+	if (s_ws2812_cfg.enable == prev_enable &&
+	    s_ws2812_cfg.r == prev_r && s_ws2812_cfg.g == prev_g && s_ws2812_cfg.b == prev_b &&
+	    s_ws2812_cfg.led_num == prev_num && s_ws2812_cfg.brightness == prev_bright) {
 		return;
 	}
 
-	prev_enable = ws2812_enable;
-	prev_r = ws2812_r;
-	prev_g = ws2812_g;
-	prev_b = ws2812_b;
-	prev_num = ws2812_led_num;
-	prev_bright = ws2812_brightness;
+	prev_enable = s_ws2812_cfg.enable;
+	prev_r = s_ws2812_cfg.r;
+	prev_g = s_ws2812_cfg.g;
+	prev_b = s_ws2812_cfg.b;
+	prev_num = s_ws2812_cfg.led_num;
+	prev_bright = s_ws2812_cfg.brightness;
 
-	if (!ws2812_enable || ws2812_led_num == 0) {
+	if (!s_ws2812_cfg.enable || s_ws2812_cfg.led_num == 0) {
 		WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
 		WS2812B_Show();
 		return;
 	}
 
-	uint32_t grb = ((uint32_t)(ws2812_g & 0xFF) << 16)
-	             | ((uint32_t)(ws2812_r & 0xFF) << 8)
-	             | ((uint32_t)(ws2812_b & 0xFF));
+	uint32_t grb = ((uint32_t)(s_ws2812_cfg.g & 0xFF) << 16)
+	             | ((uint32_t)(s_ws2812_cfg.r & 0xFF) << 8)
+	             | ((uint32_t)(s_ws2812_cfg.b & 0xFF));
 
 	/* 应用亮度 */
-	uint16_t br = (uint16_t)ws2812_brightness;
+	uint16_t br = (uint16_t)s_ws2812_cfg.brightness;
 	if (br > 100) br = 100;
 	if (br < 100) {
 		uint8_t g = (uint8_t)(((grb >> 16) & 0xFF) * br / 100);
@@ -218,7 +217,7 @@ void ws2812_update(void)
 		uint8_t b = (uint8_t)(( grb        & 0xFF) * br / 100);
 		grb = ((uint32_t)g << 16) | ((uint32_t)r << 8) | b;
 	}
-	uint16_t num = (uint16_t)ws2812_led_num;
+	uint16_t num = (uint16_t)s_ws2812_cfg.led_num;
 	if (num > WS2812B_NUM) num = WS2812B_NUM;
 
 	WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);

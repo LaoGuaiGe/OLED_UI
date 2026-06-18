@@ -23,10 +23,7 @@
 #include "app_dino_game.h"
 #include "app_task.h"
 
-extern bool ColorMode;
-extern bool OLED_UI_ShowFps;
 extern BEEPER_Tag Beeper0;
-extern int16_t OLED_UI_Brightness;
 
 
 int main(void)
@@ -81,19 +78,22 @@ int main(void)
 	// 亮度100、音量50、蜂鸣器开启、颜色模式白色、显示FPS、RGB开/R0/G0/B0/4灯/灯光模式关/渐变速度50/灯光亮度100
 	uint8_t temp[13] = {100, 50, 0, 0, 1, 1, 0, 0, 0, 4, 0, 50, 100};
 	settings_load(temp);
-	OLED_UI_Brightness       = (uint16_t)temp[0];
-	Beeper0.Sound_Loud       = temp[1];
-	Beeper0.Beeper_Enable    = temp[2];
-	ColorMode                = (bool)temp[3];
-	OLED_UI_ShowFps          = (bool)temp[4];
-	ws2812_enable            = (bool)temp[5];
-	ws2812_r                 = (int16_t)temp[6];
-	ws2812_g                 = (int16_t)temp[7];
-	ws2812_b                 = (int16_t)temp[8];
-	ws2812_led_num           = (int16_t)temp[9];
-	ws2812_light_mode        = (int16_t)temp[10];
-	effect_param.speed       = (uint16_t)temp[11];
-	ws2812_brightness        = (int16_t)temp[12];
+	*oled_ui_brightness()              = (int16_t)temp[0];
+	Beeper0.Sound_Loud                 = temp[1];
+	Beeper0.Beeper_Enable              = temp[2];
+	*oled_ui_color_mode()              = (bool)temp[3];
+	*oled_ui_show_fps()                = (bool)temp[4];
+	ws2812_config()->enable            = (bool)temp[5];
+	ws2812_config()->r                 = (int16_t)temp[6];
+	ws2812_config()->g                 = (int16_t)temp[7];
+	ws2812_config()->b                 = (int16_t)temp[8];
+	ws2812_config()->led_num           = (int16_t)temp[9];
+	*ws2812_light_mode_ref()           = (int16_t)temp[10];
+	ws2812_effect_param()->speed       = (uint16_t)temp[11];
+	ws2812_config()->brightness        = (int16_t)temp[12];
+
+	// 运行时绑定菜单指针（必须在 OLED_UI_Init 之前）
+	MenuData_Init();
 
 	// UI初始化
 	OLED_UI_Init(&MainMenuPage);

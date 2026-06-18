@@ -376,6 +376,10 @@ typedef bool (*OLED_UI_AppIsActiveFn)(void);   // 返回 true 表示当前有 ap
 typedef void (*OLED_UI_AppTickFn)(void);       // 驱动当前 app 任务运行一拍
 void OLED_UI_SetAppHook(OLED_UI_AppIsActiveFn is_active, OLED_UI_AppTickFn tick);
 
+bool*    oled_ui_color_mode(void);  // 颜色模式句柄 true=深色 false=浅色
+bool*    oled_ui_show_fps(void);    // 显示帧率句柄
+int16_t* oled_ui_brightness(void);  // 屏幕亮度句柄 5-255
+
 
 
 /******************************************************************************** */

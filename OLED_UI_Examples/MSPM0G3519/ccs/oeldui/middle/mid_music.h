@@ -5,7 +5,7 @@
 extern "C"
 {
 #endif
-#include "ti_msp_dl_config.h"
+#include <stdint.h>
 #include <math.h>
 
 	/*音调频率表对应的每一个音符名称*/
@@ -95,7 +95,6 @@ extern "C"
 		uint8_t Sound_Loud;			  // 蜂鸣器响度
 	} BEEPER_Tag;
 
-	extern TONE *MySound;
 	extern const TONE BEEPER_KEYPRESS[];
 	extern const TONE BEEPER_TRITONE[];
 	extern const TONE BEEPER_WARNING[];

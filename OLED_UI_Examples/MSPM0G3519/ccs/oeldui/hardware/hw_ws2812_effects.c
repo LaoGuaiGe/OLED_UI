@@ -2,14 +2,17 @@
 #include "hw_ws2812.h"
 #include "hw_delay.h"
 
-WS2812_Effect_Param effect_param = {
+static WS2812_Effect_Param effect_param = {
     .mode = EFFECT_STATIC,
     .speed = 50,
     .brightness = 255
 };
 
 /* 灯光模式：0=关, 1=流水灯, 2=跑马灯, 3=呼吸灯 */
-int16_t ws2812_light_mode = 0;
+static int16_t ws2812_light_mode = 0;
+
+WS2812_Effect_Param* ws2812_effect_param(void) { return &effect_param; }
+int16_t*             ws2812_light_mode_ref(void) { return &ws2812_light_mode; }
 
 static volatile bool need_update = false;
 
@@ -49,7 +52,7 @@ static const uint8_t gamma_table[256] = {
 
 static uint32_t apply_brightness(uint32_t grb)
 {
-    uint16_t br = (uint16_t)ws2812_brightness;
+    uint16_t br = (uint16_t)ws2812_config()->brightness;
     if (br >= 100) return grb;
     uint8_t g = (uint8_t)(((grb >> 16) & 0xFF) * br / 100);
     uint8_t r = (uint8_t)(((grb >>  8) & 0xFF) * br / 100);
@@ -102,7 +105,7 @@ static void do_flowing_effect(uint16_t speed)
 
     uint32_t grb = apply_brightness(wheel_color(flowing_step));
     WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
-    WS2812B_Write_24Bits(ws2812_led_num, grb);
+    WS2812B_Write_24Bits(ws2812_config()->led_num, grb);
     WS2812B_Show();
 
     uint16_t step_size = 1 + (speed - 1) * 7 / 99;
@@ -117,7 +120,7 @@ static void do_running_effect(uint16_t speed)
     need_update = false;
 
     /* 安全检查：led_num减少时running_led可能越界 */
-    if (running_led >= (uint8_t)ws2812_led_num) {
+    if (running_led >= (uint8_t)ws2812_config()->led_num) {
         running_led = 0;
     }
 
@@ -131,11 +134,11 @@ static void do_running_effect(uint16_t speed)
 
     uint32_t out_buf[WS2812B_NUM];
     int i;
-    for (i = 0; i < ws2812_led_num && i < WS2812B_NUM; i++)
+    for (i = 0; i < ws2812_config()->led_num && i < WS2812B_NUM; i++)
         out_buf[i] = apply_brightness(running_buf[i]);
 
     WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);   /* 先清空所有灯 */
-    WS2812B_Write_24Bits_independence(ws2812_led_num, out_buf);
+    WS2812B_Write_24Bits_independence(ws2812_config()->led_num, out_buf);
     WS2812B_Show();
 
     uint16_t step_size = 1 + (speed - 1) * 7 / 99;
@@ -146,7 +149,7 @@ static void do_running_effect(uint16_t speed)
         running_step = 0;
         running_led++;
 
-        if (running_led >= (uint8_t)ws2812_led_num) {
+        if (running_led >= (uint8_t)ws2812_config()->led_num) {
             running_led = 0;
             running_color = next_color;
         }
@@ -171,15 +174,15 @@ static void do_breathe_effect(uint16_t speed)
     level = gamma_table[level];
 
     // 用设置的颜色, 按 level/255 缩放, 再叠加 brightness
-    uint8_t r = (uint8_t)((uint16_t)(ws2812_r & 0xFF) * level / 255);
-    uint8_t g = (uint8_t)((uint16_t)(ws2812_g & 0xFF) * level / 255);
-    uint8_t b = (uint8_t)((uint16_t)(ws2812_b & 0xFF) * level / 255);
+    uint8_t r = (uint8_t)((uint16_t)(ws2812_config()->r & 0xFF) * level / 255);
+    uint8_t g = (uint8_t)((uint16_t)(ws2812_config()->g & 0xFF) * level / 255);
+    uint8_t b = (uint8_t)((uint16_t)(ws2812_config()->b & 0xFF) * level / 255);
 
     uint32_t grb = ((uint32_t)g << 16) | ((uint32_t)r << 8) | (uint32_t)b;
     grb = apply_brightness(grb);
 
     WS2812B_Write_24Bits(WS2812B_NUM, 0x000000);
-    WS2812B_Write_24Bits(ws2812_led_num, grb);
+    WS2812B_Write_24Bits(ws2812_config()->led_num, grb);
     WS2812B_Show();
 
     // 步进: speed越大越快
@@ -191,7 +194,7 @@ static void do_breathe_effect(uint16_t speed)
 /* ===== tick（5ms中断调用）===== */
 void ws2812_effect_tick(void)
 {
-    if (ws2812_light_mode == 0 || !ws2812_enable || ws2812_led_num == 0) return;
+    if (ws2812_light_mode == 0 || !ws2812_config()->enable || ws2812_config()->led_num == 0) return;
     need_update = true;
 }
 
@@ -225,7 +228,7 @@ void ws2812_effect_update(void)
 {
     static bool prev_off = false;
 
-    bool off = (!ws2812_enable || ws2812_led_num == 0);
+    bool off = (!ws2812_config()->enable || ws2812_config()->led_num == 0);
 
     if (off) {
         if (!prev_off) {

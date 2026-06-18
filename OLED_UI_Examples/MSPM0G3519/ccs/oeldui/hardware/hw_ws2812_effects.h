@@ -17,8 +17,8 @@ typedef struct {
     uint8_t brightness;
 } WS2812_Effect_Param;
 
-extern WS2812_Effect_Param effect_param;
-extern int16_t ws2812_light_mode;  /* 0=关, 1=流水灯, 2=跑马灯, 3=呼吸灯 */
+WS2812_Effect_Param* ws2812_effect_param(void);   // 效果参数句柄(供菜单绑定 &...->speed)
+int16_t*             ws2812_light_mode_ref(void); // 灯效模式句柄 0=关 1=流水 2=跑马 3=呼吸
 
 void ws2812_set_effect_mode(WS2812_Effect_Mode mode);
 void ws2812_set_effect_speed(uint16_t speed);

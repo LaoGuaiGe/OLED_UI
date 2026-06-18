@@ -106,7 +106,7 @@ typedef struct {
     float z;
 } Angle;
 
-extern Angle angle_new;
+Angle* lsm6ds3_angle(void); // 角度数据句柄
 
 unsigned char lsm6ds3_init(void);
 void lsm6ds3_angle_return_zero(void);

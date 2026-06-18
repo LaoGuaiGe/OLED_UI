@@ -41,6 +41,7 @@ void BootAnimParticleDemo(void);
 void BootAnimCircleDemo(void);
 void BootAnimGlitchDemo(void);
 void RobotFaceStart(void);
+void MenuData_Init(void); // 运行时补丁，OLED_UI_Init() 前调用
 
 #ifdef __cplusplus
 }  // extern "C"

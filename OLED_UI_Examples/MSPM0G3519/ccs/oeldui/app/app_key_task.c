@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "app_key_task.h"
 #include "stdio.h"
 #include "mid_button.h"

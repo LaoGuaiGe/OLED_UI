@@ -1,8 +1,6 @@
 #ifndef _MID_DEBUG_UART_H_
 #define _MID_DEBUG_UART_H_
 
-#include "ti_msp_dl_config.h"
-
 #define REVEIVE_BUFFER_MAX 	512
 
 typedef struct {

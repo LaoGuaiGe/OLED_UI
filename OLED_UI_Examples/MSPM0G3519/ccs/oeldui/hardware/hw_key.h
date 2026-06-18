@@ -1,8 +1,6 @@
 #ifndef _HW_KEY_H_
 #define _HW_KEY_H_
 
-#include "ti_msp_dl_config.h"
-
 typedef struct {
     unsigned int enter : 1;
     unsigned int back : 1;

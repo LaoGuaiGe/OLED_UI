@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "hw_buzzer.h"
 
 void buzzer_init(void)

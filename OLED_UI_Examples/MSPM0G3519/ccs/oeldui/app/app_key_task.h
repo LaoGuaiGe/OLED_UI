@@ -1,8 +1,6 @@
 #ifndef _APP_KEY_TASK_H_
 #define _APP_KEY_TASK_H_
 
-#include "ti_msp_dl_config.h"
-
 typedef struct {
     unsigned int enter : 1; // 使用位字段来节省空间
     unsigned int back  : 1;

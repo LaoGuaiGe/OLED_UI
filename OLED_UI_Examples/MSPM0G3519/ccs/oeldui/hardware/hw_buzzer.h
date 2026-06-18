@@ -1,7 +1,7 @@
 #ifndef _HW_BUZZER_H_
 #define _HW_BUZZER_H_
 
-#include "ti_msp_dl_config.h"
+#include <stdint.h>
 
 void buzzer_on(void);
 void buzzer_off(void);

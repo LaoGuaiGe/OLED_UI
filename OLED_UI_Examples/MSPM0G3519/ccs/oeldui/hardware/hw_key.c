@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "hw_key.h"
 
 KEY_STATUS key_scan(void)

@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "mid_debug_uart.h"
 #include "string.h"
 

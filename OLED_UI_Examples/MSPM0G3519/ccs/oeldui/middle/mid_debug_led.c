@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "mid_debug_led.h"
 
 static DEBUG_LED_STRUCT debug_led;

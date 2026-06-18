@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "hw_encoder.h"
 #include "mid_music.h"
 

@@ -1,7 +1,6 @@
 #ifndef _MID_FONT_BURNER_H_
 #define _MID_FONT_BURNER_H_
 
-#include "ti_msp_dl_config.h"
 #include "hw_w25qxx.h"
 
 void font_burner_hzk16_run(void);   // 烧录 HZK16 (发送 HZK16.bin)

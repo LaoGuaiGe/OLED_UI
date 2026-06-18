@@ -1,8 +1,6 @@
 #ifndef _MID_DEBUG_LED_H_
 #define _MID_DEBUG_LED_H_
 
-#include "ti_msp_dl_config.h"
-
 typedef enum {
     LED_OFF,
     LED_ON

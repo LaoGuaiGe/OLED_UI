@@ -1,3 +1,4 @@
+#include "ti_msp_dl_config.h"
 #include "mid_timer.h"
 #include "mid_button.h"
 #include "mid_debug_led.h"

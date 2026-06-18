@@ -1,7 +1,6 @@
 #ifndef _OLED_EXT_FONT_H_
 #define _OLED_EXT_FONT_H_
 
-#include "ti_msp_dl_config.h"
 #include <stdint.h>
 
 /**

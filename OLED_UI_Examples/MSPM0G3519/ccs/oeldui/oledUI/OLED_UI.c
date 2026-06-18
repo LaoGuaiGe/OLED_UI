@@ -1,5 +1,4 @@
 #include "OLED_UI.h"
-#include "app_task.h"
 #include "string.h"
 
 
@@ -8,6 +7,17 @@
  * @brief 本项目开源地址：
  * @param "https://github.com/bdth-7777777/OLED_UI"
  */
+
+/* app 任务钩子的存储与注册（默认 NULL，未注册时 UI 按无 app 任务处理）*/
+static OLED_UI_AppIsActiveFn s_app_is_active = NULL;
+static OLED_UI_AppTickFn     s_app_tick      = NULL;
+
+void OLED_UI_SetAppHook(OLED_UI_AppIsActiveFn is_active, OLED_UI_AppTickFn tick)
+{
+    s_app_is_active = is_active;
+    s_app_tick      = tick;
+}
+
 /*OLED_UI全局变量定义 */
 OLED_UI_Counter OLED_FPS = {0,0,0};									//用于存储帧率的结构体
 OLED_Key OLED_UI_Key = {1,1,1,1};   								//用于存储按键状态的结构体,默认没有按下，都为1
@@ -2286,8 +2296,8 @@ void MoveMenuElements(void){
  */
 void OLED_UI_MainLoop(void){
 
-	if (app_task_is_active()) {
-		app_task_tick();
+	if (s_app_is_active && s_app_is_active()) {
+		if (s_app_tick) s_app_tick();
 		return;
 	}
 
@@ -2322,7 +2332,7 @@ void OLED_UI_InterruptHandler(void){
     GetFPS();
 	MenuWindow* window = CurrentWindow;
 	// 如果当前有app任务在运行，则不处理菜单中断事件，但需要同步按键状态
-	if(app_task_is_active()){
+	if(s_app_is_active && s_app_is_active()){
 		OLED_UI_Key.Up = Key_GetUpStatus();
 		OLED_UI_Key.Down = Key_GetDownStatus();
 		OLED_UI_Key.Enter = Key_GetEnterStatus();

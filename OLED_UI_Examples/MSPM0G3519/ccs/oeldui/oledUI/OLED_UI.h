@@ -369,7 +369,12 @@ void RunFadeOut(void);
 void OLED_WindowDataDispose(void);
 void MoveMenuElements(void);
 void OLED_UI_MainLoop(void);
-void OLED_UI_InterruptHandler(void);     
+void OLED_UI_InterruptHandler(void);
+
+/* app 任务钩子：app 层通过 OLED_UI_SetAppHook 注册，UI 核心不再直接依赖 app 层 */
+typedef bool (*OLED_UI_AppIsActiveFn)(void);   // 返回 true 表示当前有 app 任务在运行
+typedef void (*OLED_UI_AppTickFn)(void);       // 驱动当前 app 任务运行一拍
+void OLED_UI_SetAppHook(OLED_UI_AppIsActiveFn is_active, OLED_UI_AppTickFn tick);
 
 
 

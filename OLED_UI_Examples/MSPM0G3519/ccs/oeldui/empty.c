@@ -21,6 +21,7 @@
 
 #include "app_bird_game.h"
 #include "app_dino_game.h"
+#include "app_task.h"
 
 extern bool ColorMode;
 extern bool OLED_UI_ShowFps;
@@ -97,7 +98,8 @@ int main(void)
 	// UI初始化
 	OLED_UI_Init(&MainMenuPage);
 
-
+	// 注册 app 任务钩子，使 OLED_UI 核心无需直接依赖 app 层
+	OLED_UI_SetAppHook(app_task_is_active, app_task_tick);
 
 	while (1)
 	{

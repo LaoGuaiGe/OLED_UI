@@ -13,17 +13,15 @@ fonts/
 ├── README.md                 ← 本文档
 ├── tools/                    ← 工具脚本
 │   ├── font_generator.py     ← 字库生成工具（带 GUI）
-│   └── unicode_to_gb2312_table.py  ← Unicode→GB2312 映射表生成脚本
+│   ├── unicode_to_gb2312_table.py  ← Unicode→GB2312 映射表生成脚本
+│   ├── merge_fonts.py        ← 合并字库工具（生成 ALL_FONTS.bin）
+│   └── flash_sender.py       ← 串口烧录工具（ACK 握手，支持高速）
 └── output/                   ← 生成产物（bin / 索引文件）
     ├── HZK12.bin             ← 12×12 字库
-    ├── HZK12.TXT             ← 12×12 索引
     ├── HZK16.bin             ← 16×16 字库
-    ├── HZK16.TXT             ← 16×16 索引
     ├── HZK20.bin             ← 20×20 字库
-    ├── HZK20.TXT             ← 20×20 索引
     ├── unicode_gb2312_map.bin← Unicode→GB2312 映射表
-    ├── ARK-Pixel-12.bin      ← 备用：方舟像素 12×12 字库
-    └── ARK-Pixel-20.bin      ← 备用：方舟像素 20×20 字库
+    └── ALL_FONTS.bin         ← 合并字库（一次性烧录用，~991KB）
 ```
 
 ## 字模格式规范
@@ -117,7 +115,48 @@ python unicode_to_gb2312_table.py
 
 ## 烧录步骤
 
-### 串口工具设置（SSCOM V5.13.1）
+### 方式一：Python 脚本高速烧录（推荐，115200 baud）
+
+依赖：Python 3 + pyserial
+
+```bash
+pip install pyserial
+```
+
+**一次性烧录全部字库（推荐）：**
+
+1. 生成合并字库文件（如果 output 下已有 ALL_FONTS.bin 可跳过）：
+   ```bash
+   cd fonts/tools
+   python merge_fonts.py
+   ```
+
+2. `empty.c` 中取消注释 `font_burner_all_run();`，编译烧录
+
+3. 运行发送脚本，然后**按复位键**让设备重启：
+   ```bash
+   python fonts/tools/flash_sender.py fonts/output/ALL_FONTS.bin COM3 115200
+   ```
+   脚本会自动等待 `READY`、握手、逐页发送并显示进度。
+
+4. 烧录完成后注释回 `font_burner_all_run();`，编译烧录正常固件
+
+| 文件 | 大小 | 115200 耗时 |
+|------|------|-------------|
+| ALL_FONTS.bin | 991 KB | ~95 秒 |
+
+**单独烧录某个字库：**
+
+```bash
+# 取消注释对应的 font_burner_xxx_run()，编译烧录后：
+python fonts/tools/flash_sender.py fonts/output/HZK20.bin COM3 115200
+```
+
+> **注意：** 脚本启动后显示"等待设备就绪"时，按一下开发板**复位键**，设备重启后脚本自动开始。
+
+### 方式二：串口工具直接发送（9600 baud，兼容旧方式）
+
+固件兼容无握手的直接发送方式。串口工具设置：
 
 - 波特率 9600
 - 取消勾选 RTS 和 DTR
@@ -125,9 +164,7 @@ python unicode_to_gb2312_table.py
 - 取消勾选加时间戳、分包显示、加回车换行
 - 发送 → 发送文件延迟设置 → 连续发送
 
-### 烧录流程
-
-在 `empty.c` 中，每次只取消一个烧录函数的注释，编译下载运行，串口打印 `READY` 后发送对应 bin 文件，完成后打印 `Done!`，再注释回来进行下一步。
+在 `empty.c` 中每次只取消一个烧录函数的注释，编译下载运行，串口打印 `READY` 后发送对应 bin 文件，完成后打印 `Done!`。
 
 | 步骤 | 取消注释的函数 | 发送的文件 | 大小 | 约耗时 |
 |------|--------------|-----------|------|--------|
@@ -135,6 +172,7 @@ python unicode_to_gb2312_table.py
 | 2 | `font_burner_hzk12_run()` | `output/HZK12.bin` | 192 KB | ~3.5 分钟 |
 | 3 | `font_burner_hzk20_run()` | `output/HZK20.bin` | 480 KB | ~8.5 分钟 |
 | 4 | `font_burner_map_run()` | `output/unicode_gb2312_map.bin` | 42 KB | ~45 秒 |
+| 全部 | `font_burner_all_run()` | `output/ALL_FONTS.bin` | 991 KB | ~17 分钟 |
 
 ## 显示测试
 

@@ -46,8 +46,9 @@ int main(void)
 	/*=== 字库烧录模式（每次只取消一个注释，烧录完再注释回来）===*/
 	// font_burner_hzk16_run();   // 烧录 HZK16 字库 (发送 HZK16.bin)
 	// font_burner_hzk12_run();   // 烧录 HZK12 字库 (发送 HZK12.bin)
-	// font_burner_hzk20_run();   // 烧录 HZK20 字库 (发送 HZK20.bin)               
+	// font_burner_hzk20_run();   // 烧录 HZK20 字库 (发送 HZK20.bin)
 	// font_burner_map_run();     // 烧录 Unicode→GB2312 映射表 (发送 unicode_gb2312_map.bin)
+	// font_burner_all_run();     // 一次性烧录全部字库 (发送 ALL_FONTS.bin, ~991KB)
 
 	// 蜂鸣器初始化
 	Beeper_Init();

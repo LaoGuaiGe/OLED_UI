@@ -7,5 +7,6 @@ void font_burner_hzk16_run(void);   // 烧录 HZK16 (发送 HZK16.bin)
 void font_burner_hzk12_run(void);   // 烧录 HZK12 (发送 HZK12.bin)
 void font_burner_hzk20_run(void);   // 烧录 HZK20 (发送 HZK20.bin)
 void font_burner_map_run(void);     // 烧录 Unicode→GB2312 映射表
+void font_burner_all_run(void);     // 一次性烧录全部字库 (发送 ALL_FONTS.bin)
 
 #endif

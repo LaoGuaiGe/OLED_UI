@@ -157,10 +157,10 @@ typedef struct {
 | 外部晶振 HFXIN | PA5 | 40MHz 外部晶振输入 |
 | 外部晶振 HFXOUT | PA6 | 40MHz 外部晶振输出 |
 | WS2812 RGB灯 | PB26 | PWM (TIMA1) WS2812 RGB灯带控制 |
-| SPI Flash CS | PB6 | W25Q128 片选引脚 |
-| SPI Flash SCLK | PB9 | W25Q128 SPI时钟引脚 |
-| SPI Flash MOSI | PB8 | W25Q128 SPI数据输出引脚 |
-| SPI Flash MISO | PB7 | W25Q128 SPI数据输入引脚 |
+| SPI Flash CS | PB6 | W25Q64 片选引脚 |
+| SPI Flash SCLK | PB9 | W25Q64 SPI时钟引脚 |
+| SPI Flash MOSI | PB8 | W25Q64 SPI数据输出引脚 |
+| SPI Flash MISO | PB7 | W25Q64 SPI数据输入引脚 |
 | 指示灯 | PB22 | 低电平亮指示灯 |
 
 ## 编码器系统
@@ -180,14 +180,26 @@ typedef struct {
 
 ## 字库烧录
 
-W25Q128 Flash 支持存储外部中文字库，通过串口烧录。在 `empty.c` 中取消对应注释即可进入烧录模式：
+W25Q64 Flash 支持存储外部中文字库，通过串口烧录。在 `empty.c` 中取消对应注释即可进入烧录模式：
 
 ```c
 // font_burner_hzk16_run();   // 烧录 HZK16 字库 (发送 HZK16.bin)
 // font_burner_hzk12_run();   // 烧录 HZK12 字库 (发送 HZK12.bin)
 // font_burner_hzk20_run();   // 烧录 HZK20 字库 (发送 HZK20.bin)
 // font_burner_map_run();     // 烧录 Unicode→GB2312 映射表
+// font_burner_all_run();     // 一次性烧录全部字库 (发送 ALL_FONTS.bin, ~991KB)
 ```
+
+**推荐方式：Python 脚本高速烧录（115200 baud，ACK 握手）**
+
+```bash
+pip install pyserial
+# 取消注释 font_burner_all_run()，编译烧录后：
+python fonts/tools/flash_sender.py fonts/output/ALL_FONTS.bin COM3 115200
+# 脚本启动后按复位键，自动开始，约 95 秒完成
+```
+
+也兼容 9600 baud 串口工具直接发送（无需脚本）。详见 `fonts/README.md`。
 
 字库文件位于 `fonts/output/` 目录。烧录后使用 `OLED_ShowChineseExt()` / `OLED_ShowMixStringExt()` 显示中文。
 
@@ -238,11 +250,17 @@ oeldui/
 │   ├── mid_font_burner.c/h       # 字库烧录
 │   └── Fusion*.c/h               # IMU姿态融合算法
 ├── fonts/                        # 字库文件
+│   ├── tools/
+│   │   ├── font_generator.py     # 字库生成工具（带 GUI）
+│   │   ├── merge_fonts.py        # 合并字库工具（生成 ALL_FONTS.bin）
+│   │   ├── flash_sender.py       # 串口烧录工具（ACK 握手，支持高速）
+│   │   └── unicode_to_gb2312_table.py  # Unicode→GB2312 映射表生成
 │   └── output/
 │       ├── HZK12.bin             # 12x12 中文字库
 │       ├── HZK16.bin             # 16x16 中文字库
 │       ├── HZK20.bin             # 20x20 中文字库
-│       └── unicode_gb2312_map.bin # Unicode→GB2312 映射表
+│       ├── unicode_gb2312_map.bin # Unicode→GB2312 映射表
+│       └── ALL_FONTS.bin         # 合并字库（一次性烧录用，~991KB）
 └── empty.c                       # 主入口（main函数）
 ```
 
@@ -278,11 +296,12 @@ OLED 驱动提供以下绘图原语，所有操作在显存缓冲区进行，调
 
 ## 移植建议
 
-- OLED_UI 框架与硬件解耦，移植时只需替换 `OLED_driver.c` 中的 I2C 底层实现
-- 按键部分替换 `app_key_task.c` 中的 GPIO 读取即可
-- 编码器部分根据目标平台保留或移除 `hw_encoder_*.c`，并通过 `USE_QEI_ENCODER` 选择后端
-- 菜单数据（`OLED_UI_MenuData.c`）可根据需求自由增删
-- 详细的移植步骤和菜单创建教程请参考 [OLED_UI 根目录 README](../../../../README.md)
+本工程经过解耦重构，oledUI 核心零芯片依赖，换芯片时改动收口到少数文件。
+
+简要：
+- 换芯片只需改：SysConfig 重新生成 + `hardware/hw_*.c` 的 DriverLib 调用 + `oledUI/OLED_UI_Driver.c` 接线点
+- 单独抽取 `oledUI/` 目录：整目录拷出 + 实现 `OLED_UI_Driver.h` 中声明的适配函数即可
+- 菜单数据（`OLED_UI_MenuData.c`）按需求自由增删
 
 OLED_UI 框架支持的屏幕型号：
 
@@ -371,10 +390,10 @@ Menu control via two buttons + rotary encoder:
 | HFXIN | PA5 | 40MHz external crystal input |
 | HFXOUT | PA6 | 40MHz external crystal output |
 | WS2812 RGB LED | PB26 | PWM (TIMA1) RGB LED strip |
-| SPI Flash CS | PB6 | W25Q128 chip select |
-| SPI Flash SCLK | PB9 | W25Q128 SPI clock |
-| SPI Flash MOSI | PB8 | W25Q128 SPI data out |
-| SPI Flash MISO | PB7 | W25Q128 SPI data in |
+| SPI Flash CS | PB6 | W25Q64 chip select |
+| SPI Flash SCLK | PB9 | W25Q64 SPI clock |
+| SPI Flash MOSI | PB8 | W25Q64 SPI data out |
+| SPI Flash MISO | PB7 | W25Q64 SPI data in |
 | Indicator LED | PB22 | Active-low debug LED |
 
 ## Drawing API Overview

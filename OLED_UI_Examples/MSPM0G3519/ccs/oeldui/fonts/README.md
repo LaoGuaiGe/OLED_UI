@@ -1,7 +1,8 @@
 # 外部 Flash 字库 — 生成、烧录与使用
+
 ## 概述
 
-本方案将 HZK12/HZK16/HZK20 点阵字库烧录到外部 W25Q128 SPI Flash，
+本方案将 HZK12/HZK16/HZK20 点阵字库烧录到外部 W25Q64 SPI Flash，
 显示时从 Flash 读取字模数据，从而节省 MCU 内部 Flash 空间。
 
 同时支持 Unicode→GB2312 映射表，使得源文件保持 UTF-8 编码也能直接写中文字符串。
@@ -26,12 +27,12 @@ fonts/
 
 ## 字模格式规范
 
-| 项目 | 说明 |
-|------|------|
+| 项目   | 说明                                       |
+| ---- | ---------------------------------------- |
 | 编码标准 | GB2312-80，87 区（0xA1–0xF7）× 94 位 = 8178 字 |
-| 点阵格式 | 阴码（1 = 像素亮） |
-| 取模方式 | 列行式（按页组织，每页 8 行，页内逐列存储） |
-| 取模走向 | 逆向 / 低位在前（bit0 = 页内最上行，bit7 = 页内最下行） |
+| 点阵格式 | 阴码（1 = 像素亮）                              |
+| 取模方式 | 列行式（按页组织，每页 8 行，页内逐列存储）                  |
+| 取模走向 | 逆向 / 低位在前（bit0 = 页内最上行，bit7 = 页内最下行）     |
 
 ### 字节布局示意
 
@@ -49,11 +50,11 @@ fonts/
 
 ### 各字号参数
 
-| 字号 | 像素 | 页数 | 每字字节 | 总字符 | bin 文件大小 |
-|------|------|------|---------|--------|-------------|
-| 12 | 12×12 | 2 | 24 | 8178 | 196,274 字节 |
-| 16 | 16×16 | 2 | 32 | 8178 | 261,698 字节 |
-| 20 | 20×20 | 3 | 60 | 8178 | 490,682 字节 |
+| 字号 | 像素    | 页数 | 每字字节 | 总字符  | bin 文件大小   |
+| -- | ----- | -- | ---- | ---- | ---------- |
+| 12 | 12×12 | 2  | 24   | 8178 | 196,274 字节 |
+| 16 | 16×16 | 2  | 32   | 8178 | 261,698 字节 |
+| 20 | 20×20 | 3  | 60   | 8178 | 490,682 字节 |
 
 > bin 文件末尾有 2 字节 0x00 padding，兼容 PCtoLCD2002 格式。
 
@@ -63,15 +64,15 @@ fonts/
 uint32_t offset = ((high - 0xA1) * 94 + (low - 0xA1)) * char_size;
 ```
 
-## Flash 地址分配（W25Q128）
+## Flash 地址分配（W25Q64）
 
-| 区域 | 起始地址 | 结束地址 | 大小 |
-|------|---------|---------|------|
-| HZK16 字库 | `0x000000` | `0x03FFFF` | 256 KB |
-| Unicode→GB2312 映射表 | `0x040000` | `0x04A3FF` | ~42 KB |
-| HZK12 字库 | `0x050000` | `0x07FFFF` | 192 KB |
-| HZK20 字库 | `0x080000` | `0x0FFFFF` | 512 KB |
-| 系统参数 | `0xFFF000` | `0xFFFFFF` | 4 KB |
+| 区域                 | 起始地址       | 结束地址       | 大小      |
+| ------------------ | ---------- | ---------- | ------- |
+| HZK16 字库           | `0x000000` | `0x03FFFF` | 256 KB  |
+| Unicode→GB2312 映射表 | `0x040000` | `0x04A3FF` | \~42 KB |
+| HZK12 字库           | `0x050000` | `0x07FFFF` | 192 KB  |
+| HZK20 字库           | `0x080000` | `0x0FFFFF` | 512 KB  |
+| 系统参数               | `0xFFF000` | `0xFFFFFF` | 4 KB    |
 
 ## 字库生成
 
@@ -86,6 +87,7 @@ python font_generator.py
 ```
 
 工具功能：
+
 - 自动扫描 Windows 系统字体，优先选择宋体/黑体
 - 支持手动浏览选择 .ttf / .ttc / .otf 字体文件
 - 字体下拉框支持键盘上下键快速切换，实时预览
@@ -125,25 +127,22 @@ pip install pyserial
 
 **一次性烧录全部字库（推荐）：**
 
-1. 生成合并字库文件（如果 output 下已有 ALL_FONTS.bin 可跳过）：
+1. 生成合并字库文件（如果 output 下已有 ALL\_FONTS.bin 可跳过）：
    ```bash
    cd fonts/tools
    python merge_fonts.py
    ```
-
 2. `empty.c` 中取消注释 `font_burner_all_run();`，编译烧录
-
 3. 运行发送脚本，然后**按复位键**让设备重启：
    ```bash
    python fonts/tools/flash_sender.py fonts/output/ALL_FONTS.bin COM3 115200
    ```
    脚本会自动等待 `READY`、握手、逐页发送并显示进度。
-
 4. 烧录完成后注释回 `font_burner_all_run();`，编译烧录正常固件
 
-| 文件 | 大小 | 115200 耗时 |
-|------|------|-------------|
-| ALL_FONTS.bin | 991 KB | ~95 秒 |
+| 文件             | 大小     | 115200 耗时 |
+| -------------- | ------ | --------- |
+| ALL\_FONTS.bin | 991 KB | \~95 秒    |
 
 **单独烧录某个字库：**
 
@@ -166,13 +165,13 @@ python fonts/tools/flash_sender.py fonts/output/HZK20.bin COM3 115200
 
 在 `empty.c` 中每次只取消一个烧录函数的注释，编译下载运行，串口打印 `READY` 后发送对应 bin 文件，完成后打印 `Done!`。
 
-| 步骤 | 取消注释的函数 | 发送的文件 | 大小 | 约耗时 |
-|------|--------------|-----------|------|--------|
-| 1 | `font_burner_hzk16_run()` | `output/HZK16.bin` | 256 KB | ~4.5 分钟 |
-| 2 | `font_burner_hzk12_run()` | `output/HZK12.bin` | 192 KB | ~3.5 分钟 |
-| 3 | `font_burner_hzk20_run()` | `output/HZK20.bin` | 480 KB | ~8.5 分钟 |
-| 4 | `font_burner_map_run()` | `output/unicode_gb2312_map.bin` | 42 KB | ~45 秒 |
-| 全部 | `font_burner_all_run()` | `output/ALL_FONTS.bin` | 991 KB | ~17 分钟 |
+| 步骤 | 取消注释的函数                   | 发送的文件                           | 大小     | 约耗时      |
+| -- | ------------------------- | ------------------------------- | ------ | -------- |
+| 1  | `font_burner_hzk16_run()` | `output/HZK16.bin`              | 256 KB | \~4.5 分钟 |
+| 2  | `font_burner_hzk12_run()` | `output/HZK12.bin`              | 192 KB | \~3.5 分钟 |
+| 3  | `font_burner_hzk20_run()` | `output/HZK20.bin`              | 480 KB | \~8.5 分钟 |
+| 4  | `font_burner_map_run()`   | `output/unicode_gb2312_map.bin` | 42 KB  | \~45 秒   |
+| 全部 | `font_burner_all_run()`   | `output/ALL_FONTS.bin`          | 991 KB | \~17 分钟  |
 
 ## 显示测试
 
@@ -208,11 +207,11 @@ OLED_ShowMixStringAreaExt(RangeX, RangeY, RangeW, RangeH, X, Y, String, chineseF
 
 ### 字号与 ASCII 字体对应
 
-| 中文字号 | ASCII 字体 |
-|---------|-----------|
-| 12 | `OLED_7X12_HALF` |
-| 16 | `OLED_8X16_HALF` |
-| 20 | `OLED_10X20_HALF` |
+| 中文字号 | ASCII 字体          |
+| ---- | ----------------- |
+| 12   | `OLED_7X12_HALF`  |
+| 16   | `OLED_8X16_HALF`  |
+| 20   | `OLED_10X20_HALF` |
 
 ### 底层读取
 
@@ -222,10 +221,11 @@ ExtFont_ReadChinese(uint8_t high, uint8_t low, uint8_t *buf, uint8_t fontSize);
 
 ## 涉及源文件
 
-| 文件 | 说明 |
-|------|------|
-| `hardware/hw_w25qxx.c/.h` | Flash 驱动，含字库地址宏定义 |
-| `middle/mid_font_burner.c/.h` | 串口烧录模块 |
-| `oledUI/oled_ext_font.c/.h` | 外部字库读取与显示 |
-| `oledUI/OLED_Fonts.c/.h` | 内置字体（ASCII + 少量中文） |
-| `empty.c` | 主程序入口（烧录/测试代码） |
+| 文件                            | 说明                 |
+| ----------------------------- | ------------------ |
+| `hardware/hw_w25qxx.c/.h`     | Flash 驱动，含字库地址宏定义  |
+| `middle/mid_font_burner.c/.h` | 串口烧录模块             |
+| `oledUI/oled_ext_font.c/.h`   | 外部字库读取与显示          |
+| `oledUI/OLED_Fonts.c/.h`      | 内置字体（ASCII + 少量中文） |
+| `empty.c`                     | 主程序入口（烧录/测试代码）     |
+
